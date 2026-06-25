@@ -1,0 +1,271 @@
+DELIMITER //
+
+CREATE PROCEDURE sp_guardar_cliente (
+    IN p_idcliente INT,
+    IN p_nombre_cliente VARCHAR(100),
+    IN p_tipo_documento_cliente VARCHAR(20),
+    IN p_nit VARCHAR(20),
+    IN p_direccion_cliente VARCHAR(255),
+    IN p_telefono_cliente VARCHAR(20),
+    IN p_correo_cliente VARCHAR(100),
+    IN p_fecha_creacion DATETIME,
+    IN p_idsucursal INT,
+    OUT p_residcliente INT
+)
+BEGIN
+    DECLARE v_codigo_cliente VARCHAR(20);
+    DECLARE v_correlativo INT;
+    DECLARE v_existente_codigo_cliente VARCHAR(20);
+
+    IF p_idcliente = 0 THEN
+        -- Generar nuevo correlativo
+        UPDATE add_correlativo SET codigo_cliente = codigo_cliente + 1 WHERE idsucursal = p_idsucursal;
+
+        SELECT codigo_cliente INTO v_correlativo 
+        FROM add_correlativo 
+        WHERE idsucursal = p_idsucursal;
+
+        SET v_codigo_cliente = CONCAT('COD', v_correlativo);
+
+        -- Insertar nuevo cliente
+        INSERT INTO persona (
+            tipo_persona, nombre, tipo_documento, num_documento,
+            direccion, telefono, email, tipo_cliente, codigo_cliente, fechaCreacion
+        ) VALUES (
+            'Proveedor', p_nombre_cliente, p_tipo_documento_cliente, p_nit,
+            p_direccion_cliente, p_telefono_cliente, p_correo_cliente,
+            'PUBLICO', v_codigo_cliente, p_fecha_creacion
+        );
+
+        SET p_residcliente = LAST_INSERT_ID();
+
+    ELSE
+        -- Revisar si ya tiene código
+        SELECT codigo_cliente INTO v_existente_codigo_cliente
+        FROM persona
+        WHERE idpersona = p_idcliente;
+
+        IF v_existente_codigo_cliente IS NULL OR v_existente_codigo_cliente = '' OR v_existente_codigo_cliente = '0' THEN
+            -- Generar nuevo código si no tiene
+            UPDATE add_correlativo SET codigo_cliente = codigo_cliente + 1 WHERE idsucursal = p_idsucursal;
+
+            SELECT codigo_cliente INTO v_correlativo 
+            FROM add_correlativo 
+            WHERE idsucursal = p_idsucursal;
+
+            SET v_codigo_cliente = CONCAT('COD', v_correlativo);
+
+            UPDATE persona 
+            SET codigo_cliente = v_codigo_cliente 
+            WHERE idpersona = p_idcliente;
+        END IF;
+
+        -- Actualizar datos
+        UPDATE persona SET
+            direccion = p_direccion_cliente,
+            telefono = p_telefono_cliente,
+            email = p_correo_cliente,
+            tipo_documento = p_tipo_documento_cliente,
+            nombre = p_nombre_cliente
+        WHERE idpersona = p_idcliente;
+
+        SET p_residcliente = p_idcliente;
+    END IF;
+END;
+//
+
+DELIMITER ;
+
+
+DELIMITER //
+
+CREATE PROCEDURE sp_actualizar_stock_y_registrar_operacion_ingreso (
+    IN p_idarticulo INT,
+    IN p_totalcantidadpresentacion DECIMAL(10,2),
+    IN p_precio_compra DECIMAL(10,2),
+    IN p_precio_venta DECIMAL(10,2),
+    IN p_precio_ventaNocturno DECIMAL(10,2),
+    IN p_precio_rango1 DECIMAL(10,2),
+    IN p_precio_rango2 DECIMAL(10,2),
+    IN p_precio_rango3 DECIMAL(10,2),
+    IN p_precio_unidad DECIMAL(10,2),
+    IN p_precio_blister DECIMAL(10,2),
+    IN p_precio_caja DECIMAL(10,2),
+    IN p_precio_fardo DECIMAL(10,2),
+    IN p_precio_sacos DECIMAL(10,2),
+    IN p_precio_paquete DECIMAL(10,2),
+    IN p_stockinven DECIMAL(10,2),
+    IN p_idingreso INT,
+    IN p_fechaHora DATETIME,
+    IN p_fechavencimiento DATE,
+    IN p_idusuario INT,
+    IN p_idsucursal INT
+)
+BEGIN
+    DECLARE v_tipo_producto VARCHAR(50);
+    DECLARE v_stocksucursal_anterior DECIMAL(10,2);
+    DECLARE v_pc_anterior DECIMAL(10,2);
+    DECLARE v_pc_nuevo DECIMAL(10,2);
+
+    -- Verificar tipo de producto
+    SELECT tipo_producto INTO v_tipo_producto
+    FROM articulo
+    WHERE idarticulo = p_idarticulo;
+
+    IF v_tipo_producto != 'Servicios' AND v_tipo_producto != 'Combos' THEN
+
+        -- Obtener stock anterior y precio anterior
+        SELECT stocksucursal, precio_compra INTO v_stocksucursal_anterior, v_pc_anterior
+        FROM articuloxsucursal
+        WHERE idarticulo = p_idarticulo AND idsucursal = p_idsucursal;
+
+        -- Calcular nuevo precio ponderado
+        IF (p_totalcantidadpresentacion + p_stockinven) != 0 THEN
+            SET v_pc_nuevo = (
+                (v_stocksucursal_anterior * v_pc_anterior) + 
+                (p_totalcantidadpresentacion * p_precio_compra)
+            ) / (p_totalcantidadpresentacion + p_stockinven);
+        ELSE
+            SET v_pc_nuevo = p_precio_compra;
+        END IF;
+
+        -- Actualizar articuloxsucursal
+        UPDATE articuloxsucursal SET 
+            stocksucursal = stocksucursal + p_totalcantidadpresentacion,
+            precio_compra = v_pc_nuevo,
+            precio_venta = p_precio_venta,
+            precio_ventaNocturno = p_precio_ventaNocturno,
+            precio_rango1 = p_precio_rango1,
+            precio_rango2 = p_precio_rango2,
+            precio_rango3 = p_precio_rango3,
+            precio_unidad = p_precio_unidad,
+            precio_blister = p_precio_blister,
+            precio_caja = p_precio_caja,
+            precio_fardo = p_precio_fardo,
+            precio_sacos = p_precio_sacos,
+            precio_paquete = p_precio_paquete
+        WHERE idarticulo = p_idarticulo AND idsucursal = p_idsucursal;
+
+    END IF;
+
+    -- Registrar en operaciones_compras_ventas
+    INSERT INTO operaciones_compras_ventas (
+        idingreso, idventa, idtraladosucursal, idtraladosucursal_entrada,
+        iddevolucion, cantidad_compras, cantidad_ventas, cantidad_entrada,
+        cantidad_devolucion, cantidad_salida, stock_inventario, fecha_horaCreacion,
+        idarticulo, idusuario, idsucursal, estado, fecha_vencimiento, saldo
+    ) VALUES (
+        p_idingreso, 0, 0, 0,
+        0, p_totalcantidadpresentacion, 0, 0,
+        0, 0, p_stockinven, p_fechaHora,
+        p_idarticulo, p_idusuario, p_idsucursal, 'Aceptado', p_fechavencimiento, p_totalcantidadpresentacion
+    );
+END;
+//
+
+DELIMITER ;
+
+CREATE OR REPLACE VIEW vista_articulos_disponibles AS
+SELECT 
+    asu.idarticulo,
+    CONCAT(a.nombre, ' ', a.descripcion) AS nombre,
+    a.idcategoria,
+    c.nombre AS categoria,
+    a.idsubcategoria,
+    a.descripcion,
+    a.imagen,
+    a.codigo,
+    a.tipo_producto,
+    a.idusuario,
+    a.aplica_comision,
+    asu.idsucursal,
+    asu.stocksucursal AS stock,
+    asu.stockminimo,
+    asu.precio_compra,
+    asu.precio_venta,
+    asu.precio_ventaNocturno,
+    asu.descuento_porcentaje,
+    asu.precio_descuento,
+    asu.precio_rango1,
+    asu.precio_rango2,
+    asu.precio_rango3,
+    asu.stock_unidad,
+    asu.precio_unidad,
+    asu.stock_blister,
+    asu.precio_blister,
+    asu.stock_caja,
+    asu.precio_caja,
+    asu.stock_fardo,
+    asu.precio_fardo,
+    asu.stock_sacos,
+    asu.precio_sacos,
+    asu.stock_paquete,
+    asu.precio_paquete,
+    asu.condicion
+FROM articulo a  
+INNER JOIN articuloxsucursal asu ON a.idarticulo = asu.idarticulo
+INNER JOIN categoria c ON c.idcategoria = a.idcategoria
+WHERE asu.condicion = '1'  AND a.tipo_producto NOT IN ('Combos', 'Servicios');
+
+
+CREATE OR REPLACE VIEW vista_articulo_por_codigo AS
+SELECT 
+    asu.idarticulo,
+    a.nombre,
+    a.idcategoria,
+    a.idsubcategoria,
+    a.descripcion,
+    a.imagen,
+    a.codigo,
+    a.tipo_producto,
+    a.idusuario,
+    a.aplica_comision,
+    asu.idsucursal,
+    asu.stocksucursal AS stock,
+    asu.stockminimo,
+    asu.precio_compra,
+    asu.precio_ventaNocturno,
+    asu.descuento_porcentaje,
+    asu.stock_unidad,
+    asu.precio_unidad,
+    asu.stock_blister,
+    asu.precio_blister,
+    asu.stock_caja,
+    asu.precio_caja,
+    asu.stock_fardo,
+    asu.precio_fardo,
+    asu.stock_sacos,
+    asu.precio_sacos,
+    asu.stock_paquete,
+    asu.precio_paquete,
+    asu.precio_rango1,
+    asu.precio_rango1_Dos,  
+    asu.precio_rango2,
+    asu.precio_rango2_Dos,
+    asu.precio_rango3,
+    asu.precio_rango3_Dos,
+    asu.precio_rango1_Mecanico,
+    asu.precio_rango2_MecanicoDos,
+    asu.precio_rango3_MecanicoTres,
+    asu.precio_rango1_Distribuidor,
+    asu.precio_rango2_DistribuidorDos,
+    asu.precio_rango3_DistribuidorTres,
+    asu.precio_rango1_Mayorista,
+    asu.precio_rango2_MayoristaDos,
+    asu.precio_rango3_MayoristaTres,
+    c.nombre AS categoria,
+    CASE 
+        WHEN c.tipo_descuento = 'Porcentaje' THEN 
+            asu.precio_venta * (1 - c.valor_descuento / 100)
+        WHEN c.tipo_descuento = 'Quetzales' THEN 
+            asu.precio_venta - c.valor_descuento
+        ELSE 
+            asu.precio_venta
+    END AS precio_venta,
+    asu.precio_activado
+FROM articulo a 
+INNER JOIN articuloxsucursal asu ON a.idarticulo = asu.idarticulo
+INNER JOIN categoria c ON a.idcategoria = c.idcategoria
+WHERE asu.condicion = '1';
+
+

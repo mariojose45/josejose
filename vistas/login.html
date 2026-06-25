@@ -1,0 +1,233 @@
+
+<!DOCTYPE html>
+<html lang="es"> 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <title>SOL |Sistema de Operaciones en Linea</title>
+    <link rel="icon" type="image/png" href="favicon2.png" />  
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="../public/css/AdminLTE.min.css">
+    <!-- iCheck -->
+    <link rel="stylesheet" href="../public/css/blue.css">
+
+    <script>
+        // Deshabilitar clic derecho
+        document.addEventListener('contextmenu', function(e) {
+          e.preventDefault();
+        });
+    
+        // Deshabilitar teclas de desarrollo
+        document.addEventListener('keydown', function(e) {
+          if (e.keyCode == 123 || // F12
+            (e.ctrlKey && e.shiftKey && e.keyCode == 73) || // Ctrl+Shift+I
+            (e.ctrlKey && e.shiftKey && e.keyCode == 74) || // Ctrl+Shift+J
+            (e.ctrlKey && e.keyCode == 85)) { // Ctrl+U
+            e.preventDefault();
+          }
+        });
+      </script>
+
+    <!--Stylesheet-->
+    <style media="screen">
+          *,
+          *:before,
+          *:after{
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+        body{
+            margin: 0;
+            padding: 0;
+            height: 100vh; /* 100% del viewport height (altura de la ventana) */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: url('login/images/bg6.jpg'); /* Reemplaza 'ruta-de-tu-imagen.jpg' con la ruta correcta de tu imagen de fondo */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.8;
+
+        }
+        .background{
+            width: 430px;
+            height: 520px;
+            position: absolute;
+            transform: translate(-50%,-50%);
+            left: 50%;
+            top: 50%;
+        }
+        .background .shape{
+            height: 200px;
+            width: 200px;
+            position: absolute;
+            border-radius: 50%;
+        }
+        .shape:first-child{
+            background: linear-gradient(
+                #1845ad,
+                #23a2f6
+                );
+            left: -80px;
+            top: -80px;
+        }
+        .shape:last-child{
+            background: linear-gradient(
+                to right,
+                #ff512f,
+                #f09819
+                );
+            right: -30px;
+            bottom: -80px;
+        }
+        form{
+            height: 520px;
+            width: 400px;
+            background-color: rgba(0,0,0,0.80);
+            position: absolute;
+            transform: translate(-50%,-50%);
+            top: 50%;
+            left: 50%;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(0,0,0,0.1);
+            box-shadow: 0 0 40px rgba(8,7,16,0.6);
+            padding: 50px 35px;
+        }
+        form *{
+            font-family: 'Poppins',sans-serif;
+            color: #ffffff;
+            letter-spacing: 0.5px;
+            outline: none;
+            border: none;
+        }
+        form h3{
+            font-size: 32px;
+            font-weight: 500;
+            line-height: 42px;
+            text-align: center;
+        }
+
+        label{
+            display: block;
+            margin-top: 30px;
+            font-size: 16px;
+            font-weight: 500;
+        }
+        input{
+            display: block;
+            height: 50px;
+            width: 100%;
+            background-color: rgba(255,255,255,0.07);
+            border-radius: 3px;
+            padding: 0 10px;
+            margin-top: 8px;
+            font-size: 14px;
+            font-weight: 300;
+        }
+        ::placeholder{
+            color: #e5e5e5;
+        }
+        button{
+            margin-top: 50px;
+            width: 100%;
+            background-color: #ffffff;
+            color: #080710;
+            padding: 15px 0;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .social{
+          margin-top: 30px;
+          display: flex;
+          }
+        .social div{
+              background: red;
+              width: 150px;
+              border-radius: 3px;
+              padding: 5px 10px 10px 5px;
+              background-color: rgba(255,255,255,0.27);
+              color: #eaf0fb;
+              text-align: center;
+          }
+        .social div:hover{
+              background-color: rgba(255,255,255,0.47);
+          }
+        .social .fb{
+              margin-left: 25px;
+          }
+        .social i{
+              margin-right: 4px;
+          }
+          .fondoimagen {
+            opacity: 0.7;
+            background-image: url("login/images/bg6.jpg");
+          }
+    </style>
+</head>
+<body>
+    <div >
+            <div class="background">
+                <div class="shape"></div>
+                <div class="shape"></div>
+            </div>
+
+
+            <form name="frmAcceso" id="frmAcceso" method="post" autocomplete="off">
+                <h3>Bienvenido a SOL</h3>
+                <div class="form-group has-feedback">
+                    <input type="text" class="form-control" placeholder="Usuario" name="logina" id="logina" 
+                           maxlength="50" required 
+                           pattern="[a-zA-Z0-9@._-]+" 
+                           title="Solo se permiten letras, números y los caracteres @._-"
+                           autocomplete="off">
+                    <span class="glyphicon glyphicon-user form-control-feedback"></span>
+                </div>
+                <div class="form-group has-feedback">
+                    <input type="password" class="form-control" placeholder="Password" name="clavea" id="clavea" 
+                           maxlength="50" required 
+                           minlength="6"
+                           autocomplete="off">
+                    <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <button type="button" class="btn btn-primary btn-block btn-flat" id="btnIngresar">Iniciar Sesión</button>
+                    </div>
+                </div>
+                <div class="social">
+                    <div class="go"><a href="https://wa.me/message/7YVXI7SXI3VVJ1">  <i class="fab fa-whatsapp"></i>  WhatsApp </a></div>
+                    <div class="fb"><a href="https://www.facebook.com/compusisgt"> <i class="fab fa-facebook"></i>  Facebook </a></div>
+                  </div>                
+            </form>             
+            
+            
+            
+       
+    </div> 
+
+    <script src="../public/js/jquery-3.1.1.min.js"></script>
+    <!-- Bootstrap 3.3.7 -->
+    <script src="../public/js/bootstrap.min.js"></script>
+    <!-- Bootbox -->
+    <script src="../public/js/bootbox.min.js"></script> 
+    <!-- iCheck -->
+    <script src="../public/js/icheck.min.js"></script>
+    <script type="text/javascript" src="scripts/login.min.js"></script>
+
+</body>
+         
+</html> 
+
+

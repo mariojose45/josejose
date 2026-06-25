@@ -1,0 +1,55 @@
+CREATE TABLE `seguimiento` (
+	`idseguimiento` INT(11) NOT NULL AUTO_INCREMENT,
+	`idcliente` INT(11) NOT NULL DEFAULT '0',
+	`fecha` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	`tipo` VARCHAR(50) NOT NULL DEFAULT 'LLAMADA' COLLATE 'utf8mb4_general_ci',
+	`notas` TEXT NOT NULL COLLATE 'utf8mb4_general_ci',
+	`idusuario` INT(11) NOT NULL DEFAULT '0',
+	`idsucursal` INT(11) NOT NULL DEFAULT '0',
+	PRIMARY KEY (`idseguimiento`) USING BTREE,
+	INDEX `fk_seguimiento_cliente` (`idcliente`) USING BTREE,
+	CONSTRAINT `fk_seguimiento_cliente` FOREIGN KEY (`idcliente`) REFERENCES `persona` (`idpersona`) ON UPDATE RESTRICT ON DELETE CASCADE
+)
+COLLATE='utf8mb4_general_ci'
+ENGINE=InnoDB
+AUTO_INCREMENT=1
+;
+
+CREATE TABLE `evento` (
+	`idevento` INT(11) NOT NULL AUTO_INCREMENT,
+	`idcliente` INT(11) NULL DEFAULT NULL,
+	`titulo` VARCHAR(255) NULL DEFAULT NULL COLLATE 'utf8mb4_general_ci',
+	`descripcion` TEXT NULL DEFAULT NULL COLLATE 'utf8mb4_general_ci',
+	`fecha_evento` DATETIME NULL DEFAULT NULL,
+	`ubicacion` VARCHAR(255) NULL DEFAULT NULL COLLATE 'utf8mb4_general_ci',
+	`idusuario` INT(11) NULL DEFAULT NULL,
+	`idsucursal` INT(11) NULL DEFAULT NULL,
+	PRIMARY KEY (`idevento`) USING BTREE,
+	INDEX `idcliente` (`idcliente`) USING BTREE,
+	CONSTRAINT `evento_ibfk_1` FOREIGN KEY (`idcliente`) REFERENCES `persona` (`idpersona`) ON UPDATE RESTRICT ON DELETE RESTRICT
+)
+COLLATE='utf8mb4_general_ci'
+ENGINE=InnoDB
+AUTO_INCREMENT=1
+;
+
+
+CREATE TABLE `tarea` (
+	`idtarea` INT(11) NOT NULL AUTO_INCREMENT,
+	`idcliente` INT(11) NOT NULL,
+	`titulo` VARCHAR(255) NOT NULL COLLATE 'utf8mb4_general_ci',
+	`descripcion` TEXT NULL DEFAULT NULL COLLATE 'utf8mb4_general_ci',
+	`fecha_limite` DATE NOT NULL,
+	`completado` TINYINT(1) NULL DEFAULT '0',
+	`prioridad` ENUM('Alta','Media','Baja') NULL DEFAULT 'Media' COLLATE 'utf8mb4_general_ci',
+	`idusuario` INT(11) NOT NULL,
+	`idsucursal` INT(11) NOT NULL,
+	`fecha_creacion` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY (`idtarea`) USING BTREE,
+	INDEX `idcliente` (`idcliente`) USING BTREE,
+	CONSTRAINT `tarea_ibfk_1` FOREIGN KEY (`idcliente`) REFERENCES `persona` (`idpersona`) ON UPDATE RESTRICT ON DELETE RESTRICT
+)
+COLLATE='utf8mb4_general_ci'
+ENGINE=InnoDB
+AUTO_INCREMENT=1
+;

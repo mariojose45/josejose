@@ -1,0 +1,55 @@
+<?php
+
+ob_start();
+require_once __DIR__ . '/../config/SessionControl.php'; // ✅ esto controla el inicio y expiración de sesión
+
+
+require_once "../modelos/Rptctasxpagar_rangofechas.php";
+
+$rptctaxpagar = new Rptctaxpagar();
+
+
+switch ($_GET["op"]) {
+    case 'comprasfecha':
+        $fecha_inicio = $_REQUEST["fecha_inicio"];
+        $fecha_fin = $_REQUEST["fecha_fin"];
+
+        $rspta = $rptctaxpagar->comprasfecha($fecha_inicio, $fecha_fin);
+        //Vamos a declarar un array
+        $data = array();
+
+        while ($reg = $rspta->fetch_object()) {
+            $data[] = array(
+                "0" => $reg->idcta_pagar,
+                "1" => $reg->idingreso,
+                "2" => $reg->usuario,
+                "3" => $reg->proveedor,
+                "4" => $reg->idcuenta,
+                "5" => $reg->total_compra,
+                "6" => $reg->valor_pagar,
+                "7" => $reg->saldo_ingreso,
+                "8" => $reg->tipo_pago,
+                "9" => $reg->tipo_banco,
+                "10" => $reg->numero_boleta,
+                "11" => $reg->recibo_caja_numero,
+                "12" => $reg->no_cheque,
+                "13" => $reg->fechahorageneracionpago,
+                "14" => ($reg->estado == 'Pago Aplicado') ? '<span class="label bg-green">Pago Aplicado</span>' :
+                    '<span class="label bg-red">Pago con Saldo</span>'
+            );
+        }
+        $results = array(
+            "sEcho" => 1, //Información para el datatables
+            "iTotalRecords" => count($data), //enviamos el total registros al datatable
+            "iTotalDisplayRecords" => count($data), //enviamos el total registros a visualizar
+            "aaData" => $data
+        );
+        echo json_encode($results);
+
+        break;
+
+
+
+
+}
+?>

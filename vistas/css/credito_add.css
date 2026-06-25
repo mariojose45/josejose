@@ -1,0 +1,55 @@
+.modal-content {
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    background-color: #007bff;
+    color: white;
+    padding: 15px 20px;
+}
+
+.modal-title {
+    font-weight: 600;
+}
+
+.modal-body {
+    padding: 30px;
+    font-size: 1.95rem;
+}
+
+.detalle-item {
+    padding: 6px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.detalle-item strong {
+    min-width: 150px;
+    display: inline-block;
+    color: #495057;
+    font-weight: 500;
+}
+
+.detalle-item span {
+    color: #212529;
+    font-weight: 400;
+}
+
+.highlight {
+    background-color: #f8f9fa;
+    padding: 8px 10px;
+    margin: 5px 0;
+    border-radius: 5px;
+}
+
+.badge {
+    padding: 0.5em 0.8em;
+    font-size: 0.85em;
+    font-weight: 600;
+}
+
+.btn-close-white {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}

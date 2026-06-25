@@ -1,0 +1,212 @@
+/* nomina_empleado.css */
+
+/* ----------------------------------- */
+/* Estilos Globales y Contenedor Principal */
+/* ----------------------------------- */
+
+body {
+    /* Fondo limpio para el cuerpo, aunque AdminLTE ya gestiona el fondo del wrapper */
+    background-color: #f8f9fa; 
+    font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.content-wrapper {
+    /* Eliminar cualquier sombra o borde innecesario si AdminLTE lo añade por defecto */
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+/* ----------------------------------- */
+/* Estilos del Contenedor de la Caja (Box) */
+/* ----------------------------------- */
+
+.box {
+    border-radius: 8px; /* Bordes redondeados sutiles */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* Sombra sutil y elegante */
+    border-top: 3px solid #007bff; /* Color primario más moderno */
+    background-color: #ffffff;
+}
+
+.box-header {
+    border-bottom: 1px solid #e9ecef; /* Línea separadora suave */
+    padding: 15px 20px;
+}
+
+/* Encabezado Principal del Módulo */
+.box-header.bg-gray-light {
+    background-color: #f1f4f8 !important; /* Un gris muy claro y moderno */
+    border-bottom: none;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    padding: 20px 25px; /* Más espacio */
+}
+
+.box-title {
+    font-size: 1.8rem;
+    color: #343a40; /* Texto oscuro para contraste */
+}
+
+.box-header .text-muted {
+    font-size: 1rem;
+    color: #6c757d !important;
+    margin-top: 5px;
+}
+
+/* Encabezado del Listado */
+.box-header .box-title:not(.bg-gray-light .box-title) {
+    font-size: 1.5rem;
+    font-weight: 500;
+}
+
+/* ----------------------------------- */
+/* Estilos de Botones */
+/* ----------------------------------- */
+
+.btn-info {
+    background-color: #17a2b8;
+    border-color: #17a2b8;
+    transition: all 0.3s ease;
+    font-weight: 600;
+}
+
+.btn-info:hover {
+    background-color: #138496;
+    border-color: #138496;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+}
+
+.btn-lg {
+    padding: 10px 20px;
+    font-size: 1.1rem;
+}
+
+/* ----------------------------------- */
+/* Estilos de Formularios (Minimalistas) */
+/* ----------------------------------- */
+
+/* Contenedor del formulario */
+.panel-body {
+    padding: 25px;
+}
+
+label {
+    font-weight: 500; /* Ligeramente más grueso para legibilidad */
+    color: #495057;
+    margin-bottom: 5px;
+}
+
+.form-control {
+    border-radius: 4px;
+    border: 1px solid #ced4da; /* Borde más suave */
+    padding: 8px 12px;
+    height: auto; /* Ajuste para un diseño más limpio */
+    box-shadow: none; /* Eliminar sombras por defecto */
+    transition: border-color 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); /* Sombra de foco más suave */
+}
+
+/* Estilos para las secciones personalizadas */
+.custom-form-section {
+    padding-top: 15px;
+    margin-top: 20px;
+    /* Un ligero borde superior para separar las secciones */
+    border-top: 1px solid #f1f4f8; 
+}
+
+.custom-form-section:first-child {
+    border-top: none;
+    margin-top: 0;
+    padding-top: 0;
+}
+
+.custom-form-section h4 {
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.custom-hr {
+    border: 0;
+    border-top: 1px solid #dee2e6; /* Línea separadora suave */
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+/* ----------------------------------- */
+/* Estilos de la Tabla (DataTables) */
+/* ----------------------------------- */
+
+.table {
+    margin-bottom: 0;
+}
+
+#tbllistadox th {
+    background-color: #e9ecef; /* Fondo claro para la cabecera */
+    color: #495057;
+    font-weight: 600;
+    border-color: #dee2e6;
+}
+
+#tbllistadox thead th {
+    border-bottom: 2px solid #dee2e6;
+}
+
+#tbllistadox td {
+    vertical-align: middle;
+    border-top: 1px solid #e9ecef; /* Línea divisoria muy ligera */
+}
+
+/* Estilo hover minimalista */
+#tbllistadox.table-hover tbody tr:hover {
+    background-color: #f8f9fa; 
+}
+
+/* Botones en la columna de Opciones */
+#tbllistadox .btn {
+    margin: 2px;
+    padding: 5px 10px;
+    font-size: 0.85rem;
+}
+
+/* Ajuste para el div table-responsive */
+.panel-body.table-responsive {
+    padding: 15px;
+}
+
+/* Alineación de botones de guardar/cancelar */
+.mt-4 {
+    margin-top: 1.5rem !important;
+}
+
+/* Footer de la caja */
+.box-footer {
+    border-top: 1px solid #e9ecef;
+    padding: 15px 20px;
+}
