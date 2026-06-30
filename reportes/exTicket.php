@@ -103,7 +103,7 @@ $conletrasresultado = num2letras($conletras);
     
     foreach ($productos_principales as $p) {
         echo "<tr>";
-        echo "<td class='desc'>".$p->articulo." / ".$p->presen." / ".$p->descripcion_detalle."</td>";
+        echo "<td class='desc'>".$p->articulo."</td>";
         echo "<td class='cant'>".$p->cantidad."</td>";
         echo "<td class='pu'>".number_format($p->q_ref, 2)."</td>";
         echo "<td class='sub'>Q ".number_format($p->subtotal, 2)."</td>";

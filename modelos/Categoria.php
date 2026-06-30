@@ -70,7 +70,7 @@ class Categoria
     //Implementar un método para listar los registros
     public function listar()
     {
-        $sql = "SELECT * FROM categoria";
+        $sql = "SELECT * FROM categoria WHERE condicion = '1'";
         return ejecutarConsulta($sql);
     }
     //Implementar un método para listar los registros y mostrar en el select

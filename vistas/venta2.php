@@ -302,8 +302,8 @@ if (!isset($_SESSION["nombre"])) {
                             <div class="form-group col-lg-6 col-md-12 col-sm-12 col-xs-12">
                               <label>Productos(*):</label>
                               <select name="forma_productos" id="forma_productos" class="form-control selectpicker" required="">
-                              <option value="Agrupado">Agrupado</option>
                               <option value="Detallado">Detallado</option>
+                              <option value="Agrupado">Agrupado</option>
                               </select> 
                             </div>  
                             <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
