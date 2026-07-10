@@ -11,15 +11,19 @@ $persona=new Persona();
 $idpersona=isset($_POST["idpersona"])? limpiarCadena($_POST["idpersona"]):"";
 $tipo_persona=isset($_POST["tipo_persona"])? limpiarCadena($_POST["tipo_persona"]):"";
 $nombre=isset($_POST["nombre"])? limpiarCadena($_POST["nombre"]):"";
+$nombre_comercial=isset($_POST["nombre_comercial"])? limpiarCadena($_POST["nombre_comercial"]):"";
 $tipo_documento=isset($_POST["tipo_documento"])? limpiarCadena($_POST["tipo_documento"]):"";
 $num_documento=isset($_POST["num_documento"])? limpiarCadena($_POST["num_documento"]):"";
 $direccion=isset($_POST["direccion"])? limpiarCadena($_POST["direccion"]):"";
+$direccion_comercial=isset($_POST["direccion_comercial"])? limpiarCadena($_POST["direccion_comercial"]):"";
 $telefono=isset($_POST["telefono"])? limpiarCadena($_POST["telefono"]):"";
 $email=isset($_POST["email"])? limpiarCadena($_POST["email"]):"";
-$tipo_cliente=isset($_POST["tipo_cliente"])? limpiarCadena($_POST["tipo_cliente"]):"";
-$ubicacioncliente=isset($_POST["ubicacioncliente"])? limpiarCadena($_POST["ubicacioncliente"]):"";
 $trabajo=isset($_POST["trabajo"])? limpiarCadena($_POST["trabajo"]):"";
 $idsector=isset($_POST["idsector"])? limpiarCadena($_POST["idsector"]):"";
+$idruta=isset($_POST["idruta"])? limpiarCadena($_POST["idruta"]):"";
+$tipo_cliente=isset($_POST["tipo_cliente"])? limpiarCadena($_POST["tipo_cliente"]):"";
+$codigo_cliente=isset($_POST["codigo_cliente"])? limpiarCadena($_POST["codigo_cliente"]):"";
+$ubicacioncliente=isset($_POST["ubicacioncliente"])? limpiarCadena($_POST["ubicacioncliente"]):"";
 $descuento_cliente=isset($_POST["descuento_cliente"])? limpiarCadena($_POST["descuento_cliente"]):"";
  
 switch ($_GET["op"]){
@@ -34,6 +38,20 @@ switch ($_GET["op"]){
             echo $rspta ? "Persona actualizada" : "Persona no se pudo actualizar";
         }
     break;
+
+
+    case 'guardaryeditarCliente': 
+        if (empty($idpersona)){
+            $rspta=$persona->insertarCliente($tipo_persona,$nombre,$nombre_comercial,$tipo_documento,$num_documento,$direccion,
+            $direccion_comercial,$telefono,$email,$trabajo,$idsector,$idruta,$tipo_cliente,$codigo_cliente,$ubicacioncliente,$descuento_cliente);
+            echo $rspta ? "Persona registrada" : "Persona no se pudo registrar";
+        }
+        else {
+            $rspta=$persona->editarCliente($idpersona,$tipo_persona,$nombre,$nombre_comercial,$tipo_documento,$num_documento,$direccion,
+            $direccion_comercial,$telefono,$email,$trabajo,$idsector,$idruta,$tipo_cliente,$codigo_cliente,$ubicacioncliente,$descuento_cliente);
+            echo $rspta ? "Persona actualizada" : "Persona no se pudo actualizar";
+        }
+    break;    
  
     case 'guardaryeditar2': 
         if (empty($idpersona)){
@@ -221,6 +239,16 @@ switch ($_GET["op"]){
         while ($reg = $rspta->fetch_object())
                 {
                 echo '<option value=' . $reg->idsector . '>' . $reg->nombre . '--'.$reg->descripcion.'</option>';
+                }
+    break;
+
+    case 'selectRuta':
+        $rspta = $persona->selectRuta();
+ 
+        echo '<option value="">Seleccione una Ruta</option>';
+        while ($reg = $rspta->fetch_object())
+                {
+                echo '<option value=' . $reg->idruta . '>' . $reg->nombre . '--'.$reg->descripcion.'</option>';
                 }
     break;
 
@@ -453,6 +481,11 @@ switch ($_GET["op"]){
             echo $rspta; 
 
     break;      
-    
+    case 'validarnit':
+        $nit = $_REQUEST["nit"];
+        $rspta = $persona->validarnit($nit);
+        echo $rspta;
+    break;
+
 }
 ?>

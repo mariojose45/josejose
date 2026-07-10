@@ -21,12 +21,17 @@ function init() {
     $("#idsector").html(r);
     $('#idsector').selectpicker('refresh');
   });
+
+  $.post("../ajax/persona.php?op=selectRuta", function (r) {
+    $("#idruta").html(r);
+    $('#idruta').selectpicker('refresh');
+  });
 }
 
 //Función limpiar
 function limpiar() {
   $("#nombre").val("");
-  $("#num_documento").val("");
+  $("#num_documento").val("CF");
   $("#direccion").val("");
   $("#telefono").val("");
   $("#email").val("");
@@ -306,9 +311,9 @@ function guardaryeditar(e) {
   e.preventDefault(); //No se activará la acción predeterminada del evento
   $("#btnGuardar").prop("disabled", true);
   var formData = new FormData($("#formulario")[0]);
-
+load();
   $.ajax({
-    url: "../ajax/persona.php?op=guardaryeditar",
+    url: "../ajax/persona.php?op=guardaryeditarCliente",
     type: "POST",
     data: formData,
     contentType: false,
@@ -331,6 +336,9 @@ function guardaryeditar(e) {
   });
 }
 
+
+
+
 function mostrar(idpersona) {
   $.post("../ajax/persona.php?op=mostrar", { idpersona: idpersona }, function (data, status) {
     data = JSON.parse(data);
@@ -338,23 +346,33 @@ function mostrar(idpersona) {
 
 
     //alert(data.tipo_cliente);
-
+    $("#idpersona").val(data.idpersona);
     $("#nombre").val(data.nombre);
+    $("#nombre_comercial").val(data.nombre_comercial);
     $("#tipo_documento").val(data.tipo_documento);
     $("#tipo_documento").selectpicker('refresh');
     $("#num_documento").val(data.num_documento);
-    $("#tipo_cliente").val(data.tipo_cliente);
+
     $("#direccion").val(data.direccion);
+    $("#direccion_comercial").val(data.direccion_comercial);
     $("#telefono").val(data.telefono);
     $("#email").val(data.email);
-    $("#idpersona").val(data.idpersona);
-    $("#codigo_cliente").val(data.codigo_cliente);
-    $("#ubicacioncliente").val(data.ubicacion_maps);
     $("#trabajo").val(data.trabajo);
+
     $("#idsector").val(data.idsector);
     $('#idsector').selectpicker('refresh');
-    $("#descuento_cliente").val(data.descuento_cliente);
 
+    $("#idruta").val(data.idruta);
+    $('#idruta').selectpicker('refresh');
+
+    $("#tipo_cliente").val(data.tipo_cliente);
+    $('#tipo_cliente').selectpicker('refresh');
+
+    $("#codigo_cliente").val(data.codigo_cliente);
+    $("#ubicacioncliente").val(data.ubicacion_maps);
+
+
+    $("#descuento_cliente").val(data.descuento_cliente);
 
   })
 }
@@ -471,5 +489,150 @@ function load() {
   })
 }
 
+function mostrarModalSector() {
+  $("#modalSector").modal("show");
+  $("#nombre_sector").val("");
+  $("#descripcion_sector").val("");
+}
+
+function guardarSector() {
+  var nombre = $("#nombre_sector").val().trim();
+  var descripcion = $("#descripcion_sector").val().trim();
+
+  if (nombre == "") {
+    Swal.fire({
+      title: 'Atención',
+      text: "El nombre del sector no puede estar vacío",
+      icon: 'warning'
+    });
+    return;
+  }
+
+  $.post("../ajax/sector.php?op=guardaryeditar", { idsector: "", nombre: nombre, descripcion: descripcion }, function (e) {
+    Swal.fire({
+      title: 'Mensaje',
+      text: e,
+      icon: 'success',
+      timer: 2000,
+      timerProgressBar: true
+    });
+
+    $("#modalSector").modal("hide");
+
+    // Refrescar el select de sectores
+    $.post("../ajax/persona.php?op=selectSector", function (r) {
+      $("#idsector").html(r);
+      $('#idsector').selectpicker('refresh');
+    });
+  });
+}
+
+function mostrarModalRuta() {
+  $("#modalRuta").modal("show");
+  $("#nombre_ruta").val("");
+  $("#descripcion_ruta").val("");
+}
+
+function guardarRuta() {
+  var nombre = $("#nombre_ruta").val().trim();
+  var descripcion = $("#descripcion_ruta").val().trim();
+
+  if (nombre == "") {
+    Swal.fire({
+      title: 'Atención',
+      text: "El nombre de la ruta no puede estar vacío",
+      icon: 'warning'
+    });
+    return;
+  }
+
+  $.post("../ajax/ruta_visita.php?op=guardaryeditar", { idruta: "", nombre: nombre, descripcion: descripcion }, function (e) {
+    Swal.fire({
+      title: 'Mensaje',
+      text: e,
+      icon: 'success',
+      timer: 2000,
+      timerProgressBar: true
+    });
+
+    $("#modalRuta").modal("hide");
+
+    // Refrescar el select de rutas
+    $.post("../ajax/persona.php?op=selectRuta", function (r) {
+      $("#idruta").html(r);
+      $('#idruta').selectpicker('refresh');
+    });
+  });
+}
+
+function validarnit() {
+  var nit = $("#num_documento").val().trim();
+  var tipo = $("#tipo_documento").val();
+
+  if (tipo == "NIT") {
+    // Eliminar espacios y guiones dentro del NIT
+    nit = $("#num_documento").val().replace(/[\s-]+/g, "");
+  } else if (tipo == "DPI") {
+    // Prefijo fijo
+    let cui = "CUI";
+    // Quitar espacios y guiones del DPI
+    let dpiNumero = $("#num_documento").val().replace(/[\s-]+/g, "");
+    // Concatenar CUI + numero DPI
+    nit = cui + dpiNumero;
+  }
+
+  if (nit == "") {
+    Swal.fire({
+      title: 'Atención',
+      text: "Debe colocar un nit mayor a 6 caracteres",
+      icon: 'warning'
+    });
+    return;
+  }
+
+  $.post("../ajax/persona.php?op=validarnit", { nit: nit }, function (data) {
+    try {
+      data = JSON.parse(data);
+
+      // Validar si nombre no es nulo, indefinido o vacío
+      if (data["receptor"] && data["receptor"]["nombre"] != null && data["receptor"]["nombre"].trim() !== "") {
+        let nombre = data["receptor"]["nombre"];
+        let direccion = data["receptor"]["direccion"] != null ? data["receptor"]["direccion"] : "CIUDAD";
+
+        $("#nombre").val(nombre);
+        $("#direccion").val(direccion);
+
+        Swal.fire({
+          title: '¡Datos Encontrados!',
+          text: "Se encontraron los datos del cliente.",
+          icon: 'success',
+          timer: 1500,
+          timerProgressBar: true
+        });
+      } else {
+        $("#nombre").val("");
+        $("#direccion").val("CIUDAD");
+
+        Swal.fire({
+          title: 'Mensaje!',
+          text: "Nit No Existe, por favor llenar los datos del nuevo cliente",
+          icon: 'info',
+          timer: 2000,
+          timerProgressBar: true
+        });
+
+        $("#nombre").focus();
+      }
+    } catch (error) {
+      Swal.fire({
+        title: 'Mensaje!',
+        text: "Error al procesar la respuesta del servidor. Intente nuevamente.",
+        icon: 'error',
+        timer: 2000,
+        timerProgressBar: true
+      });
+    }
+  });
+}
 
 init();

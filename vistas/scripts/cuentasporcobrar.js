@@ -11,7 +11,18 @@ function init() {
     $.post("../ajax/pagos_empleados.php?op=selectBanco", function (r) {
         $("#idcuenta").html(r);
         $('#idcuenta').selectpicker('refresh');
+    });
 
+    //Cargamos los items al select ruta
+    $.post("../ajax/persona.php?op=selectRuta", function (r) {
+        $("#idruta").html(r);
+        $('#idruta').selectpicker('refresh');
+    });
+
+    //Cargamos los items al select sector
+    $.post("../ajax/persona.php?op=selectSector", function (r) {
+        $("#idsector").html(r);
+        $('#idsector').selectpicker('refresh');
     });
 
     $("#btnGuardarFacxLotes").click(function (e) {
@@ -22,31 +33,17 @@ function init() {
 
 function guardaryeditarxlote(e) {
 
-    /*  var idventa = document.getElementsByName("idventa_lote[]");
-      var totalVenta = document.getElementsByName("total_venta_lote[]");
-      var totalAbono = document.getElementsByName("total_abono_lote[]");
-      var saldototalVenta = document.getElementsByName("saldo_venta_lote[]");
-  
-      for (var i = 0; i < idventa.length; i++) {
-          // Obtén los valores de venta y abono para cada fila
-          var r_totalVenta = parseFloat(totalVenta[i].value) || 0;
-          var r_totalAbono = parseFloat(totalAbono[i].value) || 0;
-  
-          // Calcula el saldo como la diferencia entre totalVenta y totalAbono
-          var saldo = r_totalVenta - r_totalAbono;
-          if (r_totalAbono>) 
-              {
-  
-              } 
-          else 
-              {
-  
-              }
-      }
-      calcularTotalesAbono();
-      calcularTotalesSaldoVenta();*/
-
     e.preventDefault(); //No se activará la acción predeterminada del evento
+
+    if ($(".filas").length === 0) {
+        Swal.fire({
+            title: 'Atención',
+            text: 'Debe agregar al menos una factura a la tabla antes de guardar.',
+            icon: 'warning'
+        });
+        return;
+    }
+
     $("#btnGuardar").prop("disabled", true);
     var formData = new FormData($("#formularioxlote")[0]);
 
@@ -89,6 +86,17 @@ function limpiarmodal() {
 
 
 function listarVentaxlote() {
+    var idsector = $('#idsector').val();
+    var idruta = $('#idruta').val();
+
+    if (!idsector || !idruta) {
+        Swal.fire({
+            title: 'Atención',
+            text: 'Debe seleccionar una Ruta de Visita y un Sector.',
+            icon: 'warning'
+        });
+        return;
+    }
     tabla = $('#tbllistadoventasxlote').dataTable(
         {
             "aProcessing": true,//Activamos el procesamiento del datatables
@@ -103,6 +111,36 @@ function listarVentaxlote() {
             "ajax":
             {
                 url: '../ajax/cuentasporcobrar.php?op=listarVentaxlote',
+                type: "get",
+                data: { idsector: idsector, idruta: idruta },
+                dataType: "json",
+                error: function (e) {
+                    console.log(e.responseText);
+                }
+            },
+            "bDestroy": true,
+            "iDisplayLength": 20,//Paginación
+            "order": [[1, "desc"]]//Ordenar (columna,orden)
+        }).DataTable();
+}
+
+
+function listarVentaxloteGeneral() {
+
+    tabla = $('#tbllistadoventasxlote').dataTable(
+        {
+            "aProcessing": true,//Activamos el procesamiento del datatables
+            "aServerSide": true,//Paginación y filtrado realizados por el servidor
+            dom: 'Bfrtip',//Definimos los elementos del control de tabla
+            buttons: [
+                'copyHtml5',
+                'excelHtml5',
+                'csvHtml5',
+                'pdf'
+            ],
+            "ajax":
+            {
+                url: '../ajax/cuentasporcobrar.php?op=listarVentaxloteGeneral',
                 type: "get",
                 dataType: "json",
                 error: function (e) {
@@ -181,6 +219,23 @@ function agregarDetalle(idventa, idcliente, nombre_cliente, tipo_comprobante, nu
 }
 */
 function agregarDetalle(idventa, idcliente, nombre_cliente, tipo_comprobante, numero_ecoFactura, fecha, total_venta, total_abono, saldo_venta) {
+    // Validar si la factura ya fue agregada
+    let yaExiste = false;
+    $('input[name="idventa_lote[]"]').each(function() {
+        if ($(this).val() == idventa) {
+            yaExiste = true;
+        }
+    });
+    
+    if (yaExiste) {
+        Swal.fire({
+            title: 'Atención',
+            text: 'Ya has agregado esta factura por favor revisa la tabla.',
+            icon: 'warning'
+        });
+        return;
+    }
+
     const now = new Date();
     const guatemalaDateFormatter = new Intl.DateTimeFormat('en-CA', {
         timeZone: 'America/Guatemala',
@@ -230,7 +285,7 @@ function agregarDetalle(idventa, idcliente, nombre_cliente, tipo_comprobante, nu
                         <option value="INTERBANCO">INTERBANCO</option>
                     </select>
                 </td>
-                <td><input type="text" class="form-control" style="width:100px" name="numero_boleta_lote[]" id="${numeroBoletaId}" value="" placeholder="Boleta #"></td>
+                <td><input type="text" class="form-control" style="width:100px" name="numero_boleta_lote[]" id="${numeroBoletaId}" value="" placeholder="Boleta #" onblur="validarBoleta(this.value, this.id)"></td>
                 <td><input type="text" class="form-control" style="width:100px" name="recibo_caja_numero_lote[]" id="${reciboCajaId}" value="" placeholder="Recibo #"></td>
                 <td><input type="text" class="form-control" style="width:100px" name="descripcion_lote[]" id="descripcion_lote${cont}" value="0" placeholder="Descripcion"></td>
             </tr>`;
@@ -584,5 +639,25 @@ function load() {
     })
 }
 
+
+
+function validarBoleta(boleta, inputId) {
+    if(boleta.trim() === "") return;
+    
+    $.post("../ajax/cuentasporcobrar.php?op=validarBoleta", { numero_boleta: boleta }, function(data, status) {
+        data = JSON.parse(data);
+        if(data && data.idcta_cobrar) {
+            Swal.fire({
+                title: 'Atención',
+                text: 'El número de boleta ' + boleta + ' ya se encuentra registrado en el sistema.',
+                icon: 'warning'
+            });
+            $('#' + inputId).val(""); // Limpiar el input
+            setTimeout(function() {
+                $('#' + inputId).focus(); // Regresar el foco al input
+            }, 100);
+        }
+    });
+}
 
 init();

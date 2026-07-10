@@ -1,63 +1,56 @@
-<?php 
+<?php
 ob_start();
 require_once __DIR__ . '/../config/SessionControl.php'; // ✅ esto controla el inicio y expiración de sesión
 
 //Incluímos inicialmente la conexión a la base de datos
 require "../config/Conexion.php";
- 
-Class Cuentasporcobrar
+
+class Cuentasporcobrar
 {
     //Implementamos nuestro constructor 
-    public function __construct()
-    {
- 
-    }
-  
+    public function __construct() {}
+
     //Implementamos un método para insertar registros
     public function insertar($idcliente)
     {
-      // $sql="INSERT INTO categoria (nombre,descripcion,condicion) 
-      //  VALUES ('$nombre','$descripcion','1')";
-      //  return ejecutarConsulta($sql);
+        // $sql="INSERT INTO categoria (nombre,descripcion,condicion) 
+        //  VALUES ('$nombre','$descripcion','1')";
+        //  return ejecutarConsulta($sql);
     }
-  
+
     //Implementamos un método para editar registros
-    public function editar($idventa,$idcliente,$total_venta,$total_abono,$saldo_venta,$tipo_pago,$fechapago,$tipo_banco,$numero_boleta,$recibo_caja_numero,$descripcion,$idusuario)
+    public function editar($idventa, $idcliente, $total_venta, $total_abono, $saldo_venta, $tipo_pago, $fechapago, $tipo_banco, $numero_boleta, $recibo_caja_numero, $descripcion, $idusuario)
     {
-          if ($saldo_venta=='0') { 
-                    $estadopago='Pago Aplicado';
-          }else
-          {
-                    $estadopago='Pendiente Pago';
-          }
-        $sql="UPDATE venta SET 
+        if ($saldo_venta == '0') {
+            $estadopago = 'Pago Aplicado';
+        } else {
+            $estadopago = 'Pendiente Pago';
+        }
+        $sql = "UPDATE venta SET 
                     total_abono=total_abono +'$total_abono',
                     saldo_venta='$saldo_venta',
                     tipo_pago='$tipo_pago',
                     estadopago='$estadopago',
                     cta_cobrar_descripcion='$descripcion'
             WHERE idventa='$idventa'";
-        ejecutarConsulta($sql);  
+        ejecutarConsulta($sql);
 
-            $sqlCtaxcobrar="INSERT INTO cta_cobrar (idventa,idcliente,total_venta,total_abono,saldo_venta,
+        $sqlCtaxcobrar = "INSERT INTO cta_cobrar (idventa,idcliente,total_venta,total_abono,saldo_venta,
             tipo_pago,fechapago,tipo_banco,numero_boleta,recibo_caja_numero,descripcion,idusuario,condicion)
-            VALUES ('$idventa','$idcliente','$total_venta','$total_abono','$saldo_venta','$tipo_pago','$fechapago','$tipo_banco','$numero_boleta','$recibo_caja_numero','$descripcion','$idusuario','1')"; 
-           return ejecutarConsulta($sqlCtaxcobrar);  
+            VALUES ('$idventa','$idcliente','$total_venta','$total_abono','$saldo_venta','$tipo_pago','$fechapago','$tipo_banco','$numero_boleta','$recibo_caja_numero','$descripcion','$idusuario','1')";
+        return ejecutarConsulta($sqlCtaxcobrar);
+    }
 
-      
-    } 
-
-    public function guardaryeditarxlote($idventa_lote,$idcliente_lote,$total_venta_lote,$total_abono_lote,$saldo_venta_lote,$tipo_pago_lote,$fechapago_lote,$tipo_banco_lote,$numero_boleta_lote,$recibo_caja_numero_lote,$descripcion_lote)
+    public function guardaryeditarxlote($idventa_lote, $idcliente_lote, $total_venta_lote, $total_abono_lote, $saldo_venta_lote, $tipo_pago_lote, $fechapago_lote, $tipo_banco_lote, $numero_boleta_lote, $recibo_caja_numero_lote, $descripcion_lote)
     {
 
         date_default_timezone_set('America/Guatemala');
-        $fechaHora = date('Y-m-d H:i:s'); 
+        $fechaHora = date('Y-m-d H:i:s');
 
-        $num_elementos=0;   
-        $sw=true; 
+        $num_elementos = 0;
+        $sw = true;
 
-        while ($num_elementos < count($idventa_lote)) 
-        {
+        while ($num_elementos < count($idventa_lote)) {
             $sql_detallePagCtasxCobrarLote = "INSERT INTO cta_cobrar(idventa,
                                                     idcliente,
                                                     total_venta,
@@ -82,60 +75,55 @@ Class Cuentasporcobrar
                                                     '$numero_boleta_lote[$num_elementos]',
                                                     '$recibo_caja_numero_lote[$num_elementos]',
                                                     '$descripcion_lote[$num_elementos]',
-                                                    '".$_SESSION["idusuario"]."',
-                                                    '1','".$_SESSION["idsucursal"]."','$fechaHora' )";
+                                                    '" . $_SESSION["idusuario"] . "',
+                                                    '1','" . $_SESSION["idsucursal"] . "','$fechaHora' )";
             ejecutarConsulta($sql_detallePagCtasxCobrarLote) or $sw = false;
 
-              if ($saldo_venta_lote[$num_elementos]=='0') { 
-                        $estadopago='Pago Aplicado';
-              }else
-              {
-                        $estadopago='Pendiente Pago';
-              }
-            $sql="UPDATE venta SET 
+            if ($saldo_venta_lote[$num_elementos] == '0') {
+                $estadopago = 'Pago Aplicado';
+            } else {
+                $estadopago = 'Pendiente Pago';
+            }
+            $sql = "UPDATE venta SET 
                     total_abono=total_abono +'$total_abono_lote[$num_elementos]',
                     saldo_venta='$saldo_venta_lote[$num_elementos]',
                     cta_cobrar_descripcion='$descripcion_lote[$num_elementos]',
                     estadopago='$estadopago'
             WHERE idventa='$idventa_lote[$num_elementos]'";
 
-            
-            ejecutarConsulta($sql);  
 
-                        
+            ejecutarConsulta($sql);
 
-            $num_elementos=$num_elementos + 1;
-        }            
 
-      
-    }     
-  
+
+            $num_elementos = $num_elementos + 1;
+        }
+    }
+
     //Implementamos un método para desactivar categorías 
     public function desactivar($idventa)
     {
-        $sql1="UPDATE venta SET estadopago=' ' WHERE idventa='$idventa'";        
-        return ejecutarConsulta($sql1);  
+        $sql1 = "UPDATE venta SET estadopago=' ' WHERE idventa='$idventa'";
+        return ejecutarConsulta($sql1);
 
-        $sql1="UPDATE cheque SET condicion='0' WHERE idventa='$idventa'";
-        return ejecutarConsulta($sql1); 
+        $sql1 = "UPDATE cheque SET condicion='0' WHERE idventa='$idventa'";
+        return ejecutarConsulta($sql1);
 
-        $sqlidcuenta="SELECT * FROM cheque WHERE idventa='$idventa'"; 
-        $res=ejecutarConsulta($sqlidcuenta);
-        $residcuenta=$res->fetch_object();
-        $idcuenta=$residcuenta->idcuenta;
-        $valor_cheque=$residcuenta->valor_cheque;                
+        $sqlidcuenta = "SELECT * FROM cheque WHERE idventa='$idventa'";
+        $res = ejecutarConsulta($sqlidcuenta);
+        $residcuenta = $res->fetch_object();
+        $idcuenta = $residcuenta->idcuenta;
+        $valor_cheque = $residcuenta->valor_cheque;
 
-        $sql="UPDATE cuenta SET saldo_cuenta=saldo_cuenta+'$valor_cheque' WHERE idcuenta='$idcuenta'";
-        ejecutarConsulta($sql);  
-
-            
+        $sql = "UPDATE cuenta SET saldo_cuenta=saldo_cuenta+'$valor_cheque' WHERE idcuenta='$idcuenta'";
+        ejecutarConsulta($sql);
     }
- 
+
 
     //Implementar un método para mostrar los datos de un registro a modificar
     public function mostrar($idventa)
     {
-        $sql="SELECT 
+        $sql = "SELECT 
                 v.idventa,
                 v.tipo_comprobante,
                 v.serie_comprobante,
@@ -155,11 +143,11 @@ Class Cuentasporcobrar
                 v.idcuenta FROM venta v INNER JOIN persona p  ON v.idcliente=p.idpersona WHERE v.idventa='$idventa'";
         return ejecutarConsultaSimpleFila($sql);
     }
- 
+
     //Implementar un método para listar los registros
-    public function listarFacturas($fecha_inicio,$fecha_fin)
+    public function listarFacturas($fecha_inicio, $fecha_fin)
     {
-        $sql="SELECT 
+        $sql = "SELECT 
                 v.idventa,
                 v.tipo_comprobante,
                 v.serie_comprobante,
@@ -182,14 +170,14 @@ Class Cuentasporcobrar
                 FROM venta v 
                 INNER JOIN persona p  ON v.idcliente=p.idpersona 
                 where v.estado <> 'Anulado' and v.forma_pago='Credito' 
-                and DATE(v.fecha_hora)>='$fecha_inicio' AND DATE(v.fecha_hora)<='$fecha_fin' and v.idsucursal='".$_SESSION["idsucursal"]."'
-                order by idventa DESC "; 
-        return ejecutarConsulta($sql);       
+                and DATE(v.fecha_hora)>='$fecha_inicio' AND DATE(v.fecha_hora)<='$fecha_fin' and v.idsucursal='" . $_SESSION["idsucursal"] . "'
+                order by idventa DESC ";
+        return ejecutarConsulta($sql);
     }
 
-    public function listarAbonos($fecha_inicio,$fecha_fin)
+    public function listarAbonos($fecha_inicio, $fecha_fin)
     {
-        $sql="SELECT 
+        $sql = "SELECT 
                 c.idcta_cobrar,
                 c.total_venta,
                 c.total_abono,
@@ -205,15 +193,15 @@ Class Cuentasporcobrar
              INNER JOIN sucursal s ON s.idsucursal=c.idsucursal
              INNER JOIN persona p ON p.idpersona=c.idcliente
                 where  DATE(c.fecha_creacion)>='$fecha_inicio' AND DATE(c.fecha_creacion)<='$fecha_fin' 
-                order by c.idcta_cobrar DESC "; 
-        return ejecutarConsulta($sql);       
-    }    
+                order by c.idcta_cobrar DESC ";
+        return ejecutarConsulta($sql);
+    }
 
 
 
-    public function listarVentaxlote()
+    public function listarVentaxlote($idsector, $idruta)
     {
-        $sql="SELECT 
+        $sql = "SELECT 
                 v.idventa,
                 v.tipo_comprobante,
                 v.serie_comprobante,
@@ -238,12 +226,46 @@ Class Cuentasporcobrar
                 INNER JOIN persona p  ON v.idcliente=p.idpersona 
                 inner join usuario u on u.idusuario=v.idusuario
                 where v.estado <> 'Anulado' and v.forma_pago='Credito' and v.estadopago <> 'Pago Aplicado'
-                    and  v.idsucursal='".$_SESSION["idsucursal"]."' 
-                 order by idventa DESC "; 
-        return ejecutarConsulta($sql);       
-    }    
+                    and  v.idsucursal='" . $_SESSION["idsucursal"] . "'  and p.idsector='$idsector' and p.idruta='$idruta' 
+                 order by idventa DESC ";
+        return ejecutarConsulta($sql);
+    }
 
-    public function anular_abono($idventa, $idcta_cobrar){
+
+    public function listarVentaxloteGeneral()
+    {
+        $sql = "SELECT 
+                v.idventa,
+                v.tipo_comprobante,
+                v.serie_comprobante,
+                v.num_comprobante,
+                v.total_venta,
+                v.total_abono,
+                v.saldo_venta,
+                v.condicion, 
+                v.estado,
+                v.idcliente,
+                v.numero_pagos,
+                p.nombre as nombre_cliente, 
+                p.telefono as telefono_cliente, 
+                v.numero_boleta,
+                DATE(v.fechapago) as fechapago,
+                v.estadopago, 
+                DATE(v.fecha_hora) as fecha,
+                v.tipo_banco,
+                v.recibo_caja_numero,
+                v.numero_ecoFactura
+                FROM venta v 
+                INNER JOIN persona p  ON v.idcliente=p.idpersona 
+                inner join usuario u on u.idusuario=v.idusuario
+                where v.estado <> 'Anulado' and v.forma_pago='Credito' and v.estadopago <> 'Pago Aplicado'
+                    and  v.idsucursal='" . $_SESSION["idsucursal"] . "'   
+                 order by idventa DESC ";
+        return ejecutarConsulta($sql);
+    }
+
+    public function anular_abono($idventa, $idcta_cobrar)
+    {
         $sqlCta = "UPDATE cta_cobrar SET condicion='0', idusuario_anulacion='" . $_SESSION["idusuario"] . "', fecha_hora_anulacion=NOW() WHERE idcta_cobrar='$idcta_cobrar'";
         ejecutarConsulta($sqlCta);
 
@@ -270,7 +292,9 @@ Class Cuentasporcobrar
         return ejecutarConsulta($sqlVentaUpdate);
     }
 
-
+    public function validarBoleta($numero_boleta)
+    {
+        $sql = "SELECT * FROM cta_cobrar WHERE numero_boleta='$numero_boleta'";
+        return ejecutarConsultaSimpleFila($sql);
+    }
 }
- 
-?>

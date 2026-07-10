@@ -168,7 +168,9 @@ switch ($_GET["op"]){
 
 
     case 'listarVentaxlote': 
-        $rspta=$cuentasporcobrar->listarVentaxlote();
+        $idsector=$_REQUEST["idsector"];
+        $idruta=$_REQUEST["idruta"];
+        $rspta=$cuentasporcobrar->listarVentaxlote($idsector,$idruta);
         //Vamos a declarar un array
         $data= Array();  
  
@@ -195,14 +197,49 @@ switch ($_GET["op"]){
             "aaData"=>$data);
         echo json_encode($results); 
  
-    break;  
+    break; 
+    
+    case 'listarVentaxloteGeneral': 
+        $rspta=$cuentasporcobrar->listarVentaxloteGeneral();
+        //Vamos a declarar un array
+        $data= Array();  
+ 
+        while ($reg=$rspta->fetch_object()){    
+            $data[]=array(
+                "0"=>'<button class="btn btn-warning btn-block" onclick="agregarDetalle('.$reg->idventa.',\''.$reg->idcliente.'\',\''.$reg->nombre_cliente.'\',\''.$reg->tipo_comprobante.'\',\''.$reg->numero_ecoFactura.'\',\''.$reg->fecha.'\',\''.$reg->total_venta.'\',\''.$reg->total_abono.'\',\''.$reg->saldo_venta.'\')"><span class="fa fa-plus"></span></button>', 
+                "1"=>$reg->idventa,                    
+                "2"=>$reg->nombre_cliente,
+                "3"=>$reg->tipo_comprobante, 
+                "4"=>$reg->numero_ecoFactura,
+                "5"=>$reg->fecha, 
+                "6"=>$reg->total_venta,
+                "7"=>$reg->total_abono,
+                "8"=>$reg->saldo_venta,
+                "9"=>$reg->numero_pagos,
+                "10"=>($reg->estadopago=='Pago Aplicado')?'<span class="label bg-green">Pago Aplicado</span>':
+                '<span class="label bg-red">Pendiente Pago</span>' 
+                );
+        }
+        $results = array(
+            "sEcho"=>1, //Información para el datatables
+            "iTotalRecords"=>count($data), //enviamos el total registros al datatable
+            "iTotalDisplayRecords"=>count($data), //enviamos el total registros a visualizar
+            "aaData"=>$data);
+        echo json_encode($results); 
+ 
+    break;     
 
     case 'anular_abono':
         $idventa=$_REQUEST["idventa"];
         $idcta_cobrar=$_REQUEST["idcta_cobrar"];
-        $rspta=$cuentasporcobrar->anular_abono($idventa,$idcta_cobrar);
-        echo $rspta;
+        $rspta=$cuentasporcobrar->anular_abono($idventa, $idcta_cobrar);
+        echo $rspta ? "Venta anulada" : "Venta no se puede anular";
     break;
 
+    case 'validarBoleta':
+        $numero_boleta = $_REQUEST["numero_boleta"];
+        $rspta = $cuentasporcobrar->validarBoleta($numero_boleta);
+        echo json_encode($rspta);
+    break;
 }
 ?>

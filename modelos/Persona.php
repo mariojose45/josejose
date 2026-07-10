@@ -8,10 +8,7 @@ require "../config/Conexion.php";
 class Persona
 {
     //Implementamos nuestro constructor
-    public function __construct()
-    {
-
-    }
+    public function __construct() {}
 
     //Implementamos un método para insertar registros
     public function insertar(
@@ -31,6 +28,10 @@ class Persona
         VALUES ('$tipo_persona','$nombre','$tipo_documento','$num_documento','$direccion','$telefono','$email','$tipo_cliente','$trabajo','$idsector','$descuento_cliente')";
         return ejecutarConsulta($sql);
     }
+
+
+
+
 
     //Implementamos un método para editar registros
     public function editar(
@@ -55,6 +56,96 @@ class Persona
         //print_r($sql);
         return ejecutarConsulta($sql);
     }
+
+
+    public function insertarCliente(
+        $tipo_persona,
+        $nombre,
+        $nombre_comercial,
+        $tipo_documento,
+        $num_documento,
+        $direccion,
+        $direccion_comercial,
+        $telefono,
+        $email,
+        $trabajo,
+        $idsector,
+        $idruta,
+        $tipo_cliente,
+        $codigo_cliente,
+        $ubicacioncliente,
+        $descuento_cliente
+    ) {
+        date_default_timezone_set('America/Guatemala');
+        $fechaHora = date('Y-m-d H:i:s');
+
+        $sqlcorrelativo = "UPDATE add_correlativo SET codigo_cliente=codigo_cliente+1 
+            WHERE idsucursal='" . $_SESSION["idsucursal"] . "' ";
+        ejecutarConsulta($sqlcorrelativo);
+
+        $sqlCorre = "SELECT * FROM add_correlativo WHERE idsucursal='" . $_SESSION["idsucursal"] . "' ";
+        $correlativo = ejecutarConsultaSimpleFila($sqlCorre);
+        $corre = $correlativo["codigo_cliente"];
+        $codigocliente = 'COD' . $corre;
+
+        $sql = "INSERT INTO persona (tipo_persona,nombre,nombre_comercial,tipo_documento,num_documento,direccion,direccion_comercial,
+        telefono,email,trabajo,idsector,idruta,tipo_cliente,codigo_cliente,ubicacion_maps,descuento_cliente,condicion,fechaCreacion,idusuario,idsucursal)
+        VALUES ('$tipo_persona','$nombre','$nombre_comercial','$tipo_documento','$num_documento','$direccion','$direccion_comercial',
+        '$telefono','$email','$trabajo','$idsector','$idruta','$tipo_cliente','$codigocliente','$ubicacioncliente','$descuento_cliente','1','$fechaHora','" . $_SESSION["idusuario"] . "','" . $_SESSION["idsucursal"] . "')";
+        return ejecutarConsulta($sql);
+    }
+
+
+
+
+
+    //Implementamos un método para editar registros
+    public function editarCliente(
+        $idpersona,
+        $tipo_persona,
+        $nombre,
+        $nombre_comercial,
+        $tipo_documento,
+        $num_documento,
+        $direccion,
+        $direccion_comercial,
+        $telefono,
+        $email,
+        $trabajo,
+        $idsector,
+        $idruta,
+        $tipo_cliente,
+        $codigo_cliente,
+        $ubicacioncliente,
+        $descuento_cliente
+    ) {
+        $sql = "UPDATE persona SET 
+                        tipo_persona='$tipo_persona',
+                        nombre='$nombre',
+                        nombre_comercial='$nombre_comercial',
+                        tipo_documento='$tipo_documento',
+                        num_documento='$num_documento',
+                        direccion='$direccion',
+                        direccion_comercial='$direccion_comercial',
+                        telefono='$telefono',
+                        email='$email',
+                        trabajo='$trabajo',
+                        idsector='$idsector',
+                        idruta='$idruta',
+                        tipo_cliente='$tipo_cliente',
+                        ubicacion_maps='$ubicacioncliente',
+                        descuento_cliente='$descuento_cliente'
+        WHERE idpersona='$idpersona'";
+        //print_r($sql);
+        return ejecutarConsulta($sql);
+    }
+
+
+
+
+
+
+
     public function insertar2($tipo_persona, $nombre, $tipo_documento, $num_documento, $direccion, $telefono, $email, $tipo_cliente)
     {
         $sql = "INSERT INTO persona (tipo_persona,nombre,tipo_documento,num_documento,direccion,telefono,email,tipo_cliente)
@@ -209,7 +300,7 @@ class Persona
             ), 0) AS f_ultimo_evento
 
         FROM persona p
-        WHERE p.tipo_persona = 'Proveedor'
+        where p.condicion=1
         ORDER BY p.idpersona DESC";
         return ejecutarConsulta($sql);
     }
@@ -393,6 +484,12 @@ class Persona
         return ejecutarConsulta($sql);
     }
 
+    public function selectRuta()
+    {
+        $sql = "SELECT * FROM ruta_visita WHERE condicion = 1";
+        return ejecutarConsulta($sql);
+    }
+
     public function guardaryeditarModal(
         $tipo_persona_cliente,
         $nombre_cliente,
@@ -412,6 +509,56 @@ class Persona
 
 
 
-}
+    public function validarnit($nit)
+    {
+        $url = 'http://api.fel.olintech.com/api/EcoFactura/receptorInfo';
+        $json = '{
+              "cliente": "94398097",
+              "usuario": "ADMIN",
+              "clave": "Larecic1@d0r@20",
+              "receptorId": "' . $nit . '", 
+              "informacion": "string"
+          }';
 
-?>
+        $resultado = $this->callAPI("POST", $url, $json);
+
+        return $resultado;
+    }
+
+    private function callAPI($method, $url, $data)
+    {
+        $curl = curl_init();
+        switch ($method) {
+            case "POST":
+                curl_setopt($curl, CURLOPT_POST, 1);
+                curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+                break;
+            case "PUT":
+                curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT");
+                if ($data)
+                    curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+                break;
+            default:
+                if ($data)
+                    $url = sprintf("%s?%s", $url, http_build_query($data));
+        }
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_TIMEOUT, 30000);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, array(
+            'Content-type: application/json',
+            'Accept: application/json'
+        ));
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, false);
+        curl_setopt($curl, CURLOPT_HEADER, false);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+
+        $result = curl_exec($curl);
+        $http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        if (!$result) {
+            return false;
+        }
+        curl_close($curl);
+        return $result;
+    }
+}
