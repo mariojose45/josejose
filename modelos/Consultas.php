@@ -8,10 +8,7 @@ require "../config/Conexion.php";
 class Consultas
 {
     //Implementamos nuestro constructor
-    public function __construct()
-    {
-
-    }
+    public function __construct() {}
 
     public function countTicketsPendientes()
     {
@@ -31,7 +28,7 @@ class Consultas
 
     function validarnit($nit)
     {
-        $url = 'http://api.fel.olintech.com/api/EcoFactura/receptorInfo';//url de produccion
+        $url = 'http://api.fel.olintech.com/api/EcoFactura/receptorInfo'; //url de produccion
         $json = '{
               "cliente": "94398097",
               "usuario": "ADMIN",
@@ -521,12 +518,17 @@ GROUP by MONTH(fecha_hora)";
         return ejecutarConsulta($sql);
     }
 
-    public function totalcomprahoy()
+    public function totalcomprahoy($idsucursal_filtro = "")
     {
+        $filtro = "";
+        if (!empty($idsucursal_filtro)) {
+            $filtro = " AND i.idsucursal = '$idsucursal_filtro' ";
+        }
+
         $sql = "SELECT IFNULL(SUM(i.total_compra),0) as total_compra 
         FROM ingreso i
         inner join usuario u on u.idusuario=i.idusuario
-        WHERE DATE(i.fecha_hora)=curdate()  and i.estado<>'Anulado'  ";
+        WHERE DATE(i.fecha_hora)=curdate()  and i.estado<>'Anulado' " . $filtro;
         return ejecutarConsulta($sql);
     }
 
@@ -583,12 +585,16 @@ GROUP by MONTH(fecha_hora)";
         return ejecutarConsulta($sql);
     }
 
-    public function totalventahoy()
+    public function totalventahoy($idsucursal_filtro = "")
     {
+        $filtro = "";
+        if (!empty($idsucursal_filtro)) {
+            $filtro = " AND idsucursal = '$idsucursal_filtro' ";
+        }
 
         $sql = "SELECT IFNULL(SUM(total_venta),0) as total_venta 
         FROM venta WHERE DATE(fecha_hora)=curdate() 
-        AND estado='Aceptado'  and tipo_operacion<>'CIERRE' and idusuario='" . $_SESSION["idusuario"] . "' ";
+        AND estado='Aceptado'  and tipo_operacion<>'CIERRE' and idusuario='" . $_SESSION["idusuario"] . "' " . $filtro;
         return ejecutarConsulta($sql);
     }
 
@@ -709,23 +715,143 @@ GROUP by MONTH(fecha_hora)";
 
 
 
-    public function totalventaCobrar()
+    public function totalventaCobrar($idsucursal_filtro = "")
     {
+        $filtro = "";
+        if (!empty($idsucursal_filtro)) {
+            $filtro = " AND v.idsucursal = '$idsucursal_filtro' ";
+        }
 
         $sql = "SELECT 
                 COUNT(v.idventa) as numerodeitems,
-                SUM(v.saldo_venta) as totalcobrar
-                FROM venta v WHERE v.estadopago <>'Pago Aplicado' and v.estado<>'Anulado' and v.forma_pago='Credito'  ";
+                SUM(v.saldo_venta) as totalcobrar,
+                IFNULL(SUM(c.total_abono),0) AS total_abonos
+                FROM venta v
+                LEFT JOIN cta_cobrar c
+                ON c.idventa = v.idventa 
+                WHERE v.estadopago <>'Pago Aplicado' 
+                and v.estado<>'Anulado' 
+                and v.forma_pago='Credito' " . $filtro;
         return ejecutarConsulta($sql);
     }
 
-    public function totalventaM()
+    public function listarDetalleCtasporCobrar($idsucursal_filtro = "")
     {
+        $filtro = "";
+        if (!empty($idsucursal_filtro)) {
+            $filtro = " AND v.idsucursal = '$idsucursal_filtro' ";
+        }
+
+        $sql = "SELECT 
+                v.idventa,
+                v.tipo_comprobante,
+                v.serie_comprobante,
+                v.num_comprobante,
+                v.total_venta,
+                v.total_abono,
+                v.saldo_venta,
+                v.condicion, 
+                v.estado,
+                v.idcliente,
+                v.numero_pagos,
+                p.nombre as nombre_cliente, 
+                p.telefono as telefono_cliente, 
+                v.numero_boleta,
+                DATE(v.fechapago) as fechapago,
+                v.estadopago, 
+                DATE(v.fecha_hora) as fecha,
+                v.tipo_banco,
+                v.recibo_caja_numero,
+                v.numero_ecoFactura
+                FROM venta v 
+                INNER JOIN persona p  ON v.idcliente=p.idpersona 
+                INNER JOIN usuario u ON u.idusuario=v.idusuario
+                WHERE v.estado <> 'Anulado' 
+                AND v.forma_pago='Credito' 
+                AND v.estadopago <> 'Pago Aplicado' " . $filtro . " 
+                ORDER BY v.idventa DESC";
+        return ejecutarConsulta($sql);
+    }
+
+    public function totalcompraPagar($idsucursal_filtro = "")
+    {
+        $filtro = "";
+        if (!empty($idsucursal_filtro)) {
+            $filtro = " AND i.idsucursal = '$idsucursal_filtro' ";
+        }
+
+        $sql = "SELECT 
+                COUNT(i.idingreso) as numerodeitems,
+                SUM(i.saldo_ingreso) as totalpagar,
+                IFNULL(SUM(c.valor_pagar),0) AS total_pagos
+                FROM ingreso i
+                LEFT JOIN cta_pagar c ON c.idingreso = i.idingreso 
+                WHERE i.estadopago <> 'Pago Aplicado' 
+                AND i.estado <> 'Anulado' 
+                AND i.forma_pago = 'Credito' " . $filtro;
+        return ejecutarConsulta($sql);
+    }
+
+    public function listarDetalleCtasporPagar($idsucursal_filtro = "")
+    {
+        $filtro = "";
+        if (!empty($idsucursal_filtro)) {
+            $filtro = " AND i.idsucursal = '$idsucursal_filtro' ";
+        }
+
+        $sql = "SELECT 
+                i.idingreso,
+                i.tipo_comprobante,
+                i.serie_comprobante,
+                i.num_comprobante,
+                i.total_compra,
+                i.valor_pagar,
+                i.saldo_ingreso,
+                i.condicion, 
+                i.estado,
+                i.idproveedor,
+                p.nombre as nombre_proveedor, 
+                p.telefono as telefono_proveedor, 
+                DATE(i.fecha_hora) as fecha,
+                i.estadopago
+                FROM ingreso i 
+                INNER JOIN persona p ON i.idproveedor=p.idpersona 
+                INNER JOIN usuario u ON u.idusuario=i.idusuario
+                WHERE i.estado <> 'Anulado' 
+                AND i.forma_pago='Credito' 
+                AND i.estadopago <> 'Pago Aplicado' " . $filtro . " 
+                ORDER BY i.idingreso DESC";
+        return ejecutarConsulta($sql);
+    }
+
+    public function totalventaM($idsucursal_filtro = "")
+    {
+        $filtro = "";
+        if (!empty($idsucursal_filtro)) {
+            $filtro = " AND idsucursal = '$idsucursal_filtro' ";
+        }
 
         $sql = "SELECT DATE_FORMAT(fecha_hora,'%M') as fecha,
         SUM(total_venta) as total_venta FROM venta 
         where estado ='Aceptado' and Month(fecha_hora)=month(now()) AND  
-        YEAR(fecha_hora)=YEAR(now())   ";
+        YEAR(fecha_hora)=YEAR(now()) " . $filtro;
+        return ejecutarConsulta($sql);
+    }
+
+    public function capitalRecuperadoM($idsucursal_filtro = "")
+    {
+        $filtro = "";
+        if (!empty($idsucursal_filtro)) {
+            $filtro = " AND v.idsucursal = '$idsucursal_filtro' ";
+        }
+
+        $sql = "SELECT IFNULL(SUM(dv.totalcantidadpresentacion * dv.precio_compra), 0) as totalcapital 
+                FROM venta v
+                INNER JOIN detalle_venta dv ON v.idventa = dv.idventa
+                WHERE MONTH(v.fecha_hora) = MONTH(CURDATE()) 
+                AND YEAR(v.fecha_hora) = YEAR(CURDATE()) 
+                AND v.estado = 'Aceptado' " . $filtro;
+
         return ejecutarConsulta($sql);
     }
 
@@ -740,25 +866,58 @@ GROUP by MONTH(fecha_hora)";
     }
 
 
-    public function comprasultimos_10dias()
+    public function comprasultimos_10dias($idsucursal_filtro = "")
     {
+        $filtro = "";
+        if (!empty($idsucursal_filtro)) {
+            $filtro = " AND idsucursal = '$idsucursal_filtro' ";
+        } else {
+            $filtro = " AND idsucursal='" . $_SESSION["idsucursal"] . "' ";
+        }
 
         $sql = "SELECT CONCAT(DAY(fecha_hora),'-',MONTH(fecha_hora)) as fecha,SUM(total_compra) as total 
         FROM ingreso 
-        where   idsucursal='" . $_SESSION["idsucursal"] . "' 
+        where 1=1 " . $filtro . "
         GROUP by fecha_hora ORDER BY fecha_hora DESC limit 0,10";
         return ejecutarConsulta($sql);
     }
 
-    public function ventasultimos_12meses()
+    public function ventasultimos_12meses($idsucursal_filtro = "")
     {
+        $filtro = "";
+        if (!empty($idsucursal_filtro)) {
+            $filtro = " AND idsucursal = '$idsucursal_filtro' ";
+        } else {
+            $filtro = " AND idsucursal='" . $_SESSION["idsucursal"] . "' ";
+        }
 
         $sql = "SELECT DATE_FORMAT(fecha_hora,'%M') as fecha,
             SUM(total_venta) as total 
         FROM venta 
-        where estado ='Aceptado' and idsucursal='" . $_SESSION["idsucursal"] . "' 
+        where estado ='Aceptado' " . $filtro . "
         GROUP by MONTH(fecha_hora) 
         ORDER BY fecha_hora DESC limit 0,12 ";
+        return ejecutarConsulta($sql);
+    }
+
+    public function ventascomparativas($idsucursal_filtro = "")
+    {
+        $filtro = "";
+        if (!empty($idsucursal_filtro)) {
+            $filtro = " AND idsucursal = '$idsucursal_filtro' ";
+        } else {
+            $filtro = " AND idsucursal='" . $_SESSION["idsucursal"] . "' ";
+        }
+
+        $sql = "SELECT 
+                    YEAR(fecha_hora) as anio,
+                    MONTH(fecha_hora) as mes_num,
+                    SUM(total_venta) as total 
+                FROM venta 
+                WHERE estado ='Aceptado' " . $filtro . "
+                AND YEAR(fecha_hora) IN (YEAR(CURDATE()), YEAR(CURDATE())-1)
+                GROUP BY YEAR(fecha_hora), MONTH(fecha_hora)
+                ORDER BY YEAR(fecha_hora) ASC, MONTH(fecha_hora) ASC";
         return ejecutarConsulta($sql);
     }
 
@@ -789,9 +948,12 @@ GROUP by MONTH(fecha_hora)";
         ORDER BY v.fecha_hora DESC limit 0,12 ";
         return ejecutarConsulta($sql);
     }
-    public function clientesnuevosultimos_12meses()
+    public function clientesnuevosultimos_12meses($idsucursal_filtro = "")
     {
-
+        $filtro = "";
+        // Nota: persona table currently doesn't seem to have idsucursal in this query.
+        // We'll leave it as is if it doesn't apply, or apply if it exists.
+        // The original query didn't have idsucursal filter.
         $sql = "SELECT DATE_FORMAT(fechaCreacion,'%M') as fecha,
             COUNT(idpersona) as total
         FROM persona 
@@ -801,9 +963,8 @@ GROUP by MONTH(fecha_hora)";
         return ejecutarConsulta($sql);
     }
 
-    public function proveedornuevosultimos_12meses()
+    public function proveedornuevosultimos_12meses($idsucursal_filtro = "")
     {
-
         $sql = "SELECT DATE_FORMAT(fechaCreacion,'%M') as fecha,
             COUNT(idpersona) as total
         FROM persona 
@@ -814,27 +975,38 @@ GROUP by MONTH(fecha_hora)";
     }
 
 
-    public function personanuevosultimos_12meses()
+    public function personanuevosultimos_12meses($idsucursal_filtro = "")
     {
+        $filtro = "";
+        if (!empty($idsucursal_filtro)) {
+            $filtro = " AND idsucursal = '$idsucursal_filtro' ";
+        }
 
         $sql = "SELECT DATE_FORMAT(fechaCreacion,'%M') as fecha,
             COUNT(idpersona) as total
         FROM persona 
-        where condicion ='1' 
+        where condicion ='1' " . $filtro . "
         GROUP by MONTH(fechaCreacion) 
         ORDER BY fechaCreacion DESC limit 0,12";
         return ejecutarConsulta($sql);
     }
 
-    public function Articulosultimos_10dias()
+    public function Articulosultimos_10dias($idsucursal_filtro = "")
     {
+        $filtro = "";
+        if (!empty($idsucursal_filtro)) {
+            $filtro = " AND v.idsucursal = '$idsucursal_filtro' ";
+        } else {
+            $filtro = " AND v.idsucursal='" . $_SESSION["idsucursal"] . "' ";
+        }
 
-        $sql = "SELECT a.nombre as articulos, 
-            SUM(dv.cantidad) AS total 
+        $sql = "SELECT 
+        a.nombre as articulos,
+        SUM(dv.cantidad) as total
         FROM detalle_venta dv
         INNER JOIN articulo a ON a.idarticulo = dv.idarticulo
         inner join venta v on v.idventa=dv.idventa
-        where v.estado='Aceptado'
+        where v.estado='Aceptado' " . $filtro . "
         GROUP BY a.idarticulo
         ORDER BY total DESC, dv.idventa DESC
         LIMIT 10;";
@@ -859,8 +1031,12 @@ GROUP by MONTH(fecha_hora)";
 
 
 
-    public function InventarioxSucusal()
+    public function InventarioxSucursal($idsucursal_filtro)
     {
+        $filtro = "";
+        if (!empty($idsucursal_filtro)) {
+            $filtro = " AND asu.idsucursal = '$idsucursal_filtro' ";
+        }
 
         $sql = "SELECT 
         IFNULL(SUM(asu.stocksucursal*asu.precio_compra),0) AS total_compra,
@@ -869,14 +1045,18 @@ GROUP by MONTH(fecha_hora)";
         FROM articulo a
         INNER JOIN articuloxsucursal asu ON a.idarticulo=asu.idarticulo
         INNER JOIN sucursal s ON s.idsucursal=asu.idsucursal
-        WHERE asu.condicion=1
+        WHERE asu.condicion=1 " . $filtro . "
         GROUP BY s.idsucursal   ";
         return ejecutarConsulta($sql);
     }
 
 
-    public function VentasxSucusal()
+    public function VentasxSucusal($idsucursal_filtro)
     {
+        $filtro = "";
+        if (!empty($idsucursal_filtro)) {
+            $filtro = " AND v.idsucursal = '$idsucursal_filtro' ";
+        }
 
         $sql = "SELECT  
         sum(v.total_venta) AS total_venta,
@@ -884,7 +1064,7 @@ GROUP by MONTH(fecha_hora)";
         FROM venta v  
         LEFT JOIN sucursal s ON s.idsucursal=v.idsucursal
         where v.estado='Aceptado'    
-        and DATE(v.fecha_hora)=curdate() 
+        and DATE(v.fecha_hora)=curdate() " . $filtro . "
         GROUP BY s.idsucursal   ";
         return ejecutarConsulta($sql);
     }
@@ -903,8 +1083,12 @@ GROUP by MONTH(fecha_hora)";
         return ejecutarConsulta($sql);
     }
 
-    public function VentasxSucusalMes()
+    public function VentasxSucusalMes($idsucursal_filtro)
     {
+        $filtro = "";
+        if (!empty($idsucursal_filtro)) {
+            $filtro = " AND v.idsucursal = '$idsucursal_filtro' ";
+        }
 
         $sql = "SELECT  
         DATE_FORMAT(v.fecha_hora,'%M') as fecha,
@@ -914,13 +1098,17 @@ GROUP by MONTH(fecha_hora)";
         INNER JOIN sucursal s ON s.idsucursal=v.idsucursal
         where v.estado='Aceptado'
         and Month(v.fecha_hora)=month(now()) AND  
-          YEAR(v.fecha_hora)=YEAR(now())  
+          YEAR(v.fecha_hora)=YEAR(now()) " . $filtro . "
         GROUP BY s.idsucursal                     ";
         return ejecutarConsulta($sql);
     }
 
-    public function VentasxSucusalMesGanacia()
+    public function VentasxSucusalMesGanacia($idsucursal_filtro)
     {
+        $filtro = "";
+        if (!empty($idsucursal_filtro)) {
+            $filtro = " AND v.idsucursal = '$idsucursal_filtro' ";
+        }
 
         $sql = "SELECT 
             DATE_FORMAT(v.fecha_hora,'%M') AS fecha,
@@ -944,7 +1132,7 @@ GROUP by MONTH(fecha_hora)";
             INNER JOIN sucursal s ON s.idsucursal = v.idsucursal
             WHERE v.estado = 'Aceptado'
             AND MONTH(v.fecha_hora) = MONTH(NOW())
-            AND YEAR(v.fecha_hora) = YEAR(NOW())
+            AND YEAR(v.fecha_hora) = YEAR(NOW()) " . $filtro . "
             GROUP BY s.idsucursal   ";
         return ejecutarConsulta($sql);
     }
@@ -1374,9 +1562,4 @@ GROUP by MONTH(fecha_hora)";
         AND c.estado='Aceptado' AND c.tipo_operacion='APERTURA' ";
         return ejecutarConsulta($sql);
     }
-
-
-
 }
-
-?>

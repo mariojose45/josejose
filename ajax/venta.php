@@ -105,6 +105,8 @@ $tipo_venta_operacion = isset($_POST["tipo_venta_operacion"]) ? limpiarCadena($_
 $idcobradores = isset($_POST["idcobradores"]) ? limpiarCadena($_POST["idcobradores"]) : "";
 $idtecnico = isset($_POST["idtecnico"]) ? limpiarCadena($_POST["idtecnico"]) : "";
 
+$venta_lote = '0';
+
 
 switch ($_GET["op"]) {
     case 'guardaryeditar':
@@ -160,7 +162,8 @@ switch ($_GET["op"]) {
                 $comentario_venta,
                 $tipo_venta_operacion,
                 $idcobradores,
-                $idtecnico
+                $idtecnico,
+                $venta_lote
             );
             echo json_encode($rspta);
         } else {
@@ -505,12 +508,10 @@ switch ($_GET["op"]) {
             $urlOrdenSalida = '../reportes/exOrdenSalida.php?id=';
             $data[] = array(
                 "0" => ($reg->estado == 'Aceptado') ? ' <button class="btn btn-danger" title="Anular Venta" onclick="anular(' . $reg->idventa . ')"><i class="fa fa-close"></i></button>' .
-                    ' <button class="btn btn-info" title="Cambiar forma de pago" onclick="cambiarformapago(' . $reg->idventa . ')"><i class="fa fa-edit"></i></button>' .
                     '<a target="_blank" href="' . $url . $reg->idventa . '" title="Ticket 79mm"><button class="btn btn-success" title="Imprimir Ticket 79mm"><i class="fa fa-print"></i> </button> </a>' .
                     '<a target="_blank" href="' . $url2 . $reg->idventa . '"  title="Ticket 58mm"><button class="btn btn-info" title="Imprimir Ticket 58mm"><i class="fa fa-print"></i> </button> </a>' .
                     '<a target="_blank" href="' . $url4 . $reg->idventa . '"  title="Carta en Blanco"><button class="btn btn-info" title="Imprimir Carta en Blanco"><i class="fa fa-print"></i> </button> </a>' .
-                    '<a target="_blank" href="' . $urlContrato . $reg->idventa . '&id2=' . $reg->idcliente . '" title="Contrato"><button class="btn btn-primary" title="Imprimir Contrato"><i class="fa fa-file-text"></i></button></a>' .
-                    '<a target="_blank" href="' . $urlOrdenSalida . $reg->idventa . '&id2=' . $reg->idcliente . '" title="Orden de Salida"><button class="btn btn-secondary" title="Imprimir Orden de Salida"><i class="fa fa-truck"></i></button></a>' .
+
                     '<a target="_blank" href="' . $url3 . $reg->idventa . '"  title="Carta Colores"><button class="btn btn-warning"><i class="fa fa-print"></i> </button> </a>' :
                     '<a target="_blank" href="' . $url . $reg->idventa . '"><button class="btn btn-success"><i class="fa fa-print"></i> </button> </a>' .
                     '<a target="_blank" href="' . $url2 . $reg->idventa . '"  title="Ticket 58mm"><button class="btn btn-info"><i class="fa fa-print"></i> </button> </a>' .
@@ -1053,6 +1054,33 @@ switch ($_GET["op"]) {
             "sEcho" => 1, //Información para el datatables
             "iTotalRecords" => count($data), //enviamos el total registros al datatable
             "iTotalDisplayRecords" => count($data), //enviamos el total registros a visualizar
+            "aaData" => $data
+        );
+        echo json_encode($results);
+        break;
+
+    case 'listarArticulosVentaCantidad_v2':
+        require_once "../modelos/Articulo.php";
+        $articulo = new Articulo();
+        $rspta = $articulo->listarActivosVenta();
+        $data = array();
+
+        while ($reg = $rspta->fetch_object()) {
+            $json_data = base64_encode(json_encode($reg));
+
+            $data[] = array(
+                "0" => '<button type="button" class="btn btn-warning btn-sm btn-seleccionar" onclick="abrirModalPresentacion(\'' . $json_data . '\')"><i class="fa fa-plus"></i> Seleccionar</button>',
+                "1" => $reg->nombre,
+                "2" => $reg->categoria,
+                "3" => $reg->descripcion_2,
+                "4" => $reg->stock,
+                "5" => $reg->precio_venta
+            );
+        }
+        $results = array(
+            "sEcho" => 1,
+            "iTotalRecords" => count($data),
+            "iTotalDisplayRecords" => count($data),
             "aaData" => $data
         );
         echo json_encode($results);
@@ -1935,5 +1963,12 @@ switch ($_GET["op"]) {
             "aaData" => $data
         );
         echo json_encode($results);
+        break;
+
+    case 'procesar_venta_directa':
+        $idcotizacion = isset($_POST["idcotizacion"]) ? limpiarCadena($_POST["idcotizacion"]) : "";
+        $venta_lote   = isset($_POST["venta_lote"]) ? limpiarCadena($_POST["venta_lote"]) : "";
+        $rspta = $venta->procesarVentaIndividual($idcotizacion, $venta_lote);
+        echo json_encode($rspta);
         break;
 }

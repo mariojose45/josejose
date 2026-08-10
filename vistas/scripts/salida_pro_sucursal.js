@@ -322,24 +322,38 @@ function load() {
 
 //Función para anular registros
 function anular(idtraladosucursal) {
-    bootbox.confirm("¿Está Seguro de anular la salida de producto de sucursal?", function (result) {
-        load();
-        if (result) {
-            $.post("../ajax/salida_pro_sucursal.php?op=anular", { idtraladosucursal: idtraladosucursal }, function (e) {
-                Swal.fire({
-                    title: 'Mensaje!',
-                    text: e,
-                    icon: 'success',
-                    timer: 2000, // 2 segundos
-                    timerProgressBar: true,
-                    willClose: () => {
-                        Swal.close();
-                        window.location.reload();
-                    }
-                });
-            });
+    bootbox.prompt({
+        title: "¿Está Seguro de anular la salida de producto de sucursal? Ingrese la contraseña:",
+        inputType: 'password',
+        callback: function (result) {
+            if (result !== null) {
+                if (result === 'admin123') {
+                    load();
+                    $.post("../ajax/salida_pro_sucursal.php?op=anular", { idtraladosucursal: idtraladosucursal }, function (e) {
+                        Swal.fire({
+                            title: 'Mensaje!',
+                            text: e,
+                            icon: 'success',
+                            timer: 2000,
+                            timerProgressBar: true,
+                            willClose: () => {
+                                Swal.close();
+                                window.location.reload();
+                            }
+                        });
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Contraseña incorrecta',
+                        icon: 'error',
+                        timer: 2000,
+                        timerProgressBar: true
+                    });
+                }
+            }
         }
-    })
+    });
 }
 
 //Declaración de variables necesarias para trabajar con las compras y
@@ -838,18 +852,44 @@ function eliminarDetalle(indice) {
 
 
 function mostrar(idtraladosucursal) {
-    $.post("../ajax/salida_pro_sucursal.php?op=mostrar", { idtraladosucursal: idtraladosucursal }, function (data, status) {
-        data = JSON.parse(data);
-        //console.log("data de salida a editar ", data);
-        mostrarform(true);
-        $("#idsucursal").val(data.idsucursaldestino);
-        $("#idsucursal").selectpicker('refresh');
-        $("#fecha_hora").val(data.fecha);
-        $("#idtraladosucursal").val(data.idtraladosucursal);
-        $("#descripcion_salida_producto").val(data.descripcion_salida_producto);
 
-        obtenerdetalletraslado(idtraladosucursal);
-    });
+    $.post("../ajax/salida_pro_sucursal.php?op=mostrar",
+        { idtraladosucursal: idtraladosucursal },
+        function (data) {
+
+            data = JSON.parse(data);
+
+            mostrarform(true);
+
+            // Cargar nuevamente las sucursales
+            $.post("../ajax/salida_pro_sucursal.php?op=selectSucursal", function (r) {
+
+                var options = '<option value="">Seleccione una sucursal...</option>' + r;
+
+                // Llenar ambos selects
+                $("#idsucursal").html(options);
+                $("#idsucursalOrigen").html(options);
+
+                // Seleccionar los valores
+                $("#idsucursalOrigen").val(data.idsucursalorigen);
+                $("#idsucursal").val(data.idsucursaldestino);
+
+                // Refrescar los selectpicker
+                $("#idsucursalOrigen").selectpicker('refresh');
+                $("#idsucursal").selectpicker('refresh');
+
+                // Demás datos
+                $("#fecha_hora").val(data.fecha);
+                $("#idtraladosucursal").val(data.idtraladosucursal);
+                $("#descripcion_salida_producto").val(data.descripcion_salida_producto);
+
+                // Cargar detalle
+                obtenerdetalletraslado(idtraladosucursal);
+
+            });
+
+        }
+    );
 }
 
 function obtenerdetalletraslado(idtraladosucursal) {

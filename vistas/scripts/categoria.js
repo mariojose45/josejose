@@ -277,7 +277,6 @@ function mostrar_sucursales(idcategoria) {
     });
 }
 
-
 function toggleMostrarEstado(checkbox) {
     var id = checkbox.getAttribute('data-idcategoria_sucursal');
     var nuevoEstado = checkbox.checked ? 'Si' : 'No';

@@ -410,9 +410,10 @@ switch ($_GET["op"]) {
         // 🔥 PAGINACIÓN (NUEVO)
         $start = isset($_GET["start"]) ? intval($_GET["start"]) : 0;
         $length = isset($_GET["length"]) ? intval($_GET["length"]) : 10;
+        $searchValue = isset($_GET["search"]["value"]) ? limpiarCadena($_GET["search"]["value"]) : "";
 
-        // 🔥 LLAMAMOS MODELO CON PAGINACIÓN
-        $rspta = $articulo->listar($estadofiltro, $start, $length);
+        // 🔥 LLAMAMOS MODELO CON PAGINACIÓN Y BÚSQUEDA
+        $rspta = $articulo->listar($estadofiltro, $start, $length, $searchValue);
 
         $data = array();
 
@@ -597,6 +598,42 @@ switch ($_GET["op"]) {
         echo json_encode($results);
 
         break;
+
+
+
+    case 'listarxGeneralAgrupado':
+        $rspta = $articulo->listarxGeneralAgrupado();
+        //Vamos a declarar un array
+        $data = array();
+
+        while ($reg = $rspta->fetch_object()) {
+            $data[] = array(
+                "0" => $reg->dias_vencimiento,
+                "1" => $reg->nombre,
+                "2" => $reg->descripcion,
+                "3" => $reg->descripcion_2,
+                "4" => $reg->categoria,
+                "5" => $reg->tipo_producto,
+                "6" => $reg->codigo,
+                "7" => $reg->stock,
+                "8" => $reg->stockminimo,
+                "9" => ($reg->stockminimo <= $reg->stock) ? '<span class="label bg-green">Stock Normal</span>' :
+                    '<span class="label bg-red">Stock Bajo</span>',
+                "10" => $reg->precio_venta,
+                "11" => $reg->age_sucursal,
+                "12" => ($reg->condicion) ? '<span class="label bg-green">Activado</span>' :
+                    '<span class="label bg-red">Desactivado</span>'
+            );
+        }
+        $results = array(
+            "sEcho" => 1, //Información para el datatables
+            "iTotalRecords" => count($data), //enviamos el total registros al datatable
+            "iTotalDisplayRecords" => count($data), //enviamos el total registros a visualizar
+            "aaData" => $data
+        );
+        echo json_encode($results);
+
+        break;        
 
     case 'listarinvenariosucursal':
         $rspta = $articulo->listarinvenariosucursal();

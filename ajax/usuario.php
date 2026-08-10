@@ -283,6 +283,7 @@ switch ($_GET["op"]) {
             in_array(20, $valores) ? $_SESSION['restaurantecobros'] = 1 : $_SESSION['restaurantecobros'] = 0;
             in_array(21, $valores) ? $_SESSION['despachoventas'] = 1 : $_SESSION['despachoventas'] = 0;
             in_array(22, $valores) ? $_SESSION['inventarioxgeneral'] = 1 : $_SESSION['inventarioxgeneral'] = 0;
+            in_array(100, $valores) ? $_SESSION['inventarioxgeneralagrupado'] = 1 : $_SESSION['inventarioxgeneralagrupado'] = 0;
             in_array(24, $valores) ? $_SESSION['guiastransporte'] = 1 : $_SESSION['guiastransporte'] = 0;
 
             //NUEVOS ACCESO
@@ -383,7 +384,6 @@ switch ($_GET["op"]) {
             in_array(97, $valores) ? $_SESSION['parqueo_Operaciones'] = 1 : $_SESSION['parqueo_Operaciones'] = 0;
             in_array(98, $valores) ? $_SESSION['Parqueo_Rpt_Ticket'] = 1 : $_SESSION['Parqueo_Rpt_Ticket'] = 0;
             in_array(99, $valores) ? $_SESSION['Parqueo_Rpt_Graficas'] = 1 : $_SESSION['Parqueo_Rpt_Graficas'] = 0;
-
         }
         echo json_encode($fetch);
         break;
@@ -415,6 +415,4 @@ switch ($_GET["op"]) {
             echo '<option value=' . $reg->idusuario . '>' . $reg->nombre . '--' . $reg->direccion . '</option>';
         }
         break;
-
 }
-?>

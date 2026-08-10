@@ -178,7 +178,7 @@ Class Venta
         $numero_pagos,$fecha_hora_pago,$fecha_hora_vencimiento_factura,$monto_abono,
         $idtransporte,$idmensajero,$idvendedor,$descuento_general,$valor_descuentoGeneral,$tipo_cliente,
         $detalles_credito,$idtaller,$destino,$forma_productos,$comentario_venta,$tipo_venta_operacion,
-        $idcobradores,$idtecnico)
+        $idcobradores,$idtecnico,$venta_lote)
     { 
 
         date_default_timezone_set('America/Guatemala');
@@ -301,10 +301,10 @@ Class Venta
      
             $sql="INSERT INTO venta (idcliente,idusuario,idsucursal,tipo_comprobante,num_comprobante,fecha_hora,total_venta,estado,cefectivo,rescambio,forma_pago,total_ventades,
             tipo_pagoBacVisaNet,opcionesAdicionales,valor_tarjeta,ccredito,observacion_credito,ctarjeta,ctransferencia,fecha_creacion,tipo_entrega,idvendedor,descuento_general,valor_descuentoGeneral,numero_pagos,
-            fecha_hora_pago,fecha_hora_vencimiento_factura,monto_abono,destino,forma_productos,comentario_venta,tipo_venta_operacion,idcobradores,idtecnico)
+            fecha_hora_pago,fecha_hora_vencimiento_factura,monto_abono,destino,forma_productos,comentario_venta,tipo_venta_operacion,idcobradores,idtecnico,venta_lote)
             VALUES ('$residcliente','$idusuario','".$_SESSION["idsucursal"]."','$tipo_comprobante','$corre','$fecha_hora','$total_venta_r','Aceptado','$cefectivo','$rescambio','$forma_pago','$total_ventades_r',
             '$tipo_pagoBacVisaNet','$opcionesAdicionales','$valor_tarjeta','$ccredito','$observacion_credito','$ctarjeta','$ctransferencia','$fechaHora','$tipo_entrega','$idvendedor','$descuento_general','$valor_descuentoGeneral','$numero_pagos',
-            '$fecha_hora_pago','$fecha_hora_vencimiento_factura','$monto_abono','$destino','$forma_productos','$comentario_venta','$tipo_venta_operacion','$idcobradores','$idtecnico')";   
+            '$fecha_hora_pago','$fecha_hora_vencimiento_factura','$monto_abono','$destino','$forma_productos','$comentario_venta','$tipo_venta_operacion','$idcobradores','$idtecnico','$venta_lote')";   
             $idventanew=ejecutarConsulta_retornarID($sql); 
 
             if($tipo_entrega == "Tienda"){
@@ -547,12 +547,14 @@ Class Venta
                             $sql="INSERT INTO venta (idcliente,idusuario,idsucursal,tipo_comprobante,num_comprobante,fecha_hora,total_venta,estado,cefectivo,rescambio,forma_pago,total_ventades,
                             tipo_pagoBacVisaNet,opcionesAdicionales,valor_tarjeta,ccredito,observacion_credito,ctarjeta,
                             ctransferencia,fecha_creacion,tipo_entrega,numero_pagos,fecha_hora_pago,fecha_hora_vencimiento_factura,monto_abono,
-                            idvendedor,descuento_general,valor_descuentoGeneral,destino,forma_productos,comentario_venta,tipo_venta_operacion,idcobradores,idtecnico)
+                            idvendedor,descuento_general,valor_descuentoGeneral,destino,forma_productos,comentario_venta,tipo_venta_operacion,idcobradores,idtecnico,
+                            venta_lote)
                             VALUES ('$residcliente','$idusuario','".$_SESSION["idsucursal"]."','$tipo_comprobante','$corre','$fecha_hora','$total_venta_r','Aceptado','$cefectivo','$rescambio','$forma_pago','$total_ventades_r',
                             '$tipo_pagoBacVisaNet','$opcionesAdicionales','$valor_tarjeta','$ccredito','$observacion_credito',
                             '$ctarjeta','$ctransferencia','$fechaHora','$tipo_entrega','$numero_pagos','$fecha_hora_pago',
                             '$fecha_hora_vencimiento_factura','$monto_abono','$idvendedor',
-                            '$descuento_general','$valor_descuentoGeneral','$destino','$forma_productos','$comentario_venta','$tipo_venta_operacion','$idcobradores','$idtecnico')";        
+                            '$descuento_general','$valor_descuentoGeneral','$destino','$forma_productos','$comentario_venta','$tipo_venta_operacion','$idcobradores','$idtecnico',
+                            '$venta_lote')";        
                             $idventanew=ejecutarConsulta_retornarID($sql); 
                         ////FIN GUARDA VENTA
 
@@ -3080,7 +3082,178 @@ public function listarRestaurante($fecha_inicio_reporte,$fecha_fin_reporte)
         return ejecutarConsulta($sql);
     }
 
+    public function procesarVentaIndividual($idcotizacion, $venta_lote_recibido = ""){
+        $sqlCoti = "SELECT c.*, p.nombre as nombre_cliente, p.num_documento as nit, p.telefono as telefono_cliente, 
+                            p.direccion as direccion_cliente, p.email as correo_cliente, p.tipo_documento as tipo_documento_cliente,
+                            p.codigo_cliente, p.tipo_cliente
+                    FROM cotizacion c
+                    INNER JOIN persona p ON c.idcliente = p.idpersona
+                    WHERE c.idcotizacion = '$idcotizacion' AND c.cobradosino = 'NO' AND c.estado = 'Aceptado'";
             
+        $coti = ejecutarConsultaSimpleFila($sqlCoti);
+
+        if (!$coti) {
+            return array("status" => "error", "msg" => "La cotización #$idcotizacion no está disponible o ya fue cobrada.");
+        }
+
+        date_default_timezone_set('America/Guatemala');
+        $fecha_hora = date('Y-m-d H:i:s');
+
+        if (!empty($venta_lote_recibido)) {
+            $venta_lote = $venta_lote_recibido;
+        } else {
+            $venta_lote = 'LOTE_' . date('d_m_Y_His') . '_' . $_SESSION['idusuario'];
+        }
+
+        $sqlDetalle = "SELECT dc.*, a.nombre 
+                    FROM detalle_cotizacion dc 
+                    INNER JOIN articulo a ON dc.idarticulo = a.idarticulo
+                    WHERE dc.idcotizacion = '$idcotizacion' AND dc.tipo = '0' 
+                    ORDER BY dc.iddetalle_cotizacion ASC";
+            
+        $rsptaDetalle = ejecutarConsulta($sqlDetalle);
+
+        if (!$rsptaDetalle || $rsptaDetalle->num_rows == 0) {
+            return array("status" => "error", "msg" => "La cotización #$idcotizacion no tiene artículos detallados.");
+        }
+
+        $articulos = array(
+            'idarticulo'               => array(),
+            'precio_compra'            => array(),
+            'stockinven'               => array(),
+            'cantidadpresentacion'     => array(),
+            'cantidad'                 => array(),
+            'totalcantidadpresentacion'=> array(),
+            'presentacion'             => array(),
+            'presen'                   => array(),
+            'precio_ventaSistema'      => array(),
+            'precio_ventaSistema2'     => array(),
+            'q_ref'                    => array(),
+            'precio_venta'             => array(),
+            'precio_recargoPV'         => array(),
+            'precio_recargoQRef'       => array(),
+            'descuento_permitido'      => array(),
+            'descuento_porcentaje'     => array(),
+            'descripcion_detalle'      => array(),
+            'subtotal1'                => array(),
+            'subtotaldes1'             => array()
+        );
+
+        while ($reg = $rsptaDetalle->fetch_object()) {
+            $articulos['idarticulo'][]               = $reg->idarticulo;
+            $articulos['precio_compra'][]            = isset($reg->precio_compra) ? $reg->precio_compra : 0;
+            $articulos['stockinven'][]               = isset($reg->stockinven) ? $reg->stockinven : 0;
+            $articulos['cantidadpresentacion'][]     = isset($reg->cantidadpresentacion) ? $reg->cantidadpresentacion : 1;
+            $articulos['cantidad'][]                 = $reg->cantidad;
+            $articulos['totalcantidadpresentacion'][] = isset($reg->totalcantidadpresentacion) ? $reg->totalcantidadpresentacion : $reg->cantidad;
+            $articulos['presentacion'][]             = isset($reg->presentacion) ? $reg->presentacion : 'UNIDAD';
+            $articulos['presen'][]                   = isset($reg->presen) ? $reg->presen : 'UNIDAD';
+            $articulos['precio_ventaSistema'][]      = isset($reg->precio_ventaSistema) ? $reg->precio_ventaSistema : $reg->precio_venta;
+            $articulos['precio_ventaSistema2'][]     = isset($reg->precio_ventaSistema2) ? $reg->precio_ventaSistema2 : $reg->precio_venta;
+            $articulos['q_ref'][]                    = isset($reg->q_ref) ? $reg->q_ref : 0; // Se corrigió el []
+            $articulos['precio_venta'][]             = $reg->precio_venta;
+            $articulos['precio_recargoPV'][]         = isset($reg->precio_recargoPV) ? $reg->precio_recargoPV : 0;
+            $articulos['precio_recargoQRef'][]       = isset($reg->precio_recargoQRef) ? $reg->precio_recargoQRef : 0;
+            $articulos['descuento_permitido'][]      = 0;
+            $articulos['descuento_porcentaje'][]     = isset($reg->descuento) ? $reg->descuento : 0;
+            $articulos['descripcion_detalle'][]      = isset($reg->descripcion_detalle) ? $reg->descripcion_detalle : '.';
+            $articulos['subtotal1'][]                = isset($reg->subtotal1) ? $reg->subtotal1 : ($reg->cantidad * $reg->precio_venta);
+            $articulos['subtotaldes1'][]             = isset($reg->subtotaldes1) ? $reg->subtotaldes1 : 0;
+        }
+
+        $datosArticulos = array('articulos' => $articulos);
+
+        $idcliente                      = $coti['idcliente'];
+        $codigo_cliente                 = $coti['codigo_cliente'];
+        $nit                            = $coti['nit'];
+        $nombre_cliente                 = $coti['nombre_cliente'];
+        $telefono_cliente               = $coti['telefono_cliente'];
+        $direccion_cliente              = $coti['direccion_cliente'];
+        $correo_cliente                 = $coti['correo_cliente'];
+        $tipo_documento_cliente         = $coti['tipo_documento_cliente'];
+        $idusuario                      = $_SESSION['idusuario'];
+        $forma_pago                     = !empty($coti['forma_pago']) ? $coti['forma_pago'] : 'Efectivo';
+        $tipo_comprobante               = 'Envio';
+        $total_venta                    = $coti['total_venta'];
+        $total_ventades                 = $coti['total_ventades'];
+        $cefectivo                      = ($forma_pago == 'Efectivo') ? $coti['total_venta'] : 0;
+        $ccredito                       = ($forma_pago == 'Credito') ? $coti['total_venta'] : 0;
+        $ctarjeta                       = ($forma_pago == 'Tarjeta') ? $coti['total_venta'] : 0;
+        $ctransferencia                 = ($forma_pago == 'Transferencia') ? $coti['total_venta'] : 0;
+        $rescambio                      = 0;
+        $valor_tarjeta                  = 0;
+        $tipo_pagoBacVisaNet            = isset($coti['tipo_pagoBacVisaNet']) ? $coti['tipo_pagoBacVisaNet'] : '';
+        $opcionesAdicionales            = isset($coti['opcionesAdicionales']) ? $coti['opcionesAdicionales'] : '';
+        $observacion_credito            = '';
+        $total_venta_r                  = $coti['total_venta'];
+        $total_ventades_r               = $coti['total_ventades'];
+        $tipo_entrega                   = 'Tienda';
+        $numero_pagos                   = 0;
+        $fecha_hora_pago                = $fecha_hora;
+        $fecha_hora_vencimiento_factura = $fecha_hora;
+        $monto_abono                    = 0;
+        $idtransporte                   = 0;
+        $idmensajero                    = 0;
+        $idvendedor                     = !empty($coti['idvendedor']) ? $coti['idvendedor'] : 0;
+        $descuento_general              = 'NO APLICA';
+        $valor_descuentoGeneral         = 0;
+        $tipo_cliente                   = $coti['tipo_cliente'];
+        $detalles_credito               = '';
+        $idtaller                       = 0;
+        $destino                        = 'VENTA';
+        $forma_productos                = 'Agrupado';
+        $comentario_venta               = "Venta generada automáticamente desde Cotización #$idcotizacion";
+        $tipo_venta_operacion           = 'VENTA NORMAL';
+        $idcobradores                   = 0;
+        $idtecnico                      = 0;
+
+        try {
+            $resInsertar = $this->insertar(
+                $idcliente, $codigo_cliente, $nit, $nombre_cliente, $telefono_cliente,
+                $direccion_cliente, $correo_cliente, $tipo_documento_cliente, $idusuario, $idcotizacion, $fecha_hora, $forma_pago,
+                $tipo_comprobante, $total_venta, $total_ventades, $cefectivo, $ccredito, $ctarjeta, $ctransferencia,
+                $rescambio, $valor_tarjeta, $tipo_pagoBacVisaNet, $opcionesAdicionales, $observacion_credito,
+                $datosArticulos, $total_venta_r, $total_ventades_r, $tipo_entrega,
+                $numero_pagos, $fecha_hora_pago, $fecha_hora_vencimiento_factura, $monto_abono,
+                $idtransporte, $idmensajero, $idvendedor, $descuento_general, $valor_descuentoGeneral, $tipo_cliente,
+                $detalles_credito, $idtaller, $destino, $forma_productos, $comentario_venta, $tipo_venta_operacion,
+                $idcobradores, $idtecnico, $venta_lote
+            );
+
+            $idventareal = is_array($resInsertar) ? (isset($resInsertar['idventanew']) ? $resInsertar['idventanew'] : 0) : $resInsertar;
+
+            return array(
+                "status" => "ok", 
+                "msg" => "Cotización #$idcotizacion convertida en Venta #$idventareal exitosamente.", 
+                "idventa" => $idventareal,
+                "venta_lote" => $venta_lote
+            );
+
+        } catch (Exception $e) {
+            return array("status" => "error", "msg" => "Error al procesar la cotización #$idcotizacion: " . $e->getMessage());
+        }
+    }
+     
+    public function listarVentasPorLote($venta_lote){
+        $sql = "SELECT v.idventa, v.venta_lote, v.tipo_comprobante, v.serie_comprobante, v.num_comprobante, 
+                    v.fecha_hora, v.total_venta, v.impuesto, v.forma_pago,
+                    p.nombre AS nombre_cliente, p.tipo_documento, p.num_documento, p.direccion, p.telefono
+                FROM venta v 
+                INNER JOIN persona p ON v.idcliente = p.idpersona 
+                WHERE v.venta_lote = '$venta_lote'
+                ORDER BY v.idventa ASC";
+        return ejecutarConsulta($sql);
+    }
+
+    public function listarDetalleVenta($idventa){
+        $sql = "SELECT dv.iddetalle_venta, dv.idarticulo, a.nombre AS articulo, dv.cantidad, 
+                    dv.precio_venta, dv.descuento, dv.descripcion_detalle,
+                    (dv.cantidad * CAST(dv.precio_venta AS DECIMAL(20,6)) - dv.descuento) AS subtotal
+                FROM detalle_venta dv 
+                INNER JOIN articulo a ON dv.idarticulo = a.idarticulo 
+                WHERE dv.idventa = '$idventa'";
+        return ejecutarConsulta($sql);
+    }
 
             
 

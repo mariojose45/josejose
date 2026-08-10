@@ -10,7 +10,7 @@ if (!isset($_SESSION["nombre"])) {
   require 'header.php';
   if ($_SESSION['almacen_crear_categoria'] == 1) {
 
-    ?>
+?>
     <!--Contenido-->
     <!-- Content Wrapper. Contains page content -->
     <div class="content-wrapper">
@@ -142,13 +142,39 @@ if (!isset($_SESSION["nombre"])) {
           </div><!-- /.col -->
         </div><!-- /.row -->
       </section><!-- /.content -->
+      <div class="modal fade" id="modalSucursales" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-md">
+          <div class="modal-content">
+            <div class="modal-header bg-info"> <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h4 class="modal-title" id="myModalLabel"><i class="fa fa-cubes"></i> Actualizar Visibilidad de Categoría por Sucursal</h4>
+            </div>
+            <div class="modal-body">
+              <form name="formulario_sucursales" id="formulario_sucursales" method="POST">
+                <input type="hidden" name="idcategoria_modal" id="idcategoria_modal">
 
+                <div class="alert alert-info">
+                  <i class="fa fa-info-circle"></i> Marque las sucursales donde desea que esta categoría sea **visible**.
+                </div>
+
+                <div id="sucursales_container">
+                </div>
+
+                <hr>
+                <div class="form-group text-center">
+                  <button class="btn btn-primary" type="submit" id="btnGuardarSucursales"><i class="fa fa-save"></i> Guardar Cambios</button>
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
     </div><!-- /.content-wrapper -->
     <!--Fin-Contenido-->
 
 
 
-    <?php
+  <?php
   } else {
     require 'noacceso.php';
   }
@@ -159,7 +185,7 @@ if (!isset($_SESSION["nombre"])) {
 
 
 
-  <?php
+<?php
 }
 ob_end_flush();
 ?>

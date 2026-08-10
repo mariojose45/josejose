@@ -30,9 +30,12 @@ class Salidaprosucursal
         $sql = "INSERT INTO traslado_sucursal (idsucursaldestino,idusuario,idsucursalorigen,fecha_hora,descripcion_salida_producto,
         estado,total_venta)
         VALUES ('$idsucursal','$idusuario','$idsucursalorigen','$fecha_hora','$descripcion_salida_producto',
-        'SALIDA PRODUCTO','$total_venta_r')";
+        'PRODUCTO INGRESADO A SUCURSAL','$total_venta_r')";
         //return ejecutarConsulta($sql);
         $idtraladosucursalnew = ejecutarConsulta_retornarID($sql);
+
+
+
 
         $num_elementos = 0;
         $sw = true;
@@ -64,6 +67,83 @@ class Salidaprosucursal
                 '$idsucursal','$precio_venta','$cantidadpresentacion','$totalcantidadpresentacion',
                 '$presentacion')";
                 ejecutarConsulta($sql_detalle) or $sw = false;
+
+
+                $sqlArticuloStockSalida = "UPDATE articuloxsucursal SET stocksucursal = stocksucursal - " . $totalcantidadpresentacion . " ,
+                        precio_venta = " . $precio_venta . " ,precio_unidad=" . $precio_venta . "  
+                        WHERE idarticulo =$idarticulo    and idsucursal='$idsucursalorigen' ";
+                ejecutarConsulta($sqlArticuloStockSalida);
+
+                $sqlCheckDestino = "SELECT idarticuloxsucursal FROM articuloxsucursal WHERE idarticulo='$idarticulo' AND idsucursal='$idsucursal'";
+                $checkDestino = ejecutarConsultaSimpleFila($sqlCheckDestino);
+
+                if ($checkDestino) {
+                    $sqlArticuloStockEntrada = "UPDATE articuloxsucursal SET stocksucursal = stocksucursal + " . $totalcantidadpresentacion . " ,
+                            precio_venta = " . $precio_venta . " ,precio_unidad=" . $precio_venta . "  
+                            WHERE idarticulo =$idarticulo    and idsucursal='$idsucursal' ";
+                    ejecutarConsulta($sqlArticuloStockEntrada);
+                } else {
+                    $sqlArticuloStockEntrada = "INSERT INTO articuloxsucursal (idarticulo, idsucursal, idusuario, stocksucursal, 
+                        stockminimo, precio_compra, precio_venta, precio_ventaNocturno, descuento_porcentaje, 
+                        precio_descuento, precio_rango1, precio_rango2, precio_rango3, 
+                        nombre_01, stock_unidad, precio_unidad, 
+                        nombre_02, stock_blister, precio_blister, 
+                        nombre_03, stock_caja, precio_caja, 
+                        nombre_04, stock_fardo, precio_fardo, 
+                        nombre_05, stock_sacos, precio_sacos, 
+                        nombre_06, stock_paquete, precio_paquete, 
+                        nombre_07, stock_07, precio_07, 
+                        nombre_08, stock_08, precio_08, 
+                        nombre_09, stock_09, precio_09, 
+                        nombre_10, stock_10, precio_10, 
+                        nombre_11, stock_11, precio_11, 
+                        nombre_12, stock_12, precio_12, 
+                        nombre_13, stock_13, precio_13, 
+                        nombre_14, stock_14, precio_14, 
+                        nombre_15, stock_15, precio_15, 
+                        nombre_16, stock_16, precio_16, 
+                        nombre_17, stock_17, precio_17, 
+                        nombre_18, stock_18, precio_18, 
+                        nombre_19, stock_19, precio_19, 
+                        nombre_20, stock_20, precio_20, 
+                        condicion, ganacia_articulo, 
+                        tipo_ganacia, fecha_creacion, producto_consignacion, aplica_impuestos, precio_rango1_Dos,
+                        precio_rango2_Dos, precio_rango3_Dos, precio_rango1_Mecanico, precio_rango2_MecanicoDos,
+                        precio_rango3_MecanicoTres, precio_rango1_Distribuidor, precio_rango2_DistribuidorDos,
+                        precio_rango3_DistribuidorTres, precio_rango1_Mayorista, precio_rango2_MayoristaDos,
+                        precio_rango3_MayoristaTres, codigo_sku, stockmaximo, precio_activado, descripcion_2, pocentaje_ganacia) 
+                        SELECT idarticulo, '$idsucursal', '$idusuario', '$totalcantidadpresentacion', 
+                        stockminimo, precio_compra, '$precio_venta', precio_ventaNocturno, descuento_porcentaje, 
+                        precio_descuento, precio_rango1, precio_rango2, precio_rango3, 
+                        nombre_01, stock_unidad, '$precio_venta', 
+                        nombre_02, stock_blister, precio_blister, 
+                        nombre_03, stock_caja, precio_caja, 
+                        nombre_04, stock_fardo, precio_fardo, 
+                        nombre_05, stock_sacos, precio_sacos, 
+                        nombre_06, stock_paquete, precio_paquete, 
+                        nombre_07, stock_07, precio_07, 
+                        nombre_08, stock_08, precio_08, 
+                        nombre_09, stock_09, precio_09, 
+                        nombre_10, stock_10, precio_10, 
+                        nombre_11, stock_11, precio_11, 
+                        nombre_12, stock_12, precio_12, 
+                        nombre_13, stock_13, precio_13, 
+                        nombre_14, stock_14, precio_14, 
+                        nombre_15, stock_15, precio_15, 
+                        nombre_16, stock_16, precio_16, 
+                        nombre_17, stock_17, precio_17, 
+                        nombre_18, stock_18, precio_18, 
+                        nombre_19, stock_19, precio_19, 
+                        nombre_20, stock_20, precio_20, 
+                        '1', ganacia_articulo, 
+                        tipo_ganacia, '$fechaHora', producto_consignacion, aplica_impuestos, precio_rango1_Dos,
+                        precio_rango2_Dos, precio_rango3_Dos, precio_rango1_Mecanico, precio_rango2_MecanicoDos,
+                        precio_rango3_MecanicoTres, precio_rango1_Distribuidor, precio_rango2_DistribuidorDos,
+                        precio_rango3_DistribuidorTres, precio_rango1_Mayorista, precio_rango2_MayoristaDos,
+                        precio_rango3_MayoristaTres, codigo_sku, stockmaximo, precio_activado, descripcion_2, pocentaje_ganacia
+                        FROM articuloxsucursal WHERE idarticulo='$idarticulo' AND idsucursal='$idsucursalorigen'";
+                    ejecutarConsulta($sqlArticuloStockEntrada);
+                }
 
 
                 $sql_detalleoperaciones = "INSERT INTO operaciones_compras_ventas(idingreso,idventa,idtraladosucursal,
@@ -108,11 +188,37 @@ class Salidaprosucursal
         ejecutarConsulta($sqlUpdate);
 
         //ELIMINAR EL DETALLE e INSERTAR DE NUEVO
+        // Obtener el detalle para revertir el inventario
+        $sqlDetalle = "SELECT idarticulo, totalcantidadpresentacion, idsucursalorigen, idsucursaldestino 
+                       FROM detalle_traslado_sucursal 
+                       WHERE idtraladosucursal='$idtraladosucursal'";
+        $rspta = ejecutarConsulta($sqlDetalle);
+
+        while ($reg = $rspta->fetch_object()) {
+            $idarticulo = $reg->idarticulo;
+            $totalcantidadpresentacion = $reg->totalcantidadpresentacion;
+            $idsucursalorigen = $reg->idsucursalorigen;
+            $idsucursaldestino = $reg->idsucursaldestino;
+
+            // Revertir salida: sumar al origen
+            $sqlArticuloStockSalida = "UPDATE articuloxsucursal SET stocksucursal = stocksucursal + " . $totalcantidadpresentacion . " 
+                    WHERE idarticulo = $idarticulo AND idsucursal = '$idsucursalorigen'";
+            ejecutarConsulta($sqlArticuloStockSalida);
+
+            // Revertir entrada: restar al destino
+            $sqlArticuloStockEntrada = "UPDATE articuloxsucursal SET stocksucursal = stocksucursal - " . $totalcantidadpresentacion . " 
+                    WHERE idarticulo = $idarticulo AND idsucursal = '$idsucursaldestino'";
+            ejecutarConsulta($sqlArticuloStockEntrada);
+        }
+
+
         $sqlDetalleIngresoElimminar = "DELETE from detalle_traslado_sucursal where idtraladosucursal=" . $idtraladosucursal . "";
         ejecutarConsulta($sqlDetalleIngresoElimminar);
 
         $sqlDetalleIngresoElimminar = "DELETE from operaciones_compras_ventas where idtraladosucursal=" . $idtraladosucursal . "";
         ejecutarConsulta($sqlDetalleIngresoElimminar);
+
+
 
         //INSERTAR
         $num_elementos = 0;
@@ -146,6 +252,83 @@ class Salidaprosucursal
                 ejecutarConsulta($sql_detalle) or $sw = false;
 
 
+                $sqlArticuloStockSalida = "UPDATE articuloxsucursal SET stocksucursal = stocksucursal - " . $totalcantidadpresentacion . " ,
+                        precio_venta = " . $precio_venta . " ,precio_unidad=" . $precio_venta . "  
+                        WHERE idarticulo =$idarticulo    and idsucursal='$idsucursalorigen' ";
+                ejecutarConsulta($sqlArticuloStockSalida);
+
+                $sqlCheckDestino = "SELECT idarticuloxsucursal FROM articuloxsucursal WHERE idarticulo='$idarticulo' AND idsucursal='$idsucursal'";
+                $checkDestino = ejecutarConsultaSimpleFila($sqlCheckDestino);
+
+                if ($checkDestino) {
+                    $sqlArticuloStockEntrada = "UPDATE articuloxsucursal SET stocksucursal = stocksucursal + " . $totalcantidadpresentacion . " ,
+                            precio_venta = " . $precio_venta . " ,precio_unidad=" . $precio_venta . "  
+                            WHERE idarticulo =$idarticulo    and idsucursal='$idsucursal' ";
+                    ejecutarConsulta($sqlArticuloStockEntrada);
+                } else {
+                    $sqlArticuloStockEntrada = "INSERT INTO articuloxsucursal (idarticulo, idsucursal, idusuario, stocksucursal, 
+                        stockminimo, precio_compra, precio_venta, precio_ventaNocturno, descuento_porcentaje, 
+                        precio_descuento, precio_rango1, precio_rango2, precio_rango3, 
+                        nombre_01, stock_unidad, precio_unidad, 
+                        nombre_02, stock_blister, precio_blister, 
+                        nombre_03, stock_caja, precio_caja, 
+                        nombre_04, stock_fardo, precio_fardo, 
+                        nombre_05, stock_sacos, precio_sacos, 
+                        nombre_06, stock_paquete, precio_paquete, 
+                        nombre_07, stock_07, precio_07, 
+                        nombre_08, stock_08, precio_08, 
+                        nombre_09, stock_09, precio_09, 
+                        nombre_10, stock_10, precio_10, 
+                        nombre_11, stock_11, precio_11, 
+                        nombre_12, stock_12, precio_12, 
+                        nombre_13, stock_13, precio_13, 
+                        nombre_14, stock_14, precio_14, 
+                        nombre_15, stock_15, precio_15, 
+                        nombre_16, stock_16, precio_16, 
+                        nombre_17, stock_17, precio_17, 
+                        nombre_18, stock_18, precio_18, 
+                        nombre_19, stock_19, precio_19, 
+                        nombre_20, stock_20, precio_20, 
+                        condicion, ganacia_articulo, 
+                        tipo_ganacia, fecha_creacion, producto_consignacion, aplica_impuestos, precio_rango1_Dos,
+                        precio_rango2_Dos, precio_rango3_Dos, precio_rango1_Mecanico, precio_rango2_MecanicoDos,
+                        precio_rango3_MecanicoTres, precio_rango1_Distribuidor, precio_rango2_DistribuidorDos,
+                        precio_rango3_DistribuidorTres, precio_rango1_Mayorista, precio_rango2_MayoristaDos,
+                        precio_rango3_MayoristaTres, codigo_sku, stockmaximo, precio_activado, descripcion_2, pocentaje_ganacia) 
+                        SELECT idarticulo, '$idsucursal', '$idusuario', '$totalcantidadpresentacion', 
+                        stockminimo, precio_compra, '$precio_venta', precio_ventaNocturno, descuento_porcentaje, 
+                        precio_descuento, precio_rango1, precio_rango2, precio_rango3, 
+                        nombre_01, stock_unidad, '$precio_venta', 
+                        nombre_02, stock_blister, precio_blister, 
+                        nombre_03, stock_caja, precio_caja, 
+                        nombre_04, stock_fardo, precio_fardo, 
+                        nombre_05, stock_sacos, precio_sacos, 
+                        nombre_06, stock_paquete, precio_paquete, 
+                        nombre_07, stock_07, precio_07, 
+                        nombre_08, stock_08, precio_08, 
+                        nombre_09, stock_09, precio_09, 
+                        nombre_10, stock_10, precio_10, 
+                        nombre_11, stock_11, precio_11, 
+                        nombre_12, stock_12, precio_12, 
+                        nombre_13, stock_13, precio_13, 
+                        nombre_14, stock_14, precio_14, 
+                        nombre_15, stock_15, precio_15, 
+                        nombre_16, stock_16, precio_16, 
+                        nombre_17, stock_17, precio_17, 
+                        nombre_18, stock_18, precio_18, 
+                        nombre_19, stock_19, precio_19, 
+                        nombre_20, stock_20, precio_20, 
+                        '1', ganacia_articulo, 
+                        tipo_ganacia, '$fechaHora', producto_consignacion, aplica_impuestos, precio_rango1_Dos,
+                        precio_rango2_Dos, precio_rango3_Dos, precio_rango1_Mecanico, precio_rango2_MecanicoDos,
+                        precio_rango3_MecanicoTres, precio_rango1_Distribuidor, precio_rango2_DistribuidorDos,
+                        precio_rango3_DistribuidorTres, precio_rango1_Mayorista, precio_rango2_MayoristaDos,
+                        precio_rango3_MayoristaTres, codigo_sku, stockmaximo, precio_activado, descripcion_2, pocentaje_ganacia
+                        FROM articuloxsucursal WHERE idarticulo='$idarticulo' AND idsucursal='$idsucursalorigen'";
+                    ejecutarConsulta($sqlArticuloStockEntrada);
+                }
+
+
                 $sql_detalleoperaciones = "INSERT INTO operaciones_compras_ventas(idingreso,
                                                                                 idventa,idtraladosucursal,idtraladosucursal_entrada,
                                                                                 iddevolucion,cantidad_compras,cantidad_ventas,cantidad_entrada,
@@ -174,6 +357,29 @@ class Salidaprosucursal
     {
         $sql = "UPDATE traslado_sucursal SET estado='Anulado' WHERE idtraladosucursal='$idtraladosucursal'";
         ejecutarConsulta($sql);
+
+        // Obtener el detalle para revertir el inventario
+        $sqlDetalle = "SELECT idarticulo, totalcantidadpresentacion, idsucursalorigen, idsucursaldestino 
+                       FROM detalle_traslado_sucursal 
+                       WHERE idtraladosucursal='$idtraladosucursal'";
+        $rspta = ejecutarConsulta($sqlDetalle);
+
+        while ($reg = $rspta->fetch_object()) {
+            $idarticulo = $reg->idarticulo;
+            $totalcantidadpresentacion = $reg->totalcantidadpresentacion;
+            $idsucursalorigen = $reg->idsucursalorigen;
+            $idsucursaldestino = $reg->idsucursaldestino;
+
+            // Revertir salida: sumar al origen
+            $sqlArticuloStockSalida = "UPDATE articuloxsucursal SET stocksucursal = stocksucursal + " . $totalcantidadpresentacion . " 
+                    WHERE idarticulo = $idarticulo AND idsucursal = '$idsucursalorigen'";
+            ejecutarConsulta($sqlArticuloStockSalida);
+
+            // Revertir entrada: restar al destino
+            $sqlArticuloStockEntrada = "UPDATE articuloxsucursal SET stocksucursal = stocksucursal - " . $totalcantidadpresentacion . " 
+                    WHERE idarticulo = $idarticulo AND idsucursal = '$idsucursaldestino'";
+            ejecutarConsulta($sqlArticuloStockEntrada);
+        }
 
         $sqlDetalleIngresoElimminar = "DELETE from operaciones_compras_ventas where idtraladosucursal=" . $idtraladosucursal . "";
         ejecutarConsulta($sqlDetalleIngresoElimminar);
@@ -307,6 +513,7 @@ class Salidaprosucursal
                 d.idsucursaldestino,
                 d.precio_venta,
                 a.codigo,
+                d.totalcantidadpresentacion,
                 a.nombre AS articulo,
                 ts.estado,
                 date(ts.fecha_hora) AS fecha
@@ -424,13 +631,13 @@ class Salidaprosucursal
     {
         date_default_timezone_set('America/Guatemala');
         $fechaHora = date('Y-m-d H:i:s');
-        
+
         // Convertimos el arreglo de artículos a formato de texto JSON para guardarlo
         $detalle_json = $datosArticulos ? json_encode($datosArticulos) : '';
-        
+
         $sql = "INSERT INTO auditoria_traslado_sucursal (idtraladosucursal, accion, descripcion, detalle_articulos, idusuario, fecha_hora) 
                 VALUES ('$idtraladosucursal', '$accion', '$descripcion', '$detalle_json', '$idusuario', '$fechaHora')";
-        
+
         return ejecutarConsulta($sql);
     }
 }

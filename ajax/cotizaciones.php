@@ -441,6 +441,30 @@ switch ($_GET["op"]){
         ));
     break;
 
+    case 'listarPendientes':
+        $rspta = $cotizaciones->listarPendientesCobro();
+        $data = Array();
+
+        while ($reg = $rspta->fetch_object()) {
+            $data[] = array(
+                "0" => '<input type="checkbox" class="chk_cotizacion" value="' . $reg->idcotizacion . '" data-total="' . $reg->total_venta . '" data-cliente="' . htmlspecialchars($reg->nombre_cliente) . '">',
+                "1" => $reg->idcotizacion,
+                "2" => $reg->fecha_cotizacion,
+                "3" => $reg->nombre_cliente,
+                "4" => $reg->forma_pago,
+                "5" => 'Q. ' . number_format($reg->total_venta, 2)
+            );
+        }
+
+        $results = array(
+            "sEcho" => 1,
+            "iTotalRecords" => count($data),
+            "iTotalDisplayRecords" => count($data),
+            "aaData" => $data
+        );
+
+        echo json_encode($results);
+    break;
 
 }
 ?> 

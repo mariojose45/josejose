@@ -88,6 +88,13 @@ if (!isset($_SESSION["nombre"])) {
                             <label>Descripcion Salida producto:</label>
                             <input type="text" class="form-control" name="descripcion_salida_producto" id="descripcion_salida_producto" >
                           </div>
+                          <div class="form-group col-lg-4 col-md-12 col-sm-12 col-xs-12">
+                            <label>Tipo Operación(*):</label>
+                            <select id="tipo_operacion" name="tipo_operacion" class="form-control selectpicker" required>
+                                <option value="Salida">Salida</option>
+                                <option value="Entrada">Entrada</option>
+                            </select>
+                          </div>
 
                           <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
                             <a data-toggle="modal" href="#myModal">           

@@ -8,6 +8,7 @@ function init() {
     $('#Ventas').addClass("active");
 
     listarArticulos();
+    // listarArticulos_v2();
     // listarArticulosxcategoria();
     $("#div_formapago").hide();
     $("#tipo_combus").hide();
@@ -125,6 +126,7 @@ function init() {
 
     let cotizacionCargada = false; // Bandera para controlar si ya se cargó una cotización
 
+    /*
     $("#btncargar").click(function () {
 
         var idcotizacion = $("#idcotizacion").val();
@@ -136,6 +138,7 @@ function init() {
         obtenerClienteCotizacion(idcotizacion);
 
     });
+    */
 
     $("#btnGuardarApertura").click(function (e) {
         guardaryeditaraperturacaja(e);
@@ -208,6 +211,162 @@ function init() {
         obtenerClienteTaller(idtaller);
     });
 
+    $("#btncargar").click(function () {
+        var rawInput = $("#idcotizacion").val().trim();
+        if (rawInput === "") {
+            Swal.fire("Atención", "Debe ingresar al menos un ID de Cotización", "warning");
+            return;
+        }
+
+        // Convertimos la cadena "2, 5, 8" en un array ["2", "5", "8"]
+        var ids = rawInput.split(',').map(item => item.trim()).filter(item => item !== "");
+
+        if (ids.length === 0) return;
+
+        Swal.fire({
+            title: '¿Procesar cotizaciones?',
+            text: `Se crearán ${ids.length} ventas independientes.`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, procesar todas',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                procesarCotizacionesEnLote(ids);
+            }
+        });
+    });
+}
+
+/*
+async function procesarCotizacionesEnLote(cotizaciones) {
+    let exitosas = 0;
+    let fallidas = 0;
+    let errores = [];
+
+    // Mostramos cargando con SweetAlert2
+    Swal.fire({
+        title: 'Procesando ventas...',
+        html: 'Por favor espere mientras se generan las ventas.',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
+    for (let id of cotizaciones) {
+        await new Promise((resolve) => {
+            $.post("../ajax/venta.php?op=procesar_venta_directa", { idcotizacion: id }, function (data) {
+                try {
+                    let res = JSON.parse(data);
+                    if (res.status === 'ok') {
+                        exitosas++;
+                    } else {
+                        fallidas++;
+                        errores.push(`Coti #${id}: ${res.msg}`);
+                    }
+                } catch (e) {
+                    fallidas++;
+                    errores.push(`Coti #${id}: Error de respuesta del servidor`);
+                }
+                resolve();
+            });
+        });
+    }
+
+    // Al finalizar todas las ventas:
+    let mensajeHtml = `<p><b>Exitosas:</b> ${exitosas}</p><p><b>Fallidas:</b> ${fallidas}</p>`;
+    if (errores.length > 0) {
+        mensajeHtml += `<br><small style="color:red">${errores.join('<br>')}</small>`;
+    }
+
+    Swal.fire({
+        icon: fallidas === 0 ? 'success' : 'warning',
+        title: 'Proceso finalizado',
+        html: mensajeHtml,
+        confirmButtonText: 'Aceptar'
+    }).then(() => {
+        // Opcional: Recargar la tabla/lista principal si existe
+        if (typeof listar === 'function') {
+            listar();
+        }
+    });
+}
+*/
+async function procesarCotizacionesEnLote(cotizaciones) {
+    let exitosas = 0;
+    let fallidas = 0;
+    let errores = [];
+
+    // 1. GENERAR EL LOTE ÚNICO AQUÍ (Ej: LOTE_22_07_2026_095833_113)
+    let ahora = new Date();
+    let dia = String(ahora.getDate()).padStart(2, '0');
+    let mes = String(ahora.getMonth() + 1).padStart(2, '0');
+    let anio = ahora.getFullYear();
+    let hora = String(ahora.getHours()).padStart(2, '0') +
+        String(ahora.getMinutes()).padStart(2, '0') +
+        String(ahora.getSeconds()).padStart(2, '0');
+
+    // Usamos el idusuario disponible en el entorno JS (o de la sesión)
+    let idusuario_js = $("#idusuario_session").val() || ""; // Cambia por tu variable de usuario si aplica
+    let loteUnico = `LOTE_${dia}_${mes}_${anio}_${hora}_${idusuario_js}`;
+
+    Swal.fire({
+        title: 'Procesando ventas...',
+        html: 'Por favor espere mientras se generan las ventas.',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
+    for (let id of cotizaciones) {
+        await new Promise((resolve) => {
+            // 2. ENVIAMOS 'venta_lote' JUNTO CON EL 'idcotizacion'
+            $.post("../ajax/venta.php?op=procesar_venta_directa", {
+                idcotizacion: id,
+                venta_lote: loteUnico
+            }, function (data) {
+                try {
+                    let res = JSON.parse(data);
+                    if (res.status === 'ok') {
+                        exitosas++;
+                    } else {
+                        fallidas++;
+                        errores.push(`Coti #${id}: ${res.msg}`);
+                    }
+                } catch (e) {
+                    fallidas++;
+                    errores.push(`Coti #${id}: Error de respuesta del servidor`);
+                }
+                resolve();
+            });
+        });
+    }
+
+    // Al finalizar todas las ventas:
+    let mensajeHtml = `<p><b>Exitosas:</b> ${exitosas}</p><p><b>Fallidas:</b> ${fallidas}</p>`;
+    if (errores.length > 0) {
+        mensajeHtml += `<br><small style="color:red">${errores.join('<br>')}</small>`;
+    }
+
+    Swal.fire({
+        icon: fallidas === 0 ? 'success' : 'warning',
+        title: 'Proceso finalizado',
+        html: mensajeHtml,
+        showCancelButton: true,
+        confirmButtonText: '<i class="fa fa-print"></i> Imprimir Reporte Lote',
+        cancelButtonText: 'Aceptar',
+        confirmButtonColor: '#3085d6'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.open("../reportes/ex_venta_lote.php?lote=" + loteUnico, "_blank");
+        }
+
+        if (typeof listar === 'function') {
+            listar();
+        }
+    });
 }
 
 function obtenerClienteTaller(idcotizacion) {
@@ -2804,6 +2963,160 @@ function marcarImpuesto() {
 }
 
 
+function agregarDetalleCantidadRapida(idarticulo, nombre, precio_venta, stock, descuento_porcentaje,
+    precio_rango1, precio_rango1_Dos,
+    precio_rango2, precio_rango2_Dos,
+    precio_rango3, precio_rango3_Dos,
+    precio_rango1_Mecanico, precio_rango1_Distribuidor, precio_rango1_Mayorista,
+    precio_rango2_MecanicoDos, precio_rango2_DistribuidorDos, precio_rango2_MayoristaDos,
+    precio_rango3_MecanicoTres, precio_rango3_DistribuidorTres, precio_rango3_MayoristaTres,
+    nombre_01, stock_unidad, precio_unidad,
+    nombre_02, stock_blister, precio_blister,
+    nombre_03, stock_caja, precio_caja,
+    nombre_04, stock_fardo, precio_fardo,
+    nombre_05, stock_sacos, precio_sacos,
+    nombre_06, stock_paquete, precio_paquete,
+    nombre_07, stock_07, precio_07,
+    nombre_08, stock_08, precio_08,
+    nombre_09, stock_09, precio_09,
+    nombre_10, stock_10, precio_10,
+    nombre_11, stock_11, precio_11,
+    nombre_12, stock_12, precio_12,
+    nombre_13, stock_13, precio_13,
+    nombre_14, stock_14, precio_14,
+    nombre_15, stock_15, precio_15,
+    nombre_16, stock_16, precio_16,
+    nombre_17, stock_17, precio_17,
+    nombre_18, stock_18, precio_18,
+    nombre_19, stock_19, precio_19,
+    nombre_20, stock_20, precio_20,
+    precio_activado, facturar_cero, precio_compra, cantidad, cantidadpresentacion) {
+
+    if (facturar_cero == 'NO') {
+        // Validar si la cantidad es mayor al stock disponible
+        if (parseInt(cantidad) > parseInt(stock)) {
+            alert("La cantidad ingresada es mayor al stock disponible");
+            return;
+        }
+    }
+    if (cantidad == 0 || cantidad == null) {
+        var cantidad = 1;
+    } else {
+        var cantidad = cantidad;
+    }
+
+    precio_activado = precio_activado.toString().trim();
+
+    var stockinven = stock;
+    var presen = 'UNIDAD';
+    var totalcantidadpresentacion = cantidad * cantidadpresentacion;
+    idarticulo = idarticulo.toString().trim();
+    var subtotaldes = 0;
+    if (idarticulo != "") {
+        var exist = false;
+        $('#detalles').children("tbody").children("tr").each(function (index) {
+            var idart = $(this).attr("data-id")
+            if (idart == idarticulo) {
+                exist = true;
+            }
+        })
+
+        if (!exist) {
+            var subtotal = cantidad * precio_venta;
+            var fila = '<tr class="filas" data-id="' + idarticulo + '" id="fila' + cont + '">' +
+                '<td><button type="button" class="btn btn-danger" onclick="eliminarDetalle(' + cont + ')">X</button></td>' +
+                '<td><input type="hidden" name="idarticulo[]" value="' + idarticulo + '">' + nombre + '</td>' +
+                '<td><input type="hidden" name="precio_compra[]" value="' + precio_compra + '"><input type="hidden" name="stockinven[]" value="' + stockinven + '">' + stockinven + '</td>' +
+                '<td><input style="width:60px" type="hidden" id="cantidadpresentacion' + cont + '" name="cantidadpresentacion[]" value="' + cantidadpresentacion + '" onchange="modificarSubototales()"><input style="width:60px" class="form-control"  onchange="modificarSubototalesxrango(' + cont + ',' + precio_rango1 + ',' + precio_rango2 + ',' + precio_rango3 + ',' + precio_rango1_Dos + ',' + precio_rango2_Dos + ',' + precio_rango3_Dos + ',' + precio_rango1_Mecanico + ',' + precio_rango2_MecanicoDos + ',' + precio_rango3_MecanicoTres + ',' + precio_rango1_Distribuidor + ',' + precio_rango2_DistribuidorDos + ',' + precio_rango3_DistribuidorTres + ',' + precio_rango1_Mayorista + ',' + precio_rango2_MayoristaDos + ',' + precio_rango3_MayoristaTres + ',this)"  type="number" step="any"   id="cxcantidad' + idarticulo + '" name="cantidad[]" id="cantidad' + cont + '" value="' + cantidad + '"><input style="width:60px"  type="hidden" id="totalcantidadpresentacion' + cont + '" name="totalcantidadpresentacion[]" value="' + totalcantidadpresentacion + '" onchange="modificarSubototales()"></td>' +
+                `<td>
+                <select class="form-control" style="width:125px" name="presentacion[]" id="presentacionselect`+ cont + `" 
+                onchange="presentacionoculatardatos(`+ cont + `,` + precio_venta + `,
+                                '` + nombre_01 + `',` + stock_unidad + `,` + precio_unidad + `,
+                                '` + nombre_02 + `',` + stock_blister + `,` + precio_blister + `,
+                                '` + nombre_03 + `',` + stock_caja + `,` + precio_caja + `,
+                                '` + nombre_04 + `',` + stock_fardo + `,` + precio_fardo + `,
+                                '` + nombre_05 + `',` + stock_sacos + `,` + precio_sacos + `,
+                                '` + nombre_06 + `',` + stock_paquete + `,` + precio_paquete + `,
+                                '` + nombre_07 + `',` + stock_07 + `,` + precio_07 + `,
+                                '` + nombre_08 + `',` + stock_08 + `,` + precio_08 + `,
+                                '` + nombre_09 + `',` + stock_09 + `,` + precio_09 + `,
+                                '` + nombre_10 + `',` + stock_10 + `,` + precio_10 + `,
+                                '` + nombre_11 + `',` + stock_11 + `,` + precio_11 + `,
+                                '` + nombre_12 + `',` + stock_12 + `,` + precio_12 + `,
+                                '` + nombre_13 + `',` + stock_13 + `,` + precio_13 + `,
+                                '` + nombre_14 + `',` + stock_14 + `,` + precio_14 + `,
+                                '` + nombre_15 + `',` + stock_15 + `,` + precio_15 + `,
+                                '` + nombre_16 + `',` + stock_16 + `,` + precio_16 + `,
+                                '` + nombre_17 + `',` + stock_17 + `,` + precio_17 + `,
+                                '` + nombre_18 + `',` + stock_18 + `,` + precio_18 + `,
+                                '` + nombre_19 + `',` + stock_19 + `,` + precio_19 + `,
+                                '` + nombre_20 + `',` + stock_20 + `,` + precio_20 + `)"  >
+                                `+ (parseFloat(stock_unidad) > 0 ? `<option value="${nombre_01}">${nombre_01}</option>` : ``) + ` 
+                                `+ (parseFloat(stock_blister) > 0 ? `<option value="${nombre_02}">${nombre_02}</option>` : ``) + ` 
+                                `+ (parseFloat(stock_caja) > 0 ? `<option value="${nombre_03}">${nombre_03}</option>` : ``) + ` 
+                                `+ (parseFloat(stock_fardo) > 0 ? `<option value="${nombre_04}">${nombre_04}</option>` : ``) + ` 
+                                `+ (parseFloat(stock_sacos) > 0 ? `<option value="${nombre_05}">${nombre_05}</option>` : ``) + ` 
+                                `+ (parseFloat(stock_paquete) > 0 ? `<option value="${nombre_06}">${nombre_06}</option>` : ``) + ` 
+                                `+ (parseFloat(stock_07) > 0 ? `<option value="${nombre_07}">${nombre_07}</option>` : ``) + ` 
+                                `+ (parseFloat(stock_08) > 0 ? `<option value="${nombre_08}">${nombre_08}</option>` : ``) + ` 
+                                `+ (parseFloat(stock_09) > 0 ? `<option value="${nombre_09}">${nombre_09}</option>` : ``) + ` 
+                                `+ (parseFloat(stock_10) > 0 ? `<option value="${nombre_10}">${nombre_10}</option>` : ``) + ` 
+                                `+ (parseFloat(stock_11) > 0 ? `<option value="${nombre_11}">${nombre_11}</option>` : ``) + ` 
+                                `+ (parseFloat(stock_12) > 0 ? `<option value="${nombre_12}">${nombre_12}</option>` : ``) + ` 
+                                `+ (parseFloat(stock_13) > 0 ? `<option value="${nombre_13}">${nombre_13}</option>` : ``) + ` 
+                                `+ (parseFloat(stock_14) > 0 ? `<option value="${nombre_14}">${nombre_14}</option>` : ``) + ` 
+                                `+ (parseFloat(stock_15) > 0 ? `<option value="${nombre_15}">${nombre_15}</option>` : ``) + ` 
+                                `+ (parseFloat(stock_16) > 0 ? `<option value="${nombre_16}">${nombre_16}</option>` : ``) + ` 
+                                `+ (parseFloat(stock_17) > 0 ? `<option value="${nombre_17}">${nombre_17}</option>` : ``) + ` 
+                                `+ (parseFloat(stock_18) > 0 ? `<option value="${nombre_18}">${nombre_18}</option>` : ``) + ` 
+                                `+ (parseFloat(stock_19) > 0 ? `<option value="${nombre_19}">${nombre_19}</option>` : ``) + ` 
+                                `+ (parseFloat(stock_20) > 0 ? `<option value="${nombre_20}">${nombre_20}</option>` : ``) + ` 
+
+                </select>
+            </td>`+
+                `<td><input  type="hidden"  name="presen[]" id="presen` + cont + `"value="` + presen + `" ">
+                <input type="hidden" name="precio_ventaSistema[]" id="precio_ventaSistema`+ cont + `" value="` + precio_venta + `">
+                <input type="hidden" name="precio_ventaSistema2[]" id="precio_ventaSistema2`+ cont + `" value="` + precio_venta + `">
+                <input class="form-control" style="width:100px" type="number" step="any" name="q_ref[]" id="q_ref`+ cont + `"   onchange="modificarSubototalespreciopresentacion()" value="` + precio_venta + `" ${precio_activado.trim().toUpperCase() === "SI" ? 'readonly' : ''}> 
+                    <input type="hidden" step="any" name="precio_venta[]" style="width:100px"  id="precio_venta`+ cont + `" value="` + precio_venta + `" >
+                    <input type="hidden" step="any" name="precio_recargoPV[]"  id="precio_recargoPV`+ cont + `" value="0" >
+                    <input type="hidden" name="precio_recargoQRef[]"   id="precio_recargoQRef`+ cont + `" value="0" ></td>` +
+                '<td><input type="hidden" name="descuento_permitido[]"  id="descuento_permitido' + cont + '" value="' + descuento_porcentaje + '"><input onchange="modificarSubototales()" class="form-control" type="number" style="width:100px"  step="any"  name="descuento_porcentaje[]" id="descuento_porcentaje[]" value="0"></td>' +
+                '<td><input type="hidden" name="subtotal1[]" ><span name="subtotal" id="subtotal' + cont + '">' + subtotal + '</span></td>' +
+                '<td><input type="hidden" name="subtotaldes1[]" ><span name="subtotaldes" id="subtotaldes' + cont + '">' + subtotaldes + '</span></td>' +
+                '<td><input style="width:100px" class="form-control"  type="text"   name="descripcion_detalle[]" id="descripcion_detalle' + cont + '" value="."></td>' +
+                '<td><button type="button" onclick="modificarSubototales()" class="btn btn-info"><i class="fa fa-refresh"></i></button></td>' +
+                '<td><button type="button" onclick="mostrarextras(' + cont + ', \'' + idarticulo + '\')" class="btn btn-info"><i class="fa fa-plus"></i></button></td>' +
+                '</tr>' +
+                '<tr id="extras-row-' + cont + '" class="extras-row" style="display:none">' +
+                '<td colspan="10">' + // Ajustado a 10 columnas según tu tabla
+                '<div class="extras-container" id="extras-container-' + cont + '"></div>' +
+                '</td>' +
+                '</tr>';
+            cont++;
+            detalles = detalles + 1;
+            $(fila).prependTo('#detalles');
+        } else {
+            var cxcantidad = parseInt($("#cxcantidad" + idarticulo).val()) + 1
+            $("#cxcantidad" + idarticulo).val(cxcantidad)
+            // Forzamos la ejecución de modificarSubototalesxrango para que se refleje el cambio en los subtotales
+            modificarSubototalesxrango(cont, precio_rango1, precio_rango2, precio_rango3,
+                precio_rango1_Dos, precio_rango2_Dos, precio_rango3_Dos, precio_rango1_Mecanico,
+                precio_rango2_MecanicoDos, precio_rango3_MecanicoTres, precio_rango1_Distribuidor,
+                precio_rango2_DistribuidorDos, precio_rango3_DistribuidorTres, precio_rango1_Mayorista,
+                precio_rango2_MayoristaDos, precio_rango3_MayoristaTres, $("#cxcantidad" + idarticulo)[0]);
+        }
+
+        modificarSubototales();
+    }
+    else {
+        alert("Error al ingresar el detalle, revisar los datos del artículo");
+    }
+}
+
+
+
+
 function agregarDetalleCantidad(idarticulo, nombre, precio_venta, stock, descuento_porcentaje,
     precio_rango1, precio_rango1_Dos,
     precio_rango2, precio_rango2_Dos,
@@ -5156,3 +5469,364 @@ function guardaryeditar_formapago(e) {
     limpiar();
 }
 
+
+// Variable global para controlar las cotizaciones en pantalla
+var cotizacionesSeleccionadas = [];
+
+// 1. Cargar el DataTable en el Modal
+function listarCotizacionesPendientes() {
+    $('#tbl_cotizaciones_modal').DataTable({
+        "aProcessing": true,
+        "aServerSide": true,
+        dom: 'Bfrtip',
+        buttons: [],
+        "ajax": {
+            url: '../ajax/cotizaciones.php?op=listarPendientes',
+            type: "get",
+            dataType: "json",
+            error: function (e) {
+                console.log(e.responseText);
+            }
+        },
+        "bDestroy": true,
+        "iDisplayLength": 10,
+        "order": [[1, "desc"]]
+    });
+}
+
+// 2. Seleccionar / Desmarcar todos los checkboxes
+function seleccionarTodosModal(source) {
+    var checkboxes = document.querySelectorAll('#tbl_cotizaciones_modal .chk_cotizacion');
+    for (var i = 0; i < checkboxes.length; i++) {
+        checkboxes[i].checked = source.checked;
+    }
+}
+
+// 3. Pasar las cotizaciones seleccionadas a la tabla de la vista
+function agregarSeleccionadasModal() {
+    $('.chk_cotizacion:checked').each(function () {
+        var id = $(this).val();
+        var cliente = $(this).data('cliente');
+        var total = $(this).data('total');
+
+        // Evitar duplicados
+        if (!cotizacionesSeleccionadas.includes(id)) {
+            cotizacionesSeleccionadas.push(id);
+
+            var fila = '<tr id="fila_' + id + '">' +
+                '<td class="text-center"><button type="button" class="btn btn-danger btn-xs" onclick="eliminarSeleccionada(\'' + id + '\')"><i class="fa fa-trash"></i> Quitar</button></td>' +
+                '<td class="text-center"><b>' + id + '</b><input type="hidden" name="cotizaciones[]" value="' + id + '"></td>' +
+                '<td>' + cliente + '</td>' +
+                '<td class="text-right">Q. ' + parseFloat(total).toFixed(2) + '</td>' +
+                '</tr>';
+
+            $('#tbody_seleccionadas').append(fila);
+        }
+    });
+
+    $('#modalCotizaciones').modal('hide');
+}
+
+// 4. Quitar cotización si te equivocaste al agregarla
+function eliminarSeleccionada(id) {
+    $('#fila_' + id).remove();
+    var index = cotizacionesSeleccionadas.indexOf(id);
+    if (index > -1) {
+        cotizacionesSeleccionadas.splice(index, 1);
+    }
+}
+
+// 5. BOTÓN DE ACCIÓN: Dispara tu función asíncrona de procesamiento en lote
+function ejecutarProcesoVenta() {
+    if (cotizacionesSeleccionadas.length === 0) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Atención',
+            text: 'Debe seleccionar al menos una cotización para procesar.'
+        });
+        return;
+    }
+
+    // Ejecutamos la función asíncrona pasándole el array de IDs seleccionados
+    procesarCotizacionesEnLote(cotizacionesSeleccionadas);
+}
+
+// 6. TU FUNCIÓN ASÍNCRONA (Totalmente compatible y conectada)
+async function procesarCotizacionesEnLote(cotizaciones) {
+    let exitosas = 0;
+    let fallidas = 0;
+    let errores = [];
+
+    // Generar Lote Único
+    let ahora = new Date();
+    let dia = String(ahora.getDate()).padStart(2, '0');
+    let mes = String(ahora.getMonth() + 1).padStart(2, '0');
+    let anio = ahora.getFullYear();
+    let hora = String(ahora.getHours()).padStart(2, '0') +
+        String(ahora.getMinutes()).padStart(2, '0') +
+        String(ahora.getSeconds()).padStart(2, '0');
+
+    let idusuario_js = $("#idusuario_session").val() || "";
+    let loteUnico = `LOTE_${dia}_${mes}_${anio}_${hora}_${idusuario_js}`;
+
+    Swal.fire({
+        title: 'Procesando ventas...',
+        html: 'Por favor espere mientras se generan las ventas.',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
+    for (let id of cotizaciones) {
+        await new Promise((resolve) => {
+            $.post("../ajax/venta.php?op=procesar_venta_directa", {
+                idcotizacion: id,
+                venta_lote: loteUnico
+            }, function (data) {
+                try {
+                    let res = JSON.parse(data);
+                    if (res.status === 'ok') {
+                        exitosas++;
+                    } else {
+                        fallidas++;
+                        errores.push(`Coti #${id}: ${res.msg}`);
+                    }
+                } catch (e) {
+                    fallidas++;
+                    errores.push(`Coti #${id}: Error de respuesta del servidor`);
+                }
+                resolve();
+            });
+        });
+    }
+
+    // Al finalizar todas las ventas:
+    let mensajeHtml = `<p><b>Exitosas:</b> ${exitosas}</p><p><b>Fallidas:</b> ${fallidas}</p>`;
+    if (errores.length > 0) {
+        mensajeHtml += `<br><small style="color:red">${errores.join('<br>')}</small>`;
+    }
+
+    Swal.fire({
+        icon: fallidas === 0 ? 'success' : 'warning',
+        title: 'Proceso finalizado',
+        html: mensajeHtml,
+        showCancelButton: true,
+        confirmButtonText: '<i class="fa fa-print"></i> Imprimir Reporte Lote',
+        cancelButtonText: 'Aceptar',
+        confirmButtonColor: '#3085d6'
+    }).then((result) => {
+        // Limpiamos la lista temporal tras el proceso
+        $('#tbody_seleccionadas').html('');
+        cotizacionesSeleccionadas = [];
+
+        if (result.isConfirmed) {
+            window.open("../reportes/ex_venta_lote.php?lote=" + loteUnico, "_blank");
+        }
+
+        if (typeof listar === 'function') {
+            listar();
+        }
+    });
+}
+
+
+var articuloSeleccionado = null;
+
+function listarArticulos_v2() {
+    tabla = $('#tblarticulos_rapido').DataTable({
+        "aProcessing": true,
+        "aServerSide": true,
+        dom: 'Bfrtip',
+        buttons: [],
+        "ajax": {
+            url: '../ajax/venta.php?op=listarArticulosVentaCantidad_v2',
+            type: "get",
+            dataType: "json",
+            error: function (e) {
+                console.log(e.responseText);
+            }
+        },
+        "bDestroy": true,
+        "iDisplayLength": 10,
+        "order": [[1, "asc"]],
+        "drawCallback": function () {
+            $('#tblarticulos_rapido th').removeAttr('tabindex');
+        }
+    });
+}
+
+$(document).on('keydown', '#modalBuscarArticulos div.dataTables_filter input', function (e) {
+    if (e.which === 9 || e.which === 13) {
+        e.preventDefault();
+        var primerBoton = $('#tblarticulos_rapido tbody tr:first-child .btn-seleccionar');
+
+        if (primerBoton.length > 0) {
+            primerBoton.focus();
+        }
+    }
+});
+
+$(document).on('keydown', '.btn-seleccionar', function (e) {
+    var trActual = $(this).closest('tr');
+
+    if (e.which === 40) {
+        e.preventDefault();
+        var siguienteBoton = trActual.next().find('.btn-seleccionar');
+        if (siguienteBoton.length > 0) siguienteBoton.focus();
+    } else if (e.which === 38) {
+        e.preventDefault();
+        var anteriorBoton = trActual.prev().find('.btn-seleccionar');
+        if (anteriorBoton.length > 0) {
+            anteriorBoton.focus();
+        } else {
+            $('#modalBuscarArticulos div.dataTables_filter input').focus().select();
+        }
+    }
+});
+
+$('#modalBuscarArticulos').on('shown.bs.modal', function () {
+    var searchInput = $('#modalBuscarArticulos div.dataTables_filter input');
+    searchInput.focus().select();
+});
+
+function abrirModalPresentacion(dataBase64) {
+    var jsonString = atob(dataBase64);
+    articuloSeleccionado = JSON.parse(jsonString);
+
+    $('#conf_nombre_producto').text(articuloSeleccionado.nombre);
+    $('#conf_cantidad').val(1);
+    var selectPresentacion = $('#conf_presentacion');
+    selectPresentacion.empty();
+
+    var presentaciones = [
+        { nombre: articuloSeleccionado.nombre_01, stock: articuloSeleccionado.stock_unidad, precio: articuloSeleccionado.precio_unidad },
+        { nombre: articuloSeleccionado.nombre_02, stock: articuloSeleccionado.stock_blister, precio: articuloSeleccionado.precio_blister },
+        { nombre: articuloSeleccionado.nombre_03, stock: articuloSeleccionado.stock_caja, precio: articuloSeleccionado.precio_caja },
+        { nombre: articuloSeleccionado.nombre_04, stock: articuloSeleccionado.stock_fardo, precio: articuloSeleccionado.precio_fardo },
+        { nombre: articuloSeleccionado.nombre_05, stock: articuloSeleccionado.stock_sacos, precio: articuloSeleccionado.precio_sacos },
+        { nombre: articuloSeleccionado.nombre_06, stock: articuloSeleccionado.stock_paquete, precio: articuloSeleccionado.precio_paquete },
+        { nombre: articuloSeleccionado.nombre_07, stock: articuloSeleccionado.stock_07, precio: articuloSeleccionado.precio_07 },
+        { nombre: articuloSeleccionado.nombre_08, stock: articuloSeleccionado.stock_08, precio: articuloSeleccionado.precio_08 },
+        { nombre: articuloSeleccionado.nombre_09, stock: articuloSeleccionado.stock_09, precio: articuloSeleccionado.precio_09 },
+        { nombre: articuloSeleccionado.nombre_10, stock: articuloSeleccionado.stock_10, precio: articuloSeleccionado.precio_10 },
+        { nombre: articuloSeleccionado.nombre_11, stock: articuloSeleccionado.stock_11, precio: articuloSeleccionado.precio_11 },
+        { nombre: articuloSeleccionado.nombre_12, stock: articuloSeleccionado.stock_12, precio: articuloSeleccionado.precio_12 },
+        { nombre: articuloSeleccionado.nombre_13, stock: articuloSeleccionado.stock_13, precio: articuloSeleccionado.precio_13 },
+        { nombre: articuloSeleccionado.nombre_14, stock: articuloSeleccionado.stock_14, precio: articuloSeleccionado.precio_14 },
+        { nombre: articuloSeleccionado.nombre_15, stock: articuloSeleccionado.stock_15, precio: articuloSeleccionado.precio_15 },
+        { nombre: articuloSeleccionado.nombre_16, stock: articuloSeleccionado.stock_16, precio: articuloSeleccionado.precio_16 },
+        { nombre: articuloSeleccionado.nombre_17, stock: articuloSeleccionado.stock_17, precio: articuloSeleccionado.precio_17 },
+        { nombre: articuloSeleccionado.nombre_18, stock: articuloSeleccionado.stock_18, precio: articuloSeleccionado.precio_18 },
+        { nombre: articuloSeleccionado.nombre_19, stock: articuloSeleccionado.stock_19, precio: articuloSeleccionado.precio_19 },
+        { nombre: articuloSeleccionado.nombre_20, stock: articuloSeleccionado.stock_20, precio: articuloSeleccionado.precio_20 }
+    ];
+
+    var opcionesCreadas = 0;
+    presentaciones.forEach(function (item) {
+        if (item.nombre && parseFloat(item.stock) > 0) {
+            selectPresentacion.append(new Option(item.nombre, item.nombre, false, false));
+            var $lastOption = $(selectPresentacion.find('option').last());
+            $lastOption.data('precio', item.precio);
+            $lastOption.data('stock', item.stock);
+            opcionesCreadas++;
+        }
+    });
+    if (opcionesCreadas === 0) {
+        selectPresentacion.append(new Option("UNIDAD", "UNIDAD", false, false));
+        var $lastOption = $(selectPresentacion.find('option').last());
+        $lastOption.data('precio', articuloSeleccionado.precio_venta);
+        $lastOption.data('stock', articuloSeleccionado.stock); // Asignamos stock por defecto
+    }
+
+    actualizarPrecioPresentacion();
+    // $('#modalBuscarArticulos').modal('hide');
+    $('#modalConfigurarProducto').modal('show');
+}
+
+function actualizarPrecioPresentacion() {
+    var selectedOption = $('#conf_presentacion option:selected');
+    var precio = selectedOption.data('precio');
+    var stock = selectedOption.data('stock');
+
+    if (!precio || parseFloat(precio) === 0) {
+        precio = articuloSeleccionado.precio_venta;
+    }
+    if (!stock) {
+        stock = articuloSeleccionado.stock;
+    }
+
+    $('#conf_precio').val(precio);
+    $('#conf_cantidadpresentacion').val(stock);
+
+}
+
+$('#modalConfigurarProducto').on('shown.bs.modal', function () {
+    $('#conf_cantidad').focus().select();
+});
+
+$('#conf_cantidad, #conf_precio').on('keydown', function (e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        confirmarAgregarAlDetalle();
+    }
+});
+
+function confirmarAgregarAlDetalle() {
+    var cantidad = $('#conf_cantidad').val();
+    var precioConfigurado = $('#conf_precio').val();
+    var presentacionElegida = $('#conf_presentacion').val();
+    var cantidadpresentacion = $('#conf_cantidadpresentacion').val();
+
+    if (!cantidad || cantidad <= 0) {
+        alert("Ingrese una cantidad válida.");
+        return;
+    }
+
+    agregarDetalleCantidadRapida(
+        articuloSeleccionado.idarticulo,
+        articuloSeleccionado.nombre,
+        precioConfigurado,
+        articuloSeleccionado.stock,
+        articuloSeleccionado.descuento_porcentaje,
+        articuloSeleccionado.precio_rango1, articuloSeleccionado.precio_rango1_Dos,
+        articuloSeleccionado.precio_rango2, articuloSeleccionado.precio_rango2_Dos,
+        articuloSeleccionado.precio_rango3, articuloSeleccionado.precio_rango3_Dos,
+        articuloSeleccionado.precio_rango1_Mecanico, articuloSeleccionado.precio_rango1_Distribuidor, articuloSeleccionado.precio_rango1_Mayorista,
+        articuloSeleccionado.precio_rango2_MecanicoDos, articuloSeleccionado.precio_rango2_DistribuidorDos, articuloSeleccionado.precio_rango2_MayoristaDos,
+        articuloSeleccionado.precio_rango3_MecanicoTres, articuloSeleccionado.precio_rango3_DistribuidorTres, articuloSeleccionado.precio_rango3_MayoristaTres,
+        articuloSeleccionado.nombre_01, articuloSeleccionado.stock_unidad, articuloSeleccionado.precio_unidad,
+        articuloSeleccionado.nombre_02, articuloSeleccionado.stock_blister, articuloSeleccionado.precio_blister,
+        articuloSeleccionado.nombre_03, articuloSeleccionado.stock_caja, articuloSeleccionado.precio_caja,
+        articuloSeleccionado.nombre_04, articuloSeleccionado.stock_fardo, articuloSeleccionado.precio_fardo,
+        articuloSeleccionado.nombre_05, articuloSeleccionado.stock_sacos, articuloSeleccionado.precio_sacos,
+        articuloSeleccionado.nombre_06, articuloSeleccionado.stock_paquete, articuloSeleccionado.precio_paquete,
+        articuloSeleccionado.nombre_07, articuloSeleccionado.stock_07, articuloSeleccionado.precio_07,
+        articuloSeleccionado.nombre_08, articuloSeleccionado.stock_08, articuloSeleccionado.precio_08,
+        articuloSeleccionado.nombre_09, articuloSeleccionado.stock_09, articuloSeleccionado.precio_09,
+        articuloSeleccionado.nombre_10, articuloSeleccionado.stock_10, articuloSeleccionado.precio_10,
+        articuloSeleccionado.nombre_11, articuloSeleccionado.stock_11, articuloSeleccionado.precio_11,
+        articuloSeleccionado.nombre_12, articuloSeleccionado.stock_12, articuloSeleccionado.precio_12,
+        articuloSeleccionado.nombre_13, articuloSeleccionado.stock_13, articuloSeleccionado.precio_13,
+        articuloSeleccionado.nombre_14, articuloSeleccionado.stock_14, articuloSeleccionado.precio_14,
+        articuloSeleccionado.nombre_15, articuloSeleccionado.stock_15, articuloSeleccionado.precio_15,
+        articuloSeleccionado.nombre_16, articuloSeleccionado.stock_16, articuloSeleccionado.precio_16,
+        articuloSeleccionado.nombre_17, articuloSeleccionado.stock_17, articuloSeleccionado.precio_17,
+        articuloSeleccionado.nombre_18, articuloSeleccionado.stock_18, articuloSeleccionado.precio_18,
+        articuloSeleccionado.nombre_19, articuloSeleccionado.stock_19, articuloSeleccionado.precio_19,
+        articuloSeleccionado.nombre_20, articuloSeleccionado.stock_20, articuloSeleccionado.precio_20,
+        articuloSeleccionado.precio_activado, articuloSeleccionado.facturar_cero, articuloSeleccionado.precio_compra,
+        cantidad, cantidadpresentacion
+    );
+    if (typeof cont !== 'undefined' && cont > 0) {
+        var ultimoIndex = cont - 1;
+        $('#presentacionselect' + ultimoIndex).val(presentacionElegida);
+    }
+    $('#modalConfigurarProducto').modal('hide');
+}
+
+$('#modalConfigurarProducto').on('hidden.bs.modal', function () {
+    if ($('#modalBuscarArticulos').hasClass('in') || $('#modalBuscarArticulos').is(':visible')) {
+        $('#modalBuscarArticulos div.dataTables_filter input').focus().select();
+    }
+});

@@ -1,158 +1,152 @@
 <?php
-// Activamos el almacenamiento en el buffer
-ob_start();
-define('BYPASS_SESSION', true);
+//Activamos el almacenamiento en el buffer
+//TODAS LAS DEMAS SUCURSALES
+//Incluímos el archivo Factura.php
+require('../../reportes/FormatoCartaConFacturaTickektApp.php');
 
-// Para la app móvil no validamos sesión de navegador para permitir el WebView
-// El acceso está restringido por el ID de venta generado internamente
-?>
-<html>
-<head>
-<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-<link href="../../public/css/ticket.css" rel="stylesheet" type="text/css">
-<style>
-    /* 🔹 Alineación y formato de tabla de productos */
-    table.detalle {
-        width: 300px;
-        font-size: 12px;
-        border-collapse: collapse;
-    }
-    table.detalle td {
-        vertical-align: top;
-    }
-    td.desc { width: 150px; }
-    td.cant { width: 40px; text-align: center; }
-    td.pu   { width: 45px; text-align: right; }
-    td.sub  { width: 55px; text-align: right; }
-    /* Estilo para artículos anidados (Topping/Extra) */
-    .topping {
-        padding-left: 15px; /* Indentación para anidamiento */
-        font-size: 11px;
-        font-style: italic;
-    }
-</style>
-</head>
-<body style="background: white;">
-<?php
-// Incluímos la clase Venta
-require_once "../../modelos/Cotizaciones.php"; 
+//Establecemos los datos de la empresa
+include '../../reportes/empresa.php';
+
+//Incluímos la clase Cotizaciones
+require_once "../../modelos/Cotizaciones.php";
 $cotizaciones = new Cotizaciones();
 
-// **Líneas corregidas para eliminar el carácter invisible que causaba el Parse Error**
-$rsptav = $cotizaciones->ventacabecera2($_GET["id"]); 
-$reg = $rsptav->fetch_object();
-// Fin de la corrección
+$rsptav = $cotizaciones->ventacabecera2($_GET["id"]);
+//Recorremos todos los valores obtenidos
+$regv = $rsptav->fetch_object();
 
-// Datos de empresa
-require_once "../../reportes/num2letras.php";
-$conletras = $reg->total_venta;
-$conletrasresultado = num2letras($conletras);
-?>
-<div class="zona_impresion"> 
-<br> 
-<table border="0" align="center" width="300px">
-    <tr>
-        <td align="center">
-            .::<strong><?php echo $reg->nombre_comercial; ?></strong>::.<br>
-            .::<strong><?php echo $reg->direccion_fiscal; ?></strong>::.<br>
-            .::<strong>EMAIL: <?php echo $reg->sucursal_email; ?></strong>::.<br>
-            .::<strong>TELS: <?php echo $reg->sucursal_telefono; ?></strong>::.<br>    
-        </td>
-    </tr>
-    <tr><td align="center" colspan="4">==========================================</td></tr>
-    <tr><td align="center"><strong>ENVIO</strong></td></tr>
-    <tr><td align="center" colspan="4">==========================================</td></tr>
-    <tr><td align="center">Fecha Operacion: <?php echo $reg->fecha; ?></td></tr>
-    <tr><td align="center"><h1># Venta: <?php echo $reg->num_comprobante; ?></h1></td></tr>
-    <tr><td align="center" colspan="4">==========================================</td></tr>
-    <tr><td align="center"><strong>DATOS CLIENTE</strong></td></tr>
-    <tr><td>Cliente: <?php echo $reg->cliente; ?></td></tr>
-    <tr><td>Direccion: <?php echo $reg->direccion; ?></td></tr>
-    <tr><td>Telefono: <?php echo $reg->telefono; ?></td></tr>
-    <tr><td align="center" colspan="3">==========================================</td></tr>
-</table>
+// Establecemos la configuración del ticket con tamaño reducido y papel más corto
+$pdf = new PDF_Invoice('P', 'mm', array(57, 500));
+// Reducimos los márgenes para no usar SetX
+$pdf->SetMargins(2, 5, 2);
+$pdf->AddPage();
 
-<br>
+$url = '../../files/articulos/';
+$color_r_texto = 255;
+$color_g_texto = 255;
+$color_b_texto = 255;
 
-<table class="detalle" align="center">
-    <tr>
-        <td class="desc"><b>DESCRIPCIÓN</b></td>
-        <td class="cant"><b>CANT.</b></td>
-        <td class="pu"><b>P.U.</b></td>
-        <td class="sub"><b>SUB</b></td>
-    </tr>
-    <tr><td colspan="4">==========================================</td></tr>
+$color_r = 0;
+$color_g = 0;
+$color_b = 0;
 
-    <?php
-    $rsptad = $cotizaciones->ventadetalle2($_GET["id"]);
-    $articulos_map = [];
-    $cantidad_total = 0;
+$ancchodefial = 53; // Ajustado por el nuevo margen y tamaño
 
-    while ($regd = $rsptad->fetch_object()) {
-        $id_padre = $regd->idarticulopadre ?: 0; 
-        
-        if (!isset($articulos_map[$id_padre])) {
-            $articulos_map[$id_padre] = [];
-        }
-        $articulos_map[$id_padre][] = $regd;
-    }
+if ($regv->estado == 'Anulado') {
+    $pdf->Image($anulado, 10, 150, 40, 25);
+}
 
-    $productos_principales = $articulos_map[0] ?? []; 
+// Usamos Helvetica para mejor rendimiento en RawBT y menos peso
+$pdf->SetFont('Helvetica', '', 7.5);
+
+$pdf->Cell($ancchodefial, 4, utf8_decode($regv->nombre_comercial), 0, 1, "C");
+
+$pdf->Cell($ancchodefial, 4, "Tels: " . $regv->sucursal_telefono, 0, 1, "C");
+$pdf->Cell($ancchodefial, 4, "  Email: " . $regv->sucursal_email, 0, 1, "C");
+
+$pdf->Cell($ancchodefial, 2, "-----------------------------------------", 0, 1, "C");
+$pdf->Ln(2);
+
+$pdf->Cell($ancchodefial, 4, "ENVIO", 0, 1, "C");
+$pdf->Cell($ancchodefial, 4, utf8_decode("Fecha Emision: " . date("d/m/Y H:i:s", strtotime($regv->fecha_creacion))), 0, 1, "C");
+$pdf->Cell($ancchodefial, 4, utf8_decode("# Venta: " . $regv->num_comprobante), 0, 1, "C");
+$pdf->Cell($ancchodefial, 2, "-----------------------------------------", 0, 1, "C");
+$pdf->Ln(2);
+
+$pdf->Cell($ancchodefial, 4, "DATOS CLIENTE", 0, 1, "C");
+
+$pdf->Cell($ancchodefial, 2, "-----------------------------------------", 0, 1, "C");
+$pdf->Ln(2);
+
+// Cliente puede ser largo
+$pdf->MultiCell($ancchodefial, 3, utf8_decode("Clie: " . $regv->cliente), 0, "L");
+
+$pdf->Cell($ancchodefial, 2, "-----------------------------------------", 0, 1, "C");
+$pdf->Ln(2);
+
+$pdf->Cell($ancchodefial, 4, ".::DATOS DE PRODUCTOS::.", 0, 1, 'C');
+
+$pdf->Cell($ancchodefial, 2, "-----------------------------------------", 0, 1, "C");
+$pdf->Ln(2);
+
+$pdf->Cell(7, 4, "CAN", 0, 0, 'L');
+$pdf->Cell(22, 4, "ARTICULO", 0, 0, 'L');
+$pdf->Cell(12, 4, "P.U.", 0, 0, 'R');
+$pdf->Cell(12, 4, "SUB", 0, 1, 'R');
+
+$pdf->Cell($ancchodefial, 2, "-----------------------------------------", 0, 1, "C");
+$pdf->Ln(2);
+
+$rsptad = $cotizaciones->ventadetalle2($_GET["id"]);
+setlocale(LC_MONETARY, "en_US");
+
+while ($regd = $rsptad->fetch_object()) {
+    $descripcion = utf8_decode("{$regd->descripcion} {$regd->descripcion_detalle} {$regd->presen}");
+
+    $yInicio = $pdf->GetY();
     
-    foreach ($productos_principales as $p) {
-        echo "<tr>";
-        echo "<td class='desc'>".$p->articulo." / ".$p->presen." / ".$p->descripcion_detalle."</td>";
-        echo "<td class='cant'>".$p->cantidad."</td>";
-        echo "<td class='pu'>".number_format($p->q_ref, 2)."</td>";
-        echo "<td class='sub'>Q ".number_format($p->subtotal, 2)."</td>";
-        echo "</tr>";
+    // Imprimimos la Cantidad
+    $pdf->Cell(7, 3, $regd->cantidad, 0, 0, 'L');
+    $xDesc = $pdf->GetX(); // Guardamos donde inicia la descripción
+    
+    // Movemos el cursor al espacio de los precios y subtotal
+    $pdf->SetXY($xDesc + 22, $yInicio);
+    $pdf->Cell(12, 3, number_format($regd->q_ref, 2, '.', ','), 0, 0, 'R');
+    $pdf->Cell(12, 3, number_format($regd->subtotal, 2, '.', ','), 0, 1, 'R');
+    $yFinCols = $pdf->GetY();
+    
+    // Volvemos a la posición de la descripción y dibujamos la celda multilinea
+    $pdf->SetXY($xDesc, $yInicio);
+    $pdf->MultiCell(22, 3, $descripcion, 0, 'L');
+    $yFinDesc = $pdf->GetY();
+    
+    // Nos aseguramos que el cursor baje más allá de la descripción o los precios (el mayor)
+    $pdf->SetY(max($yFinCols, $yFinDesc));
+    
+    $pdf->Ln(1); // Reducido en lugar de Ln(5)
+}
 
-        $sub_articulos = $articulos_map[$p->idarticulo] ?? [];
+$pdf->Cell($ancchodefial, 2, "-----------------------------------------", 0, 1, "C");
+$pdf->Ln(2);
 
-        foreach ($sub_articulos as $sub) {
-            echo "<tr class='topping'>";
-            echo "<td class='desc'>↳ ".$sub->articulo."</td>"; 
-            echo "<td class='cant'>".$sub->cantidad."</td>";
-            echo "<td class='pu'>".number_format($sub->q_ref, 2)."</td>";
-            echo "<td class='sub'>Q ".number_format($sub->subtotal, 2)."</td>";
-            echo "</tr>";
-        }
+require_once "../../reportes/num2letras.php";
+$conletras = $regv->total_venta;
+$conletrasresultado = num2letras($conletras);
 
-        $cantidad_total += $p->cantidad;
-    }
-    ?>
+$pdf->Cell($ancchodefial, 4, utf8_decode("SUBTOTAL: " . $regv->totalgeneral), 0, 1, "R");
+$pdf->Cell($ancchodefial, 4, utf8_decode("DESCUENTO: " . $regv->total_ventades), 0, 1, "R");
+$pdf->Cell($ancchodefial, 4, utf8_decode("TOTAL: " . $regv->total_venta), 0, 1, "R");
 
-    <tr><td colspan="4">==========================================</td></tr>
-    <tr><td colspan="2"></td><td align="right"><b>SUBTOTAL:</b></td><td class="sub"><b>Q <?php echo number_format($reg->totalgeneral,2); ?></b></td></tr>
-    <tr><td colspan="2"></td><td align="right"><b>DESCUENTO:</b></td><td class="sub"><b>Q <?php echo number_format($reg->total_ventades,2); ?></b></td></tr>
-    <tr><td colspan="2"></td><td align="right"><b>TOTAL:</b></td><td class="sub"><b>Q <?php echo number_format($reg->total_venta,2); ?></b></td></tr>
-    <tr><td colspan="4"><?php echo ucfirst($conletrasresultado); ?></td></tr>
-    <tr><td colspan="4">==========================================</td></tr>
-    <tr><td colspan="4">Nº de artículos: <?php echo $cantidad_total; ?></td></tr>
-    <tr><td colspan="4">&nbsp;</td></tr>
-    <tr><td colspan="4" align="center">¡Gracias por su compra!</td></tr>
-    <tr><td colspan="4" align="center"><?php echo $reg->sucursal_nombre; ?></td></tr>
-    <tr><td colspan="4" align="center">Le Atendió: "<?php echo $reg->usuario; ?>"</td></tr>
-    <tr><td colspan="4" align="center">Vendedor: "<?php echo $reg->nombre_vendedor; ?>"</td></tr>
-    <tr><td colspan="4">_____________________________________________</td></tr>
-    <tr><td colspan="4" align="center"><?php echo $reg->empresadesarrollo; ?></td></tr>
-    <tr><td colspan="4" align="center">Nº venta control interno: #<?php echo $reg->idventa; ?></td></tr>
-    <tr><td colspan="4" align="center"><h1>Efectivo: "<?php echo $reg->cefectivo; ?>"</h1></td></tr>
-    <tr><td colspan="4" align="center"><h1>Cambio: "<?php echo $reg->rescambio; ?>"</td></tr>
+$pdf->MultiCell($ancchodefial, 3, utf8_decode("Total en Letras: " . $conletrasresultado . " Quetzales"), 0, "C");
 
-    <?php 
-    if (!empty($reg->id_add_orden) && $reg->id_add_orden != null) {
-    ?>
-    <tr><td colspan="4" align="center"><h1>Orden #: "<?php echo $reg->id_add_orden; ?>"</h1></td></tr>
-    <tr><td colspan="4" align="center"><h1>Mesa Orden #: "<?php echo $reg->mesa_orden; ?>"</h1></td></tr>
-    <tr><td colspan="4" align="center"><h1>Mesero Orden: "<?php echo $reg->usuario_orden; ?>"</h1></td></tr>
-    <?php } ?>
-</table>
-<br>
-</div>
-<p>&nbsp;</p>
-</body>
-</html>
-<?php 
-ob_end_flush();
-?>
+
+
+$pdf->Ln(1);
+$pdf->Cell($ancchodefial, 2, "-----------------------------------------", 0, 1, "C");
+$pdf->Ln(2);
+
+$pdf->Cell($ancchodefial, 4, utf8_decode("Forma pago: " . $regv->forma_pago), 0, 1, "C");
+
+$pdf->Cell($ancchodefial, 4, utf8_decode("¡Gracias por su compra! "), 0, 1, "C");
+$pdf->Cell($ancchodefial, 4, utf8_decode($regv->sucursal_nombre), 0, 1, "C");
+$pdf->Cell($ancchodefial, 4, utf8_decode("Le atendio: " . $regv->usuario), 0, 1, "C");
+$pdf->Cell($ancchodefial, 4, utf8_decode("# Venta: " . $regv->num_comprobante), 0, 1, "C");
+$pdf->Cell($ancchodefial, 4, utf8_decode("Nº int: " . $regv->idventa), 0, 1, "C");
+
+$pdf->Cell($ancchodefial, 2, "-----------------------------------------", 0, 1, "C");
+$pdf->Ln(2);
+
+
+$pdf->Cell($ancchodefial, 2, "-----------------------------------------", 0, 1, "C");
+$pdf->Ln(2);
+$pdf->Cell($ancchodefial, 4, ".::ULTIMA LINEA::.", 0, 1, 'C');
+$pdf->Cell($ancchodefial, 2, "-----------------------------------------", 0, 1, "C");
+$pdf->Ln(2);
+
+// Añadir margen extra al final imprimiendo un pequeño punto para que RawBT no recorte el espacio y la impresora expulse el papel
+$pdf->Ln(12);
+$pdf->SetFont('Helvetica', '', 4);
+$pdf->Cell($ancchodefial, 2, ".", 0, 1, 'C');
+
+// Salida a memoria directamente (sin nombre)
+$pdf->Output('I');

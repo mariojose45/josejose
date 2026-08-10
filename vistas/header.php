@@ -111,13 +111,13 @@ date_default_timezone_set('America/Guatemala');
                           <tbody>
                             <?php
                             while ($regcotizacionesDetalle = $rsptacotizacionesDetalle->fetch_object()) {
-                              ?>
+                            ?>
                               <tr>
                                 <td><?php echo $regcotizacionesDetalle->idcotizacion; ?></td>
                                 <td><?php echo $regcotizacionesDetalle->nombre; ?></td>
                                 <td><?php echo number_format($regcotizacionesDetalle->total_venta, 2); ?></td>
                               </tr>
-                              <?php
+                            <?php
                             }
                             ?>
                           </tbody>
@@ -154,13 +154,13 @@ date_default_timezone_set('America/Guatemala');
                         <tbody>
                           <?php
                           while ($regcotizaciones2Detalle = $rsptacotizaciones2Detalle->fetch_object()) {
-                            ?>
+                          ?>
                             <tr>
                               <td><?php echo $regcotizaciones2Detalle->idcotizacion; ?></td>
                               <td><?php echo $regcotizaciones2Detalle->nombre; ?></td>
                               <td><?php echo number_format($regcotizaciones2Detalle->total_venta, 2); ?></td>
                             </tr>
-                            <?php
+                          <?php
                           }
                           ?>
                         </tbody>
@@ -289,22 +289,12 @@ date_default_timezone_set('America/Guatemala');
             echo '<li>
                         <a href="salida_pro_sucursal.php">
                           <img class="iconos-tama efecto" src="../public/iconos/salida.png"> 
-                          <span>Salida de Produc a Sucursal</span>
+                          <span>Salida-Entrada Produc a Sucursal</span>
                         </a>
                       </li>';
           }
           ?>
-          <?php
-          if ($_SESSION['entradaproducto'] == 1) {
-            # code...
-            echo '<li>
-                        <a href="entrada_pro_sucursal.php">
-                          <img class="iconos-tama efecto" src="../public/iconos/entrada.png"> 
-                          <span>Entrada de Produc de Sucursal</span>
-                        </a>
-                      </li>';
-          }
-          ?>
+
           <?php
           if ($_SESSION['inventarioxsucursal'] == 1) {
             # code...
@@ -328,6 +318,17 @@ date_default_timezone_set('America/Guatemala');
                       </li>';
           }
           ?>
+          <?php
+          if ($_SESSION['inventarioxgeneralagrupado'] == 1) {
+            # code...
+            echo '<li>
+                        <a href="inventarioxgeneralAgrupado.php">
+                          <img class="iconos-tama efecto" src="../public/iconos/almacen.png"> 
+                          <span>Inventario x General Agrupado</span>
+                        </a>
+                      </li>';
+          }
+          ?>          
 
           <?php
           if ($_SESSION['mesarestaurante'] == 1) {
@@ -385,7 +386,7 @@ date_default_timezone_set('America/Guatemala');
             echo '<li>
                         <a href="salidas_inventario.php">
                           <img class="iconos-tama efecto" src="../public/iconos/almacen.png"> 
-                          <span>Salidas/Rebajas Inventarios</span>
+                          <span>Salidas/Entradas Inventarios</span>
                         </a>
                       </li>';
           }
@@ -602,7 +603,7 @@ date_default_timezone_set('America/Guatemala');
             }
             /*if (isset($_SESSION['ventas_facturacion']) && $_SESSION['ventas_facturacion'] == 1) {
               echo '<li><a href="venta2_prueba.php"><img class="iconos-tama efecto" src="../public/iconos/agregar.png">  Ventas Rapida </a></li>';
-            }   */         
+            }   */
             if (isset($_SESSION['ventas_servicios']) && $_SESSION['ventas_servicios'] == 1) {
               echo '<li><a href="venta_servicios.php"><img class="iconos-tama efecto" src="../public/iconos/agregar.png">  Ventas - Servicios </a></li>';
             }
@@ -995,19 +996,19 @@ date_default_timezone_set('America/Guatemala');
 
     <!-- Script para actualizar tablas de cotizaciones automáticamente -->
     <script>
-      $(document).ready(function () {
+      $(document).ready(function() {
         // Función para actualizar la tabla de Cotizaciones Pendientes
         function actualizarCotizacionesPendientes() {
           $.ajax({
             url: '../ajax/cotizaciones.php?op=listarCotizacionesPendientes',
             type: 'GET',
             dataType: 'json',
-            success: function (data) {
+            success: function(data) {
               var tbody = $('#tbCotizacionesPendientes tbody');
               tbody.empty();
 
               if (data.length > 0) {
-                $.each(data, function (index, item) {
+                $.each(data, function(index, item) {
                   var row = '<tr>' +
                     '<td>' + item.idcotizacion + '</td>' +
                     '<td>' + item.nombre + '</td>' +
@@ -1019,7 +1020,7 @@ date_default_timezone_set('America/Guatemala');
                 tbody.append('<tr><td colspan="3" class="text-center">No hay cotizaciones pendientes</td></tr>');
               }
             },
-            error: function () {
+            error: function() {
               console.log('Error al cargar cotizaciones pendientes');
             }
           });
@@ -1031,12 +1032,12 @@ date_default_timezone_set('America/Guatemala');
             url: '../ajax/cotizaciones.php?op=listarCotizacionesTiendaWeb',
             type: 'GET',
             dataType: 'json',
-            success: function (data) {
+            success: function(data) {
               var tbody = $('#tbCotizacionesTiendaWeb tbody');
               tbody.empty();
 
               if (data.length > 0) {
-                $.each(data, function (index, item) {
+                $.each(data, function(index, item) {
                   var row = '<tr>' +
                     '<td>' + item.idcotizacion + '</td>' +
                     '<td>' + item.nombre + '</td>' +
@@ -1048,7 +1049,7 @@ date_default_timezone_set('America/Guatemala');
                 tbody.append('<tr><td colspan="3" class="text-center">No hay cotizaciones de tienda web</td></tr>');
               }
             },
-            error: function () {
+            error: function() {
               console.log('Error al cargar cotizaciones tienda web');
             }
           });
@@ -1060,14 +1061,14 @@ date_default_timezone_set('America/Guatemala');
             url: '../ajax/cotizaciones.php?op=obtenerTotalesCotizaciones',
             type: 'GET',
             dataType: 'json',
-            success: function (data) {
+            success: function(data) {
               // Actualizar el badge de Cotizaciones Pendientes (primer dropdown)
               $('.dropdown.messages-menu').eq(0).find('.label').text(data.totalPendientes);
 
               // Actualizar el badge de Cotizaciones Tienda Web (segundo dropdown)
               $('.dropdown.messages-menu').eq(1).find('.label').text(data.totalTiendaWeb);
             },
-            error: function () {
+            error: function() {
               console.log('Error al cargar totales de cotizaciones');
             }
           });
@@ -1080,7 +1081,7 @@ date_default_timezone_set('America/Guatemala');
 
         // Actualizar cada 30 segundos (30000 milisegundos)
         // Puedes cambiar este valor según tus necesidades: 10000 = 10 seg, 30000 = 30 seg, 60000 = 1 min
-        setInterval(function () {
+        setInterval(function() {
           actualizarCotizacionesPendientes();
           actualizarCotizacionesTiendaWeb();
           actualizarContadores();

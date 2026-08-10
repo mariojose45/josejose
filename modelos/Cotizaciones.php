@@ -1265,6 +1265,7 @@ class Cotizaciones
         v.condicion,
         u.nombre as usuario,
         v.forma_pago,
+        v.fecha_creacion,
         s.idsucursal,
         s.nombre as sucursal_nombre, 
         s.direccion as sucursal_direccion,
@@ -1382,6 +1383,7 @@ class Cotizaciones
                 COALESCE(a.codigo, '') AS codigo,
                 ROUND(dv.cantidad,2) as cantidad,
                 a.precio_compra,
+                a.descripcion,
                 a.descripcion_2,
                 dv.precio_venta,
                 dv.descuento,
@@ -1906,6 +1908,23 @@ WHERE cc.idventa ='$idventa'";
         INNER JOIN usuario u ON v.idusuario = u.idusuario
         INNER JOIN sucursal s ON v.idsucursal = s.idsucursal
         WHERE v.idventa = '$idventa'";
+        return ejecutarConsulta($sql);
+    }
+
+    public function listarPendientesCobro(){
+        $sql = "SELECT
+                    c.idcotizacion,
+                    DATE(c.fecha_hora) AS fecha_cotizacion,
+                    c.total_venta,
+                    c.forma_pago,
+                    p.nombre AS nombre_cliente
+                FROM cotizacion c
+                INNER JOIN persona p ON c.idcliente = p.idpersona
+                WHERE c.cobradosino = 'NO' 
+                  AND c.idventa = '0'
+                  AND c.estado = 'Aceptado'
+                ORDER BY c.idcotizacion DESC";
+
         return ejecutarConsulta($sql);
     }
 

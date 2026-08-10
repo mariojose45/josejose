@@ -300,9 +300,178 @@ switch ($_GET["op"]) {
         break;
 
 
-    case 'InventarioxSucusal':
+    case 'totales_cajas_superiores':
+        $idsucursal_filtro = isset($_GET["idsucursal_filtro"]) ? $_GET["idsucursal_filtro"] : "";
+        
+        $rsptac = $consulta->totalcomprahoy($idsucursal_filtro);
+        $regc = $rsptac->fetch_object();
+        $totalc = $regc ? $regc->total_compra : 0;
+        
+        $rsptav = $consulta->totalventahoy($idsucursal_filtro);
+        $regv = $rsptav->fetch_object();
+        $totalv = $regv ? $regv->total_venta : 0;
+        
+        $rsptavm = $consulta->totalventaM($idsucursal_filtro);
+        $regvm = $rsptavm->fetch_object();
+        $totalvm = $regvm ? $regvm->total_venta : 0;
+        
+        $rsptavcobrar = $consulta->totalventaCobrar($idsucursal_filtro);
+        $regvcobrar = $rsptavcobrar->fetch_object();
+        $totalitem = $regvcobrar ? $regvcobrar->numerodeitems : 0;
+        $totalcobrar = $regvcobrar ? $regvcobrar->totalcobrar : 0;
+        $totalabonos = $regvcobrar ? $regvcobrar->total_abonos : 0;
 
-        $rspta = $consulta->InventarioxSucusal();
+        $rsptacap = $consulta->capitalRecuperadoM($idsucursal_filtro);
+        $regcap = $rsptacap->fetch_object();
+        $totalcapital = $regcap ? $regcap->totalcapital : 0;
+
+        $rsptavpagar = $consulta->totalcompraPagar($idsucursal_filtro);
+        $regvpagar = $rsptavpagar->fetch_object();
+        $totalitem_pagar = $regvpagar ? $regvpagar->numerodeitems : 0;
+        $totalpagar = $regvpagar ? $regvpagar->totalpagar : 0;
+        $totalpagos_pagar = $regvpagar ? $regvpagar->total_pagos : 0;
+        
+        echo json_encode(array(
+            "totalc" => number_format($totalc, 2, '.', ''),
+            "totalv" => number_format($totalv, 2, '.', ''),
+            "totalvm" => number_format($totalvm, 2, '.', ''),
+            "totalitem" => $totalitem,
+            "totalcobrar" => number_format($totalcobrar, 2, '.', ''),
+            "totalabonos" => number_format($totalabonos, 2, '.', ''),
+            "totalcapital" => number_format($totalcapital, 2, '.', ''),
+            "totalitem_pagar" => $totalitem_pagar,
+            "totalpagar" => number_format($totalpagar, 2, '.', ''),
+            "totalpagos_pagar" => number_format($totalpagos_pagar, 2, '.', '')
+        ));
+    break;
+
+    case 'listarDetalleCtasporCobrar':
+        $idsucursal_filtro = isset($_GET['idsucursal_filtro']) ? $_GET['idsucursal_filtro'] : "";
+        $rspta = $consulta->listarDetalleCtasporCobrar($idsucursal_filtro);
+        $data = Array();  
+        while ($reg=$rspta->fetch_object()){    
+            $data[]=array(
+                "0"=>$reg->idventa,                    
+                "1"=>$reg->nombre_cliente,
+                "2"=>$reg->tipo_comprobante, 
+                "3"=>$reg->numero_ecoFactura,
+                "4"=>$reg->fecha, 
+                "5"=>$reg->total_venta,
+                "6"=>$reg->total_abono,
+                "7"=>$reg->saldo_venta,
+                "8"=>$reg->numero_pagos,
+                "9"=>($reg->estadopago=='Pago Aplicado')?'<span class="label bg-green">Pago Aplicado</span>':'<span class="label bg-red">Pendiente Pago</span>' 
+            );
+        }
+        $results = array(
+            "sEcho"=>1, 
+            "iTotalRecords"=>count($data),
+            "iTotalDisplayRecords"=>count($data),
+            "aaData"=>$data
+        );
+        echo json_encode($results); 
+    break;
+
+    case 'graficos_escritorio':
+        $idsucursal_filtro = isset($_GET["idsucursal_filtro"]) ? $_GET["idsucursal_filtro"] : "";
+        
+        $data = array();
+
+        // 1. Compras últimos 10 días
+        $compras10 = $consulta->comprasultimos_10dias($idsucursal_filtro);
+        $fechasc = array();
+        $totalesc = array();
+        while ($reg = $compras10->fetch_object()) {
+            array_push($fechasc, $reg->fecha);
+            array_push($totalesc, $reg->total);
+        }
+        $data['compras'] = array("labels" => $fechasc, "data" => $totalesc);
+
+        // 2. Ventas últimos 12 meses
+        $ventas12 = $consulta->ventasultimos_12meses($idsucursal_filtro);
+        $fechasv = array();
+        $totalesv = array();
+        while ($reg = $ventas12->fetch_object()) {
+            array_push($fechasv, $reg->fecha);
+            array_push($totalesv, $reg->total);
+        }
+        $data['ventas'] = array("labels" => $fechasv, "data" => $totalesv);
+
+        // 3. Clientes nuevos 12 meses
+        $Clientesnuevos12mes = $consulta->clientesnuevosultimos_12meses($idsucursal_filtro);
+        $fechasCN = array();
+        $totalesCN = array();
+        while ($reg = $Clientesnuevos12mes->fetch_object()) {
+            array_push($fechasCN, $reg->fecha);
+            array_push($totalesCN, $reg->total);
+        }
+        $data['clientes_nuevos'] = array("labels" => $fechasCN, "data" => $totalesCN);
+
+        // 4. Proveedores nuevos 12 meses
+        $Proveedornuevos12mes = $consulta->proveedornuevosultimos_12meses($idsucursal_filtro);
+        $fechasPN = array();
+        $totalesPN = array();
+        while ($reg = $Proveedornuevos12mes->fetch_object()) {
+            array_push($fechasPN, $reg->fecha);
+            array_push($totalesPN, $reg->total);
+        }
+        $data['proveedores_nuevos'] = array("labels" => $fechasPN, "data" => $totalesPN);
+
+        // 5. Personas nuevas 12 meses
+        $Personanuevos12mes = $consulta->personanuevosultimos_12meses($idsucursal_filtro);
+        $fechasPerN = array();
+        $totalesPerN = array();
+        while ($reg = $Personanuevos12mes->fetch_object()) {
+            array_push($fechasPerN, $reg->fecha);
+            array_push($totalesPerN, $reg->total);
+        }
+        $data['personas_nuevas'] = array("labels" => $fechasPerN, "data" => $totalesPerN);
+
+        // 6. Artículos últimos 10 días
+        $articulos10 = $consulta->Articulosultimos_10dias($idsucursal_filtro);
+        $articulos_nombres = array();
+        $articulos_totales = array();
+        while ($reg = $articulos10->fetch_object()) {
+            array_push($articulos_nombres, $reg->articulos);
+            array_push($articulos_totales, $reg->total);
+        }
+        $data['articulos_top'] = array("labels" => $articulos_nombres, "data" => $articulos_totales);
+
+        // 7. Ventas Comparativas
+        $ventasComp = $consulta->ventascomparativas($idsucursal_filtro);
+        $current_year = date("Y");
+        $prev_year = $current_year - 1;
+        
+        $meses = array(
+            1 => 'Enero', 2 => 'Febrero', 3 => 'Marzo', 4 => 'Abril', 
+            5 => 'Mayo', 6 => 'Junio', 7 => 'Julio', 8 => 'Agosto', 
+            9 => 'Septiembre', 10 => 'Octubre', 11 => 'Noviembre', 12 => 'Diciembre'
+        );
+        $data_current = array_fill(1, 12, 0);
+        $data_prev = array_fill(1, 12, 0);
+
+        while ($reg = $ventasComp->fetch_object()) {
+            if ($reg->anio == $current_year) {
+                $data_current[$reg->mes_num] = $reg->total;
+            } else if ($reg->anio == $prev_year) {
+                $data_prev[$reg->mes_num] = $reg->total;
+            }
+        }
+
+        $data['ventas_comparativas'] = array(
+            "labels" => array_values($meses),
+            "data_current" => array_values($data_current),
+            "data_prev" => array_values($data_prev),
+            "label_current" => "Ventas " . $current_year,
+            "label_prev" => "Ventas " . $prev_year
+        );
+
+        echo json_encode($data);
+    break;
+
+    case 'InventarioxSucusal':
+        $idsucursal_filtro = isset($_GET["idsucursal_filtro"]) ? $_GET["idsucursal_filtro"] : "";
+        $rspta = $consulta->InventarioxSucursal($idsucursal_filtro);
         //Vamos a declarar un array
         $data = array();
 
@@ -325,8 +494,8 @@ switch ($_GET["op"]) {
         break;
 
     case 'VentasxSucusal':
-
-        $rspta = $consulta->VentasxSucusal();
+        $idsucursal_filtro = isset($_GET["idsucursal_filtro"]) ? $_GET["idsucursal_filtro"] : "";
+        $rspta = $consulta->VentasxSucusal($idsucursal_filtro);
         //Vamos a declarar un array
         $data = array();
 
@@ -348,8 +517,8 @@ switch ($_GET["op"]) {
         break;
 
     case 'VentasxSucusalMes':
-
-        $rspta = $consulta->VentasxSucusalMes();
+        $idsucursal_filtro = isset($_GET["idsucursal_filtro"]) ? $_GET["idsucursal_filtro"] : "";
+        $rspta = $consulta->VentasxSucusalMes($idsucursal_filtro);
         //Vamos a declarar un array
         $data = array();
 
@@ -374,8 +543,8 @@ switch ($_GET["op"]) {
 
 
     case 'VentasxSucusalMesGanacia':
-
-        $rspta = $consulta->VentasxSucusalMesGanacia();
+        $idsucursal_filtro = isset($_GET["idsucursal_filtro"]) ? $_GET["idsucursal_filtro"] : "";
+        $rspta = $consulta->VentasxSucusalMesGanacia($idsucursal_filtro);
         //Vamos a declarar un array
         $data = array();
 
