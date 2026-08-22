@@ -144,7 +144,7 @@ while ($d = $rsptad->fetch_object()) {
     $x = $pdf->GetX();
     $y = $pdf->GetY();
 
-    $pdf->MultiCell(90, 8, utf8_decode($d->articulo . ' ' . $d->descripcion_detalle), 1);
+    $pdf->MultiCell(90, 8, utf8_decode($d->articulo . ' ' . $d->presentacion . ' ' . $d->descripcion_detalle), 1);
 
     $altura = $pdf->GetY() - $y;
     $pdf->SetXY($x + 90, $y);

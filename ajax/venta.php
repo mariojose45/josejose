@@ -1403,11 +1403,10 @@ switch ($_GET["op"]) {
                 "3" => $reg->descripcion_2,
                 "4" => $reg->categoria,
                 "5" => $reg->codigo,
-                "6" => $reg->stock,
-                "7" => ($reg->stockminimo <= $reg->stock) ? '<span class="label bg-green">Stock Normal</span>' :
+                "6" => ($reg->stockminimo <= $reg->stock) ? '<span class="label bg-green">Stock Normal</span>' :
                     '<span class="label bg-red">Stock Bajo</span>',
-                "8" => $reg->precio_venta,
-                "9" => "<img src='../files/articulos/" . $reg->imagen . "' height='50px' width='50px' >"
+                "7" => $reg->precio_venta,
+                "8" => "<img src='../files/articulos/" . $reg->imagen . "' height='50px' width='50px' >"
             );
         }
         $results = array(

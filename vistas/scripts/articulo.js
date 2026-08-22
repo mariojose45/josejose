@@ -94,8 +94,6 @@ function limpiar() {
     $("#descripcion").val("");
     $("#descripcion_2").val("");
 
-    $("#crearArticuloSucursal").val("Una");
-    $("#crearArticuloSucursal").selectpicker('refresh');
 
     $("#aplica_comision").val("SI");
     $("#aplica_comision").selectpicker('refresh');

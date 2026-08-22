@@ -236,13 +236,13 @@ class Articulo
             return "error: Fallo al insertar en la tabla 'articulo'"; // Retorna error si no se insertó correctamente
         }
 
-        if ($crearArticuloSucursal == "Todas") {
-            // Insertar en la tabla 'articuloxsucursal' por cada sucursal
-            $sqlsucursales = "SELECT * FROM sucursal s";
-            $DetalleSucursal = ejecutarConsulta($sqlsucursales);
 
-            while ($regS = $DetalleSucursal->fetch_object()) {
-                $sqlArticuloxSucursal = "INSERT INTO articuloxsucursal (idarticulo, idsucursal, idusuario, stocksucursal, 
+        // Insertar en la tabla 'articuloxsucursal' por cada sucursal
+        $sqlsucursales = "SELECT * FROM sucursal s";
+        $DetalleSucursal = ejecutarConsulta($sqlsucursales);
+
+        while ($regS = $DetalleSucursal->fetch_object()) {
+            $sqlArticuloxSucursal = "INSERT INTO articuloxsucursal (idarticulo, idsucursal, idusuario, stocksucursal, 
                                         stockminimo, precio_compra, precio_venta, precio_ventaNocturno, descuento_porcentaje, 
                                         precio_descuento, precio_rango1, precio_rango2, precio_rango3, 
                                         nombre_01,stock_unidad, precio_unidad, 
@@ -304,92 +304,41 @@ class Articulo
                                                 '$precio_rango2_MayoristaDos','$precio_rango3_MayoristaTres',
                                                 '$codigo_sku','$stockmaximo','$precio_activo_si_no','$descripcion_2','$pocentaje_ganacia')";
 
-                $insertSucursal = ejecutarConsulta($sqlArticuloxSucursal);
-                if (!$insertSucursal) {
-                    $this->registrarLog($codigo, 'Fallo al insertar en la tabla "articuloxsucursal" en sucursal ' . $regS->idsucursal, $fechaHora);
-                    return "error: Fallo al insertar en la tabla 'articuloxsucursal' en sucursal " . $regS->idsucursal;
-                }
+            $insertSucursal = ejecutarConsulta($sqlArticuloxSucursal);
+            if (!$insertSucursal) {
+                $this->registrarLog($codigo, 'Fallo al insertar en la tabla "articuloxsucursal" en sucursal ' . $regS->idsucursal, $fechaHora);
+                return "error: Fallo al insertar en la tabla 'articuloxsucursal' en sucursal " . $regS->idsucursal;
             }
+        }
 
-            // Actualizar la cantidad de stock en 'articuloxsucursal'
-            $sqlart = "UPDATE articuloxsucursal SET 
+        // Actualizar la cantidad de stock en 'articuloxsucursal'
+        $sqlart = "UPDATE articuloxsucursal SET 
                                 stocksucursal = '$stock'
                                 WHERE idarticulo = '$idarticulonew' 
                                 AND idsucursal = '" . $_SESSION["idsucursal"] . "'";
-            $updateStock = ejecutarConsulta($sqlart);
-            if (!$updateStock) {
-                $this->registrarLog($codigo, 'Fallo al actualizar el stock en "articuloxsucursal"', $fechaHora);
-                return "error: Fallo al actualizar el stock en 'articuloxsucursal'";
-            }
-        } else if ($crearArticuloSucursal == "Una") {
+        $updateStock = ejecutarConsulta($sqlart);
+        if (!$updateStock) {
+            $this->registrarLog($codigo, 'Fallo al actualizar el stock en "articuloxsucursal"', $fechaHora);
+            return "error: Fallo al actualizar el stock en 'articuloxsucursal'";
+        }
 
-            $sqlArticuloxSucursal = "INSERT INTO articuloxsucursal (idarticulo, idsucursal, idusuario, stocksucursal, 
-                        stockminimo, precio_compra, precio_venta, precio_ventaNocturno, descuento_porcentaje, 
-                        precio_descuento, precio_rango1, precio_rango2, precio_rango3, 
-                        nombre_01,stock_unidad, precio_unidad, 
-                        nombre_02,stock_blister, precio_blister, 
-                        nombre_03,stock_caja, precio_caja, 
-                        nombre_04,stock_fardo, precio_fardo, 
-                        nombre_05,stock_sacos, precio_sacos, 
-                        nombre_06,stock_paquete, precio_paquete, 
-                        nombre_07,stock_07, precio_07, 
-                        nombre_08,stock_08, precio_08, 
-                        nombre_09,stock_09, precio_09, 
-                        nombre_10,stock_10, precio_10, 
-                        nombre_11,stock_11, precio_11, 
-                        nombre_12,stock_12, precio_12, 
-                        nombre_13,stock_13, precio_13, 
-                        nombre_14,stock_14, precio_14, 
-                        nombre_15,stock_15, precio_15, 
-                        nombre_16,stock_16, precio_16, 
-                        nombre_17,stock_17, precio_17, 
-                        nombre_18,stock_18, precio_18, 
-                        nombre_19,stock_19, precio_19, 
-                        nombre_20,stock_20, precio_20, 
-                        condicion, ganacia_articulo, 
-                        tipo_ganacia, fecha_creacion,producto_consignacion,aplica_impuestos,precio_rango1_Dos,
-                        precio_rango2_Dos,precio_rango3_Dos,precio_rango1_Mecanico,precio_rango2_MecanicoDos,
-                        precio_rango3_MecanicoTres,precio_rango1_Distribuidor,precio_rango2_DistribuidorDos,
-                        precio_rango3_DistribuidorTres,precio_rango1_Mayorista,precio_rango2_MayoristaDos,
-                        precio_rango3_MayoristaTres,codigo_sku,stockmaximo,precio_activado,descripcion_2,pocentaje_ganacia) 
-                        VALUES ('$idarticulonew', '" . $_SESSION["idsucursal"] . "', '" . $_SESSION["idusuario"] . "', '$stock', 
-                                '$stockminimo', '$precio_compra', '$precio_venta', '$precio_ventaNocturno', 
-                                '$descuento_porcentaje', '$precio_descuento', '$precio_rango1', '$precio_rango2', 
-                                '$precio_rango3', 
-                                '$nombre_01', '$stock_unidad', '$precio_unidad', 
-                                '$nombre_02', '$stock_blister', '$precio_blister', 
-                                '$nombre_03', '$stock_caja', '$precio_caja', 
-                                '$nombre_04', '$stock_fardo', '$precio_fardo', 
-                                '$nombre_05', '$stock_sacos', '$precio_sacos', 
-                                '$nombre_06', '$stock_paquete', '$precio_paquete', 
-                                '$nombre_07', '$stock_07', '$precio_07', 
-                                '$nombre_08', '$stock_08', '$precio_08', 
-                                '$nombre_09', '$stock_09', '$precio_09', 
-                                '$nombre_10', '$stock_10', '$precio_10', 
-                                '$nombre_11', '$stock_11', '$precio_11', 
-                                '$nombre_12', '$stock_12', '$precio_12', 
-                                '$nombre_13', '$stock_13', '$precio_13', 
-                                '$nombre_14', '$stock_14', '$precio_14', 
-                                '$nombre_15', '$stock_15', '$precio_15', 
-                                '$nombre_16', '$stock_16', '$precio_16', 
-                                '$nombre_17', '$stock_17', '$precio_17', 
-                                '$nombre_18', '$stock_18', '$precio_18', 
-                                '$nombre_19', '$stock_19', '$precio_19', 
-                                '$nombre_20', '$stock_20', '$precio_20', 
-                                '1', '$ganacia_articulo', 
-                                '$tipo_ganacia', '$fechaHora','$producto_consignacion','$aplica_impuestos','$precio_rango1_Dos',
-                                '$precio_rango2_Dos','$precio_rango3_Dos','$precio_rango1_Mecanico',
-                                '$precio_rango2_MecanicoDos','$precio_rango3_MecanicoTres',
-                                '$precio_rango1_Distribuidor','$precio_rango2_DistribuidorDos',
-                                '$precio_rango3_DistribuidorTres','$precio_rango1_Mayorista',
-                                '$precio_rango2_MayoristaDos','$precio_rango3_MayoristaTres',
-                                '$codigo_sku','$stockmaximo','$precio_activo_si_no','$descripcion_2','$pocentaje_ganacia')";
+        // KARDEX: Inventario Inicial
+        if ($stock >= 0) {
+            @session_start();
+            $idusuario_session = $_SESSION["idusuario"];
+            $sqlUsuarioK = "SELECT nombre FROM usuario WHERE idusuario='" . $idusuario_session . "'";
+            $resUser = ejecutarConsultaSimpleFila($sqlUsuarioK);
+            $nombreUser = $resUser ? $resUser["nombre"] : 'Sistema';
 
-            $insertSucursal = ejecutarConsulta($sqlArticuloxSucursal);
-            if (!$insertSucursal) {
-                $this->registrarLog($codigo, 'Fallo al insertar en la tabla "articuloxsucursal" en sucursal ' . $_SESSION["idsucursal"], $fechaHora);
-                return "error: Fallo al insertar en la tabla 'articuloxsucursal' en sucursal " . $_SESSION["idsucursal"];
-            }
+            $idsucursal_actual = $_SESSION["idsucursal"];
+            $sqlInsertKardex = "INSERT INTO kardex_movimientos 
+                (idarticulo, idsucursal, fecha_hora, concepto, num_documento, cantidad_existente, cantidad_modificacion, 
+                tipo_modificacion, cantidad_final, precio, responsable)
+                VALUES 
+                ('$idarticulonew', '$idsucursal_actual', '$fechaHora', 'Inventario Inicial por Creación', '$codigo', 
+                '0', '$stock', 'Ingreso', '$stock', 
+                '$precio_compra', '$nombreUser')";
+            ejecutarConsulta($sqlInsertKardex);
         }
 
         // Si todo fue exitoso, retornar el ID del artículo creado
@@ -532,93 +481,8 @@ class Articulo
         ejecutarConsulta($sql);
         //print_r($sql);
 
-        if ($crearArticuloSucursal == "Todas") {
-            // Insertar en la tabla 'articuloxsucursal' por cada sucursal
-            $sqlsucursales = "SELECT * FROM sucursal s WHERE s.idsucursal<>'" . $_SESSION["idsucursal"] . "'";
-            $DetalleSucursal = ejecutarConsulta($sqlsucursales);
-            $faltantes = 0;
-
-            while ($regS = $DetalleSucursal->fetch_object()) {
-                // Verificar si ya existe ese artículo en esta sucursal
-                $verificar = "SELECT COUNT(*) AS total FROM articuloxsucursal WHERE idarticulo = '$idarticulo' AND idsucursal = '" . $regS->idsucursal . "'";
-                $existe = ejecutarConsultaSimpleFila($verificar);
-                if ($existe && $existe["total"] == 0) {
-                    // Insertar porque no existe
-                    $faltantes++;
-
-                    $sqlArticuloxSucursal = "INSERT INTO articuloxsucursal (idarticulo, idsucursal, idusuario, stocksucursal, 
-                                        stockminimo, precio_compra, precio_venta, precio_ventaNocturno, descuento_porcentaje, 
-                                        precio_descuento, precio_rango1, precio_rango2, precio_rango3, 
-                                        nombre_01,stock_unidad, precio_unidad, 
-                                        nombre_02,stock_blister, precio_blister, 
-                                        nombre_03,stock_caja, precio_caja, 
-                                        nombre_04,stock_fardo, precio_fardo, 
-                                        nombre_05,stock_sacos, precio_sacos, 
-                                        nombre_06,stock_paquete, precio_paquete, 
-                                        nombre_07,stock_07, precio_07, 
-                                        nombre_08,stock_08, precio_08, 
-                                        nombre_09,stock_09, precio_09, 
-                                        nombre_10,stock_10, precio_10, 
-                                        nombre_11,stock_11, precio_11, 
-                                        nombre_12,stock_12, precio_12, 
-                                        nombre_13,stock_13, precio_13, 
-                                        nombre_14,stock_14, precio_14, 
-                                        nombre_15,stock_15, precio_15, 
-                                        nombre_16,stock_16, precio_16, 
-                                        nombre_17,stock_17, precio_17, 
-                                        nombre_18,stock_18, precio_18, 
-                                        nombre_19,stock_19, precio_19, 
-                                        nombre_20,stock_20, precio_20, 
-                                        condicion, ganacia_articulo, 
-                                        tipo_ganacia, fecha_creacion,producto_consignacion,aplica_impuestos,precio_rango1_Dos,
-                                        precio_rango2_Dos,precio_rango3_Dos,precio_rango1_Mecanico,precio_rango2_MecanicoDos,
-                                        precio_rango3_MecanicoTres,precio_rango1_Distribuidor,precio_rango2_DistribuidorDos,
-                                        precio_rango3_DistribuidorTres,precio_rango1_Mayorista,precio_rango2_MayoristaDos,
-                                        precio_rango3_MayoristaTres,codigo_sku,stockmaximo,precio_activado,descripcion_2,pocentaje_ganacia) 
-                                        VALUES ('$idarticulo', '" . $regS->idsucursal . "', '" . $_SESSION["idusuario"] . "', '0', 
-                                                '$stockminimo', '$precio_compra', '$precio_venta', '$precio_ventaNocturno', 
-                                                '$descuento_porcentaje', '$precio_descuento', '$precio_rango1', '$precio_rango2', 
-                                                '$precio_rango3', 
-                                                '$nombre_01', '$stock_unidad', '$precio_unidad', 
-                                                '$nombre_02', '$stock_blister', '$precio_blister', 
-                                                '$nombre_03', '$stock_caja', '$precio_caja', 
-                                                '$nombre_04', '$stock_fardo', '$precio_fardo', 
-                                                '$nombre_05', '$stock_sacos', '$precio_sacos', 
-                                                '$nombre_06', '$stock_paquete', '$precio_paquete', 
-                                                '$nombre_07', '$stock_07', '$precio_07', 
-                                                '$nombre_08', '$stock_08', '$precio_08', 
-                                                '$nombre_09', '$stock_09', '$precio_09', 
-                                                '$nombre_10', '$stock_10', '$precio_10', 
-                                                '$nombre_11', '$stock_11', '$precio_11', 
-                                                '$nombre_12', '$stock_12', '$precio_12', 
-                                                '$nombre_13', '$stock_13', '$precio_13', 
-                                                '$nombre_14', '$stock_14', '$precio_14', 
-                                                '$nombre_15', '$stock_15', '$precio_15', 
-                                                '$nombre_16', '$stock_16', '$precio_16', 
-                                                '$nombre_17', '$stock_17', '$precio_17', 
-                                                '$nombre_18', '$stock_18', '$precio_18', 
-                                                '$nombre_19', '$stock_19', '$precio_19', 
-                                                '$nombre_20', '$stock_20', '$precio_20', 
-                                                '1', '$ganacia_articulo', 
-                                                '$tipo_ganacia', '$fechaHora','$producto_consignacion','$aplica_impuestos','$precio_rango1_Dos',
-                                                '$precio_rango2_Dos','$precio_rango3_Dos','$precio_rango1_Mecanico',
-                                                '$precio_rango2_MecanicoDos','$precio_rango3_MecanicoTres',
-                                                '$precio_rango1_Distribuidor','$precio_rango2_DistribuidorDos',
-                                                '$precio_rango3_DistribuidorTres','$precio_rango1_Mayorista',
-                                                '$precio_rango2_MayoristaDos','$precio_rango3_MayoristaTres',
-                                                '$codigo_sku','$stockmaximo','$precio_activo_si_no','$descripcion_2','$pocentaje_ganacia')";
-
-                    $insertSucursal = ejecutarConsulta($sqlArticuloxSucursal);
-                    if (!$insertSucursal) {
-                        $this->registrarLog($codigo, 'Fallo al insertar en la tabla "articuloxsucursal" en sucursal ' . $regS->idsucursal, $fechaHora);
-                        return "error: Fallo al insertar en la tabla 'articuloxsucursal' en sucursal " . $regS->idsucursal;
-                    }
-                }
-            }
-            if ($faltantes == 0) {
-                $sqlArticuloxSucursal = "UPDATE articuloxsucursal
+        $sqlArticuloxSucursal = "UPDATE articuloxsucursal
                                 SET 
-                                    stocksucursal = '$stock',
                                     stockminimo = '$stockminimo',
                                     precio_compra = '$precio_compra',
                                     ganacia_articulo = '$ganacia_articulo',
@@ -711,108 +575,40 @@ class Articulo
                                     precio_activado='$precio_activo_si_no',
                                     descripcion_2='$descripcion_2',
                                     pocentaje_ganacia='$pocentaje_ganacia'
-                where idarticulo='" . $idarticulo . "'and  idsucursal='" . $_SESSION["idsucursal"] . "'  ";
-                ejecutarConsulta($sqlArticuloxSucursal);
-            }
-        } elseif ($crearArticuloSucursal == "Una") {
-            $sqlArticuloxSucursal = "UPDATE articuloxsucursal
-                                SET 
-                                    stocksucursal = '$stock',
-                                    stockminimo = '$stockminimo',
-                                    precio_compra = '$precio_compra',
-                                    ganacia_articulo = '$ganacia_articulo',
-                                    tipo_ganacia='$tipo_ganacia',
-                                    precio_venta = '$precio_venta',
-                                    precio_ventaNocturno = '$precio_ventaNocturno',
-                                    descuento_porcentaje = '$descuento_porcentaje',
-                                    precio_descuento = '$precio_descuento',
-                                    precio_rango1 = '$precio_rango1',
-                                    precio_rango2 = '$precio_rango2',
-                                    precio_rango3 = '$precio_rango3',
-                                    nombre_01 = '$nombre_01',
-                                    stock_unidad = '$stock_unidad',
-                                    precio_unidad = '$precio_unidad',
-                                    nombre_02 = '$nombre_02',
-                                    stock_blister = '$stock_blister',
-                                    precio_blister = '$precio_blister',
-                                    nombre_03 = '$nombre_03',
-                                    stock_caja = '$stock_caja',
-                                    precio_caja = '$precio_caja',
-                                    nombre_04 = '$nombre_04',
-                                    stock_fardo = '$stock_fardo',
-                                    precio_fardo = '$precio_fardo',
-                                    nombre_05 = '$nombre_05',
-                                    stock_sacos = '$stock_sacos',
-                                    precio_sacos = '$precio_sacos',
-                                    nombre_06 = '$nombre_06',
-                                    stock_paquete = '$stock_paquete',
-                                    precio_paquete = '$precio_paquete',
-                                    nombre_07 = '$nombre_07',
-                                    stock_07 = '$stock_07',
-                                    precio_07 = '$precio_07',
-                                    nombre_08 = '$nombre_08',
-                                    stock_08 = '$stock_08',
-                                    precio_08 = '$precio_08',
-                                    nombre_09 = '$nombre_09',
-                                    stock_09 = '$stock_09',
-                                    precio_09 = '$precio_09',
-                                    nombre_10 = '$nombre_10',
-                                    stock_10 = '$stock_10',
-                                    precio_10 = '$precio_10',
-                                    nombre_11 = '$nombre_11',
-                                    stock_11 = '$stock_11',
-                                    precio_11 = '$precio_11',
-                                    nombre_12 = '$nombre_12',
-                                    stock_12 = '$stock_12',
-                                    precio_12 = '$precio_12',
-                                    nombre_13 = '$nombre_13',
-                                    stock_13 = '$stock_13',
-                                    precio_13 = '$precio_13',
-                                    nombre_14 = '$nombre_14',
-                                    stock_14 = '$stock_14',
-                                    precio_14 = '$precio_14',
-                                    nombre_15 = '$nombre_15',
-                                    stock_15 = '$stock_15',
-                                    precio_15 = '$precio_15',
-                                    nombre_16 = '$nombre_16',
-                                    stock_16 = '$stock_16',
-                                    precio_16 = '$precio_16',
-                                    nombre_17 = '$nombre_17',
-                                    stock_17 = '$stock_17',
-                                    precio_17 = '$precio_17',
-                                    nombre_18 = '$nombre_18',
-                                    stock_18 = '$stock_18',
-                                    precio_18 = '$precio_18',
-                                    nombre_19 = '$nombre_19',
-                                    stock_19 = '$stock_19',
-                                    precio_19 = '$precio_19',
-                                    nombre_20 = '$nombre_20',
-                                    stock_20 = '$stock_20',
-                                    precio_20 = '$precio_20',
-                                    idusuario_update='" . $_SESSION["idusuario"] . "',
-                                    producto_consignacion='$producto_consignacion',
-                                    aplica_impuestos='$aplica_impuestos',
-                                    fecha_update='$fechaHora',
-                                    precio_rango1_Dos='$precio_rango1_Dos',
-                                    precio_rango2_Dos='$precio_rango2_Dos',
-                                    precio_rango3_Dos='$precio_rango3_Dos',
-                                    precio_rango1_Mecanico='$precio_rango1_Mecanico',
-                                    precio_rango2_MecanicoDos='$precio_rango2_MecanicoDos',
-                                    precio_rango3_MecanicoTres='$precio_rango3_MecanicoTres',
-                                    precio_rango1_Distribuidor='$precio_rango1_Distribuidor',
-                                    precio_rango2_DistribuidorDos='$precio_rango2_DistribuidorDos',
-                                    precio_rango3_DistribuidorTres='$precio_rango3_DistribuidorTres',
-                                    precio_rango1_Mayorista='$precio_rango1_Mayorista',
-                                    precio_rango2_MayoristaDos='$precio_rango2_MayoristaDos',
-                                    precio_rango3_MayoristaTres='$precio_rango3_MayoristaTres',
-                                    codigo_sku='$codigo_sku',
-                                    stockmaximo='$stockmaximo',
-                                    precio_activado='$precio_activo_si_no',
-                                    descripcion_2='$descripcion_2',
-                                    pocentaje_ganacia='$pocentaje_ganacia'
-     where idarticulo='" . $idarticulo . "'and  idsucursal='" . $_SESSION["idsucursal"] . "'  ";
-            ejecutarConsulta($sqlArticuloxSucursal);
+     where idarticulo='" . $idarticulo . "'  ";
+        ejecutarConsulta($sqlArticuloxSucursal);
+
+        @session_start();
+        $idsucursal_actual = $_SESSION["idsucursal"];
+
+        $sqlArticulo1 = "SELECT stocksucursal FROM articuloxsucursal WHERE idarticulo='$idarticulo' AND idsucursal='$idsucursal_actual'";
+        $Articulo1 = ejecutarConsultaSimpleFila($sqlArticulo1);
+        $stocksucursal_anterior = $Articulo1 ? $Articulo1["stocksucursal"] : 0;
+
+        if ($stocksucursal_anterior != $stock) {
+            $idusuario_session = $_SESSION["idusuario"];
+            $sqlUsuarioK = "SELECT nombre FROM usuario WHERE idusuario='" . $idusuario_session . "'";
+            $resUser = ejecutarConsultaSimpleFila($sqlUsuarioK);
+            $nombreUser = $resUser ? $resUser["nombre"] : 'Sistema';
+
+            $cantidad_modificacion = abs($stock - $stocksucursal_anterior);
+            $tipo_modificacion = ($stock > $stocksucursal_anterior) ? 'Ingreso' : 'Salida';
+
+            $sqlInsertKardex = "INSERT INTO kardex_movimientos 
+                (idarticulo, idsucursal, fecha_hora, concepto, num_documento, cantidad_existente, cantidad_modificacion, 
+                tipo_modificacion, cantidad_final, precio, responsable)
+                VALUES 
+                ('$idarticulo', '$idsucursal_actual', '$fechaHora', 'Ajuste Inv por Edición de Artículo', '$codigo', 
+                '$stocksucursal_anterior', '$cantidad_modificacion', '$tipo_modificacion', '$stock', 
+                '$precio_compra', '$nombreUser')";
+            ejecutarConsulta($sqlInsertKardex);
         }
+
+        $sqlArticuloStock = "UPDATE articuloxsucursal
+                                SET 
+                                    stocksucursal = '$stock'
+            where idarticulo='" . $idarticulo . "'and  idsucursal='" . $idsucursal_actual . "'  ";
+        ejecutarConsulta($sqlArticuloStock);
         return ($sql);
     }
 
@@ -2617,6 +2413,7 @@ class Articulo
         $correlativo = ejecutarConsultaSimpleFila($sqlCorre);
         $stock_anterior = $correlativo["stocksucursal"];
         $idsucursal = $correlativo["idsucursal"];
+        $precio_compra = $correlativo["precio_compra"];
 
         $sqlInsertStockBitacora = "INSERT INTO articuloxsucursal_bitacora(idarticulo,idarticuloxsucursal,
         stocksucursal_anterior,stocksucursal_nuevo,idusuario,idsucursal,fecha_creacion) 
@@ -2624,9 +2421,32 @@ class Articulo
         '" . $stock . "','" . $_SESSION["idusuario"] . "','" . $idsucursal . "','" . $fechaHora . "')";
         ejecutarConsulta($sqlInsertStockBitacora);
 
+        if ($stock_anterior != $stock) {
+            @session_start();
+            $idusuario_session = $_SESSION["idusuario"];
+            $sqlUsuarioK = "SELECT nombre FROM usuario WHERE idusuario='" . $idusuario_session . "'";
+            $resUser = ejecutarConsultaSimpleFila($sqlUsuarioK);
+            $nombreUser = $resUser ? $resUser["nombre"] : 'Sistema';
+
+            $sqlArt = "SELECT codigo FROM articulo WHERE idarticulo='$idarticulo'";
+            $resArt = ejecutarConsultaSimpleFila($sqlArt);
+            $codigoArt = $resArt ? $resArt["codigo"] : $idarticulo;
+
+            $cantidad_modificacion = abs($stock - $stock_anterior);
+            $tipo_modificacion = ($stock > $stock_anterior) ? 'Ingreso' : 'Salida';
+
+            $sqlInsertKardex = "INSERT INTO kardex_movimientos 
+            (idarticulo, idsucursal, fecha_hora, concepto, num_documento, cantidad_existente, cantidad_modificacion, 
+            tipo_modificacion, cantidad_final, precio, responsable)
+            VALUES 
+            ('$idarticulo', '$idsucursal', '$fechaHora', 'Actualización Rápida de Stock', '$codigoArt', 
+            '$stock_anterior', '$cantidad_modificacion', '$tipo_modificacion', '$stock', 
+            '$precio_compra', '$nombreUser')";
+            ejecutarConsulta($sqlInsertKardex);
+        }
 
         $sql = "UPDATE articuloxsucursal SET stocksucursal = '$stock' 
-                WHERE idarticuloxsucursal = '$idarticuloxsucursal'  ";
+                WHERE idarticuloxsucursal = '$idarticuloxsucursal' and idsucursal='" . $_SESSION["idsucursal"] . "' ";
         return ejecutarConsulta($sql);
     }
 

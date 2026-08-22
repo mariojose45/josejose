@@ -16,31 +16,31 @@ function init() {
     var idCargado = null;
     $("#btncargar").click(function () {
 
-            var idcotizacion = $("#idcotizacion").val();
-            if (idcotizacion == "") {
-                Swal.fire({
-                    position: "top-end",
-                    icon: "error",
-                    title: "Debe Colocar un Id de Cotizacion Valido",
-                    showConfirmButton: false,
-                    timer: 1500,
-                });  
+        var idcotizacion = $("#idcotizacion").val();
+        if (idcotizacion == "") {
+            Swal.fire({
+                position: "top-end",
+                icon: "error",
+                title: "Debe Colocar un Id de Cotizacion Valido",
+                showConfirmButton: false,
+                timer: 1500,
+            });
             // alert("Debe Colocar un Id de Cotizacion Valido")
-                return;
-            }
+            return;
+        }
 
-            // Verifica si el ID ya fue cargado
-            if (idCargado === idcotizacion) {
-                //alert("Ya se ha cargado la información para este ID.");
-                Swal.fire({
-                    position: "top-end",
-                    icon: "error",
-                    title: "Ya se ha cargado la información para este ID.",
-                    showConfirmButton: false,
-                    timer: 1500,
-                });            
-                return;
-            }        
+        // Verifica si el ID ya fue cargado
+        if (idCargado === idcotizacion) {
+            //alert("Ya se ha cargado la información para este ID.");
+            Swal.fire({
+                position: "top-end",
+                icon: "error",
+                title: "Ya se ha cargado la información para este ID.",
+                showConfirmButton: false,
+                timer: 1500,
+            });
+            return;
+        }
 
         // Actualiza la variable de control
         idCargado = idcotizacion;
@@ -54,7 +54,7 @@ function init() {
 /////CLIENTE NUEVO
 
 function validarnit() {
-    
+
 
     var nit = $("#nit").val();
 
@@ -156,7 +156,7 @@ function buscarnitenSistemaparaIdcliente(nit) {
 
 
 function validarnitNombre() {
-    
+
     var nombre_cliente = $("#nombre_cliente").val();
 
     $.post("../ajax/consultas.php?op=validarnitNombre", { nombre_cliente: nombre_cliente }, function (data, status) {
@@ -210,7 +210,7 @@ function validarnitNombre() {
 
 
 function validarCodigo() {
-    
+
     var codigo_cliente = $("#codigo_cliente").val();
     $.post("../ajax/venta.php?op=validarCodigo", { codigo_cliente: codigo_cliente }, function (data, status) {
         // console.log(data)
@@ -266,7 +266,7 @@ function validarCodigo() {
 
 function listartbBusquedaCliente() {
 
-    
+
     $('#myModalBusquedacliente').modal('show');
     tabla = $('#tbBusquedaCliente').dataTable(
         {
@@ -548,7 +548,8 @@ function agruparDatos() {
             precio_caja: [],
             precio_fardo: [],
             precio_sacos: [],
-            precio_paquete: []
+            precio_paquete: [],
+            idsucursalDestino: []
         }
     };
 
@@ -572,6 +573,7 @@ function agruparDatos() {
         const precio_fardo = $(this).find('input[name="precio_fardo[]"]').val();
         const precio_sacos = $(this).find('input[name="precio_sacos[]"]').val();
         const precio_paquete = $(this).find('input[name="precio_paquete[]"]').val();
+        const idsucursalDestino = $(this).find('input[name="idsucursalDestino[]"]').val();
 
 
         datos.articulos.idarticulo.push(idarticulo);
@@ -593,6 +595,7 @@ function agruparDatos() {
         datos.articulos.precio_fardo.push(precio_fardo);
         datos.articulos.precio_sacos.push(precio_sacos);
         datos.articulos.precio_paquete.push(precio_paquete);
+        datos.articulos.idsucursalDestino.push(idsucursalDestino);
     });
 
     const datosJSON = JSON.stringify(datos);
@@ -614,13 +617,13 @@ function guardaryeditar(e) {
         url: "../ajax/ingreso.php?op=guardaryeditarND",
         type: "POST",
         data: formData,
-        contentType: false, 
+        contentType: false,
         processData: false,
 
         success: function (datos) {
-            //console.log(datos)
+            console.log(datos)
             Swal.fire({
-                title: 'Mensaje!', 
+                title: 'Mensaje!',
                 text: datos,
                 icon: 'success',
                 timer: 2000, // 2 segundos
@@ -643,25 +646,25 @@ function obtenerIngreso(idingreso) {
         load();
         console.log(data);
 
-      //  {"status":false,"message":"No se puede mostrar la operaci\u00f3n porque ya existe un ingreso posterior registrado."}
+        //  {"status":false,"message":"No se puede mostrar la operaci\u00f3n porque ya existe un ingreso posterior registrado."}
         try {
             // Intentamos parsear los datos recibidos
             data = JSON.parse(data);
 
-                       // Validar si vino un error (status: false)
-                    if (data == null) {
+            // Validar si vino un error (status: false)
+            if (data == null) {
 
-                    }else  if ( data.status === false) {
-                     Swal.fire({
-                         title: 'Aviso',
-                         text: data.message || "No se puede procesar este ingreso.",
-                         icon: 'warning',
-                         timer: 2500,
-                         timerProgressBar: true,
-                     });
-                     return;
-                 }
-                    
+            } else if (data.status === false) {
+                Swal.fire({
+                    title: 'Aviso',
+                    text: data.message || "No se puede procesar este ingreso.",
+                    icon: 'warning',
+                    timer: 2500,
+                    timerProgressBar: true,
+                });
+                return;
+            }
+
 
             // Validar si el objeto data está vacío o nulo
             if (!data || data === null || Object.keys(data).length === 0) {
@@ -829,12 +832,12 @@ function agregarDetalle(idarticulo, articulo, precio_venta, precio_compra, stock
     }
 }
 
-function presentacionoculatardatos(id, precio_venta, 
-    nombre_01, stock_unidad, precio_unidad, 
+function presentacionoculatardatos(id, precio_venta,
+    nombre_01, stock_unidad, precio_unidad,
     nombre_02, stock_blister, precio_blister,
-    nombre_03, stock_caja, precio_caja, 
-    nombre_04, stock_fardo, precio_fardo, 
-    nombre_05, stock_sacos, precio_sacos, 
+    nombre_03, stock_caja, precio_caja,
+    nombre_04, stock_fardo, precio_fardo,
+    nombre_05, stock_sacos, precio_sacos,
     nombre_06, stock_paquete, precio_paquete,
     nombre_07, stock_07, precio_07,
     nombre_08, stock_08, precio_08,
@@ -903,7 +906,7 @@ function presentacionoculatardatos(id, precio_venta,
         $("#presen" + id).val(nombre_04);
 
         $("#precio_ventaSistema" + id).val(precioventaunidad);
-        $("#precio_ventaSistema2" + id).val(precio_fardo);        
+        $("#precio_ventaSistema2" + id).val(precio_fardo);
     }
     else if (presentacion == nombre_05) {
         var precioventaunidad = 0;
@@ -916,7 +919,7 @@ function presentacionoculatardatos(id, precio_venta,
         $("#presen" + id).val(nombre_05);
 
         $("#precio_ventaSistema" + id).val(precioventaunidad);
-        $("#precio_ventaSistema2" + id).val(precio_sacos);        
+        $("#precio_ventaSistema2" + id).val(precio_sacos);
     }
     else if (presentacion == nombre_06) {
         var precioventaunidad = 0;
@@ -929,7 +932,7 @@ function presentacionoculatardatos(id, precio_venta,
         $("#presen" + id).val(nombre_06);
 
         $("#precio_ventaSistema" + id).val(precioventaunidad);
-        $("#precio_ventaSistema2" + id).val(precio_paquete);        
+        $("#precio_ventaSistema2" + id).val(precio_paquete);
     }
     else if (presentacion == nombre_07) {
         var precioventaunidad = 0;
@@ -942,8 +945,8 @@ function presentacionoculatardatos(id, precio_venta,
         $("#presen" + id).val(nombre_07);
 
         $("#precio_ventaSistema" + id).val(precioventaunidad);
-        $("#precio_ventaSistema2" + id).val(precio_07);        
-    }  
+        $("#precio_ventaSistema2" + id).val(precio_07);
+    }
 
     else if (presentacion == nombre_07) {
         var precioventaunidad = 0;
@@ -956,8 +959,8 @@ function presentacionoculatardatos(id, precio_venta,
         $("#presen" + id).val(nombre_08);
 
         $("#precio_ventaSistema" + id).val(precioventaunidad);
-        $("#precio_ventaSistema2" + id).val(precio_08);        
-    } 
+        $("#precio_ventaSistema2" + id).val(precio_08);
+    }
     else if (presentacion == nombre_09) {
         var precioventaunidad = 0;
         if (stock_09 > 0) {
@@ -969,8 +972,8 @@ function presentacionoculatardatos(id, precio_venta,
         $("#presen" + id).val(nombre_09);
 
         $("#precio_ventaSistema" + id).val(precioventaunidad);
-        $("#precio_ventaSistema2" + id).val(precio_09);        
-    }   
+        $("#precio_ventaSistema2" + id).val(precio_09);
+    }
     else if (presentacion == nombre_10) {
         var precioventaunidad = 0;
         if (stock_10 > 0) {
@@ -982,7 +985,7 @@ function presentacionoculatardatos(id, precio_venta,
         $("#presen" + id).val(nombre_10);
 
         $("#precio_ventaSistema" + id).val(precioventaunidad);
-        $("#precio_ventaSistema2" + id).val(precio_10);            
+        $("#precio_ventaSistema2" + id).val(precio_10);
     }
     else if (presentacion == nombre_11) {
         var precioventaunidad = 0;
@@ -995,7 +998,7 @@ function presentacionoculatardatos(id, precio_venta,
         $("#presen" + id).val(nombre_11);
 
         $("#precio_ventaSistema" + id).val(precioventaunidad);
-        $("#precio_ventaSistema2" + id).val(precio_11);           
+        $("#precio_ventaSistema2" + id).val(precio_11);
     }
     else if (presentacion == nombre_12) {
         var precioventaunidad = 0;
@@ -1008,7 +1011,7 @@ function presentacionoculatardatos(id, precio_venta,
         $("#presen" + id).val(nombre_12);
 
         $("#precio_ventaSistema" + id).val(precioventaunidad);
-        $("#precio_ventaSistema2" + id).val(precio_12);          
+        $("#precio_ventaSistema2" + id).val(precio_12);
     }
     else if (presentacion == nombre_13) {
         var precioventaunidad = 0;
@@ -1021,7 +1024,7 @@ function presentacionoculatardatos(id, precio_venta,
         $("#presen" + id).val(nombre_13);
 
         $("#precio_ventaSistema" + id).val(precioventaunidad);
-        $("#precio_ventaSistema2" + id).val(precio_13);           
+        $("#precio_ventaSistema2" + id).val(precio_13);
     }
     else if (presentacion == nombre_14) {
         var precioventaunidad = 0;
@@ -1034,7 +1037,7 @@ function presentacionoculatardatos(id, precio_venta,
         $("#presen" + id).val(nombre_14);
 
         $("#precio_ventaSistema" + id).val(precioventaunidad);
-        $("#precio_ventaSistema2" + id).val(precio_14);           
+        $("#precio_ventaSistema2" + id).val(precio_14);
     }
     else if (presentacion == nombre_15) {
         var precioventaunidad = 0;
@@ -1047,7 +1050,7 @@ function presentacionoculatardatos(id, precio_venta,
         $("#presen" + id).val(nombre_15);
 
         $("#precio_ventaSistema" + id).val(precioventaunidad);
-        $("#precio_ventaSistema2" + id).val(precio_15);           
+        $("#precio_ventaSistema2" + id).val(precio_15);
     }
     else if (presentacion == nombre_16) {
         var precioventaunidad = 0;
@@ -1060,7 +1063,7 @@ function presentacionoculatardatos(id, precio_venta,
         $("#presen" + id).val(nombre_16);
 
         $("#precio_ventaSistema" + id).val(precioventaunidad);
-        $("#precio_ventaSistema2" + id).val(precio_16);           
+        $("#precio_ventaSistema2" + id).val(precio_16);
     }
     else if (presentacion == nombre_17) {
         var precioventaunidad = 0;
@@ -1073,7 +1076,7 @@ function presentacionoculatardatos(id, precio_venta,
         $("#presen" + id).val(nombre_17);
 
         $("#precio_ventaSistema" + id).val(precioventaunidad);
-        $("#precio_ventaSistema2" + id).val(precio_17);              
+        $("#precio_ventaSistema2" + id).val(precio_17);
     }
     else if (presentacion == nombre_18) {
         var precioventaunidad = 0;
@@ -1086,7 +1089,7 @@ function presentacionoculatardatos(id, precio_venta,
         $("#presen" + id).val(nombre_18);
 
         $("#precio_ventaSistema" + id).val(precioventaunidad);
-        $("#precio_ventaSistema2" + id).val(precio_18);          
+        $("#precio_ventaSistema2" + id).val(precio_18);
     }
     else if (presentacion == nombre_19) {
         var precioventaunidad = 0;
@@ -1099,7 +1102,7 @@ function presentacionoculatardatos(id, precio_venta,
         $("#presen" + id).val(nombre_19);
 
         $("#precio_ventaSistema" + id).val(precioventaunidad);
-        $("#precio_ventaSistema2" + id).val(precio_19);          
+        $("#precio_ventaSistema2" + id).val(precio_19);
     }
     else if (presentacion == nombre_20) {
         var precioventaunidad = 0;
@@ -1112,8 +1115,8 @@ function presentacionoculatardatos(id, precio_venta,
         $("#presen" + id).val(nombre_20);
 
         $("#precio_ventaSistema" + id).val(precioventaunidad);
-        $("#precio_ventaSistema2" + id).val(precio_20);          
-    }      
+        $("#precio_ventaSistema2" + id).val(precio_20);
+    }
     else {
 
         $("#cantidadpresentacion" + id).val(1);
@@ -1122,77 +1125,77 @@ function presentacionoculatardatos(id, precio_venta,
         $("#presen" + id).val(nombre_01);
 
         $("#precio_ventaSistema" + id).val(precioventaunidad);
-        $("#precio_ventaSistema2" + id).val(precio_unidad);        
+        $("#precio_ventaSistema2" + id).val(precio_unidad);
 
     }
     modificarSubototales();
 }
 function obtenerdetalleingreso(idingreso) {
     $.post("../ajax/ingreso.php?op=detalleingreso", { idingreso: idingreso }, function (data) {
-      //  console.log(data);
+        //  console.log(data);
         data = JSON.parse(data);
         Swal.close()
         $.each(data, function (i, item) {
             agregarDetalle2(item.idarticulo, item.articulo, item.precio_venta, item.precio_compra, item.stock, item.cantidad, item.descuento_porcentaje,
-                item.precio_ventaNocturno, item.precio_rango1, item.precio_rango2, item.precio_rango3, 
-                item.nombre_01,item.stock_unidad,item.precio_unidad, 
-                item.nombre_02,item.stock_blister,item.precio_blister,
-                item.nombre_03,item.stock_caja,item.precio_caja, 
-                item.nombre_04,item.stock_fardo,item.precio_fardo, 
-                item.nombre_05,item.stock_sacos,item.precio_sacos, 
-                item.nombre_06,item.stock_paquete,item.precio_paquete,
-                item.nombre_07,item.stock_07,item.precio_07,
-                item.nombre_08,item.stock_08,item.precio_08,
-                item.nombre_09,item.stock_09,item.precio_09,
-                item.nombre_10,item.stock_10,item.precio_10,
-                item.nombre_11,item.stock_11,item.precio_11,
-                item.nombre_12,item.stock_12,item.precio_12,
-                item.nombre_13,item.stock_13,item.precio_13,
-                item.nombre_14,item.stock_14,item.precio_14,
-                item.nombre_15,item.stock_15,item.precio_15,
-                item.nombre_16,item.stock_16,item.precio_16,
-                item.nombre_17,item.stock_17,item.precio_17,
-                item.nombre_18,item.stock_18,item.precio_18,
-                item.nombre_19,item.stock_19,item.precio_19,
-                item.nombre_20,item.stock_20,item.precio_20,
-                item.cantidadpresentacion, item.totalcantidadpresentacion, item.presentacion);
+                item.precio_ventaNocturno, item.precio_rango1, item.precio_rango2, item.precio_rango3,
+                item.nombre_01, item.stock_unidad, item.precio_unidad,
+                item.nombre_02, item.stock_blister, item.precio_blister,
+                item.nombre_03, item.stock_caja, item.precio_caja,
+                item.nombre_04, item.stock_fardo, item.precio_fardo,
+                item.nombre_05, item.stock_sacos, item.precio_sacos,
+                item.nombre_06, item.stock_paquete, item.precio_paquete,
+                item.nombre_07, item.stock_07, item.precio_07,
+                item.nombre_08, item.stock_08, item.precio_08,
+                item.nombre_09, item.stock_09, item.precio_09,
+                item.nombre_10, item.stock_10, item.precio_10,
+                item.nombre_11, item.stock_11, item.precio_11,
+                item.nombre_12, item.stock_12, item.precio_12,
+                item.nombre_13, item.stock_13, item.precio_13,
+                item.nombre_14, item.stock_14, item.precio_14,
+                item.nombre_15, item.stock_15, item.precio_15,
+                item.nombre_16, item.stock_16, item.precio_16,
+                item.nombre_17, item.stock_17, item.precio_17,
+                item.nombre_18, item.stock_18, item.precio_18,
+                item.nombre_19, item.stock_19, item.precio_19,
+                item.nombre_20, item.stock_20, item.precio_20,
+                item.cantidadpresentacion, item.totalcantidadpresentacion, item.presentacion, item.idsucursalDestino);
         });
     })
 }
 
 
 function agregarDetalle2(idarticulo, articulo, precio_venta, precio_compra, stock, cantidad, descuento_porcentaje,
-    precio_ventaNocturno, precio_rango1, precio_rango2, precio_rango3, 
-    nombre_01,stock_unidad,precio_unidad, 
-    nombre_02,stock_blister,precio_blister,
-    nombre_03,stock_caja,precio_caja, 
-    nombre_04,stock_fardo,precio_fardo, 
-    nombre_05,stock_sacos,precio_sacos, 
-    nombre_06,stock_paquete,precio_paquete,
-    nombre_07,stock_07,precio_07,
-    nombre_08,stock_08,precio_08,
-    nombre_09,stock_09,precio_09,
-    nombre_10,stock_10,precio_10,
-    nombre_11,stock_11,precio_11,
-    nombre_12,stock_12,precio_12,
-    nombre_13,stock_13,precio_13,
-    nombre_14,stock_14,precio_14,
-    nombre_15,stock_15,precio_15,
-    nombre_16,stock_16,precio_16,
-    nombre_17,stock_17,precio_17,
-    nombre_18,stock_18,precio_18,
-    nombre_19,stock_19,precio_19,
-    nombre_20,stock_20,precio_20,
-    cantidadpresentacion, totalcantidadpresentacion, presentacion) {
+    precio_ventaNocturno, precio_rango1, precio_rango2, precio_rango3,
+    nombre_01, stock_unidad, precio_unidad,
+    nombre_02, stock_blister, precio_blister,
+    nombre_03, stock_caja, precio_caja,
+    nombre_04, stock_fardo, precio_fardo,
+    nombre_05, stock_sacos, precio_sacos,
+    nombre_06, stock_paquete, precio_paquete,
+    nombre_07, stock_07, precio_07,
+    nombre_08, stock_08, precio_08,
+    nombre_09, stock_09, precio_09,
+    nombre_10, stock_10, precio_10,
+    nombre_11, stock_11, precio_11,
+    nombre_12, stock_12, precio_12,
+    nombre_13, stock_13, precio_13,
+    nombre_14, stock_14, precio_14,
+    nombre_15, stock_15, precio_15,
+    nombre_16, stock_16, precio_16,
+    nombre_17, stock_17, precio_17,
+    nombre_18, stock_18, precio_18,
+    nombre_19, stock_19, precio_19,
+    nombre_20, stock_20, precio_20,
+    cantidadpresentacion, totalcantidadpresentacion, presentacion, idsucursalDestino) {
 
     var subtotaldes = 0;
 
-   // console.log("presentacion ", presentacion);
+    // console.log("presentacion ", presentacion);
     if (idarticulo != "") {
         var subtotal = cantidad * precio_compra;
         var fila = '<tr class="filas" id="fila' + cont + '">' +
             '<td><button type="button" class="btn btn-danger" onclick="eliminarDetalle(' + cont + ')">X</button></td>' +
-            '<td><input type="hidden" name="stockinven[]" value="' + stock + '"><input type="hidden" name="idarticulo[]" value="' + idarticulo + '">' + articulo + '</td>' +
+            '<td><input type="hidden" name="idsucursalDestino[]" value="' + idsucursalDestino + '"><input type="hidden" name="stockinven[]" value="' + stock + '"><input type="hidden" name="idarticulo[]" value="' + idarticulo + '">' + articulo + '</td>' +
             '<td><input style="width:60px" type="hidden" id="cantidadpresentacion' + cont + '" name="cantidadpresentacion[]" value="' + cantidadpresentacion + '" onchange="modificarSubototales()"><input style="width:100px" class="form-control"  onchange="modificarSubototales()"  type="number" step="any"   id="cxcantidad' + idarticulo + '" name="cantidad[]" id="cantidad' + cont + '" value="' + cantidad + '"><input style="width:60px"  type="hidden" id="totalcantidadpresentacion' + cont + '" name="totalcantidadpresentacion[]" value="' + totalcantidadpresentacion + '" onchange="modificarSubototales()"></td>' +
             `<td>
                 <select class="form-control" style="width:100px" name="presentacion[]" id="presentacionselect` + cont + `" 
@@ -1286,7 +1289,7 @@ function modificarSubototales() {
         var inpCpre = cantpre[i];
 
         inpTpres.value = parseFloat(inpC.value * inpCpre.value).toFixed(3);
-        document.getElementsByName("totalcantidadpresentacion[]")[i].innerHTML = inpTpres.value;        
+        document.getElementsByName("totalcantidadpresentacion[]")[i].innerHTML = inpTpres.value;
 
         inpS.value = ((inpC.value * inpCpre.value) * (inpP.value - ((inpP.value * inpD.value) / 100)));
         document.getElementsByName("subtotal")[i].innerHTML = inpS.value;

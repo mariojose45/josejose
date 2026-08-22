@@ -92,6 +92,21 @@ function listar() {
 function guardaryeditar(e) {
     e.preventDefault(); // Evita que el formulario recargue la página por defecto
     //e.preventDefault(); //No se activará la acción predeterminada del evento
+
+    // Validar que los nombres no tengan espacios en blanco
+    for (let i = 1; i <= 20; i++) {
+        let nombre = $("#nombre_presentacion" + i).val();
+        if (nombre && nombre.includes(" ")) {
+            let num = i < 10 ? '0' + i : i;
+            Swal.fire({
+                title: 'Error en Nombre ' + num,
+                text: 'Los nombres no pueden llevar espacios en blanco. Si desea separar palabras, use un guión (-) por favor.',
+                icon: 'error'
+            });
+            return; // Detiene el guardado
+        }
+    }
+
     $("#btnGuardar").prop("disabled", true);
     var formData = new FormData($("#formulario")[0]);
     load();

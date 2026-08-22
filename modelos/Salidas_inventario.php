@@ -20,6 +20,12 @@ class Salidas_inventario
         date_default_timezone_set('America/Guatemala');
         $fechaHora = date('Y-m-d H:i:s');
 
+        @session_start();
+        $idusuario_session = $_SESSION["idusuario"];
+        $sqlUsuarioK = "SELECT nombre FROM usuario WHERE idusuario='" . $idusuario_session . "'";
+        $resUser = ejecutarConsultaSimpleFila($sqlUsuarioK);
+        $nombreUser = $resUser ? $resUser["nombre"] : 'Sistema';
+
         $sql = "INSERT INTO venta_salida (idusuario,fecha_hora,observacion_credito,
         idusuario_creacion,idsucursal,tipo_operacion)
         VALUES ('$idusuario_salida',NOW(),'$descripcion_salida_product',
@@ -53,16 +59,43 @@ class Salidas_inventario
                 ejecutarConsulta($sql_detalleoperaciones);
                 //print_r($sql_detalleoperaciones);
 
+                // Obtener stock y precio anterior
+                $idsucursal_actual = $_SESSION["idsucursal"];
+                $sqlArticulo1 = "SELECT precio_compra, stocksucursal FROM articuloxsucursal WHERE idarticulo='$idarticulo' AND idsucursal='$idsucursal_actual'";
+                $Articulo1 = ejecutarConsultaSimpleFila($sqlArticulo1);
+                $stocksucursal_anterior = $Articulo1 ? $Articulo1["stocksucursal"] : 0;
+                $precio_compra = $Articulo1 ? $Articulo1["precio_compra"] : 0;
+
                 if ($tipo_operacion == 'Salida') {
                     $sqlArticuloStock = "UPDATE articuloxsucursal SET 
                     stocksucursal = stocksucursal - " . $totalcantidadpresentacion . "
                     WHERE idarticulo ='$idarticulo'  and idsucursal='" . $_SESSION["idsucursal"] . "' ";
                     ejecutarConsulta($sqlArticuloStock);
+
+                    $kardex_stock_final = $stocksucursal_anterior - $totalcantidadpresentacion;
+                    $sqlInsertKardex = "INSERT INTO kardex_movimientos 
+                    (idarticulo, idsucursal, fecha_hora, concepto, num_documento, cantidad_existente, cantidad_modificacion, 
+                    tipo_modificacion, cantidad_final, precio, responsable)
+                    VALUES 
+                    ('$idarticulo', '$idsucursal_actual', '$fechaHora', 'Ajuste Inv - Salida', '$idtraladosucursalnew', 
+                    '$stocksucursal_anterior', '$totalcantidadpresentacion', 'Salida', '$kardex_stock_final', 
+                    '$precio_compra', '$nombreUser')";
+                    ejecutarConsulta($sqlInsertKardex);
                 } else {
                     $sqlArticuloStock = "UPDATE articuloxsucursal SET 
                     stocksucursal = stocksucursal + " . $totalcantidadpresentacion . "
                     WHERE idarticulo ='$idarticulo'  and idsucursal='" . $_SESSION["idsucursal"] . "' ";
                     ejecutarConsulta($sqlArticuloStock);
+
+                    $kardex_stock_final = $stocksucursal_anterior + $totalcantidadpresentacion;
+                    $sqlInsertKardex = "INSERT INTO kardex_movimientos 
+                    (idarticulo, idsucursal, fecha_hora, concepto, num_documento, cantidad_existente, cantidad_modificacion, 
+                    tipo_modificacion, cantidad_final, precio, responsable)
+                    VALUES 
+                    ('$idarticulo', '$idsucursal_actual', '$fechaHora', 'Ajuste Inv - Ingreso', '$idtraladosucursalnew', 
+                    '$stocksucursal_anterior', '$totalcantidadpresentacion', 'Ingreso', '$kardex_stock_final', 
+                    '$precio_compra', '$nombreUser')";
+                    ejecutarConsulta($sqlInsertKardex);
                 }
             }
         }
@@ -155,6 +188,15 @@ class Salidas_inventario
     //Implementamos un método para anular la venta
     public function anular($idventa_salida)
     {
+        date_default_timezone_set('America/Guatemala');
+        $fechaHora = date('Y-m-d H:i:s');
+
+        @session_start();
+        $idusuario_session = $_SESSION["idusuario"];
+        $sqlUsuarioK = "SELECT nombre FROM usuario WHERE idusuario='" . $idusuario_session . "'";
+        $resUser = ejecutarConsultaSimpleFila($sqlUsuarioK);
+        $nombreUser = $resUser ? $resUser["nombre"] : 'Sistema';
+
         $sqlVenta = "SELECT tipo_operacion FROM venta_salida WHERE idventa_salida='$idventa_salida'";
         $ventaResult = ejecutarConsultaSimpleFila($sqlVenta);
         $tipo_operacion = isset($ventaResult['tipo_operacion']) ? $ventaResult['tipo_operacion'] : 'Salida'; // Default Salida por retrocompatibilidad
@@ -169,18 +211,48 @@ class Salidas_inventario
         $Detalle = ejecutarConsulta($sqlDetalleingreso);
 
         while ($reg = $Detalle->fetch_object()) {
+            $idsucursal_actual = $_SESSION["idsucursal"];
+            $idarticulo = $reg->idarticulo;
+            $totalcantidadpresentacion = $reg->totalcantidadpresentacion;
+
+            $sqlArticulo1 = "SELECT precio_compra, stocksucursal FROM articuloxsucursal WHERE idarticulo='$idarticulo' AND idsucursal='$idsucursal_actual'";
+            $Articulo1 = ejecutarConsultaSimpleFila($sqlArticulo1);
+            $stocksucursal_anterior = $Articulo1 ? $Articulo1["stocksucursal"] : 0;
+            $precio_compra = $Articulo1 ? $Articulo1["precio_compra"] : 0;
+
             if ($tipo_operacion == 'Salida') {
                 $updateArticuloDetalle = "UPDATE articuloxsucursal SET 
-                                                stocksucursal = stocksucursal + " . $reg->totalcantidadpresentacion . "
-                                            WHERE idarticulo = " . $reg->idarticulo . " 
-                                            AND idsucursal = '" . $_SESSION["idsucursal"] . "'";
+                                                stocksucursal = stocksucursal + " . $totalcantidadpresentacion . "
+                                            WHERE idarticulo = " . $idarticulo . " 
+                                            AND idsucursal = '" . $idsucursal_actual . "'";
+                ejecutarConsulta($updateArticuloDetalle);
+
+                $kardex_stock_final = $stocksucursal_anterior + $totalcantidadpresentacion;
+                $sqlInsertKardex = "INSERT INTO kardex_movimientos 
+                (idarticulo, idsucursal, fecha_hora, concepto, num_documento, cantidad_existente, cantidad_modificacion, 
+                tipo_modificacion, cantidad_final, precio, responsable)
+                VALUES 
+                ('$idarticulo', '$idsucursal_actual', '$fechaHora', 'Ingreso por Anulación de Ajuste Inv ', '$idventa_salida', 
+                '$stocksucursal_anterior', '$totalcantidadpresentacion', 'Ingreso', '$kardex_stock_final', 
+                '$precio_compra', '$nombreUser')";
+                ejecutarConsulta($sqlInsertKardex);
             } else {
                 $updateArticuloDetalle = "UPDATE articuloxsucursal SET 
-                                                stocksucursal = stocksucursal - " . $reg->totalcantidadpresentacion . "
-                                            WHERE idarticulo = " . $reg->idarticulo . " 
-                                            AND idsucursal = '" . $_SESSION["idsucursal"] . "'";
+                                                stocksucursal = stocksucursal - " . $totalcantidadpresentacion . "
+                                            WHERE idarticulo = " . $idarticulo . " 
+                                            AND idsucursal = '" . $idsucursal_actual . "'";
+                ejecutarConsulta($updateArticuloDetalle);
+
+                $kardex_stock_final = $stocksucursal_anterior - $totalcantidadpresentacion;
+                $sqlInsertKardex = "INSERT INTO kardex_movimientos 
+                (idarticulo, idsucursal, fecha_hora, concepto, num_documento, cantidad_existente, cantidad_modificacion, 
+                tipo_modificacion, cantidad_final, precio, responsable)
+                VALUES 
+                ('$idarticulo', '$idsucursal_actual', '$fechaHora', 'Salida por Anulación de Ajuste Inv ', '$idventa_salida', 
+                '$stocksucursal_anterior', '$totalcantidadpresentacion', 'Salida', '$kardex_stock_final', 
+                '$precio_compra', '$nombreUser')";
+                ejecutarConsulta($sqlInsertKardex);
             }
-            ejecutarConsulta($updateArticuloDetalle);
         }
 
         return ($sql);

@@ -28,6 +28,20 @@ class Product {
                     axs.nombre_04, axs.precio_fardo, axs.stock_fardo,
                     axs.nombre_05, axs.precio_sacos, axs.stock_sacos,
                     axs.nombre_06, axs.precio_paquete, axs.stock_paquete,
+                    axs.nombre_07, axs.precio_07, axs.stock_07,
+                    axs.nombre_08, axs.precio_08, axs.stock_08,
+                    axs.nombre_09, axs.precio_09, axs.stock_09,
+                    axs.nombre_10, axs.precio_10, axs.stock_10,
+                    axs.nombre_11, axs.precio_11, axs.stock_11,
+                    axs.nombre_12, axs.precio_12, axs.stock_12,
+                    axs.nombre_13, axs.precio_13, axs.stock_13,
+                    axs.nombre_14, axs.precio_14, axs.stock_14,
+                    axs.nombre_15, axs.precio_15, axs.stock_15,
+                    axs.nombre_16, axs.precio_16, axs.stock_16,
+                    axs.nombre_17, axs.precio_17, axs.stock_17,
+                    axs.nombre_18, axs.precio_18, axs.stock_18,
+                    axs.nombre_19, axs.precio_19, axs.stock_19,
+                    axs.nombre_20, axs.precio_20, axs.stock_20,
                     axs.precio_rango1, axs.precio_rango2, axs.precio_rango3
                 FROM articulo a
                 INNER JOIN categoria c ON a.idcategoria = c.idcategoria
@@ -81,6 +95,20 @@ class Product {
                     axs.nombre_04, axs.precio_fardo, axs.stock_fardo,
                     axs.nombre_05, axs.precio_sacos, axs.stock_sacos,
                     axs.nombre_06, axs.precio_paquete, axs.stock_paquete,
+                    axs.nombre_07, axs.precio_07, axs.stock_07,
+                    axs.nombre_08, axs.precio_08, axs.stock_08,
+                    axs.nombre_09, axs.precio_09, axs.stock_09,
+                    axs.nombre_10, axs.precio_10, axs.stock_10,
+                    axs.nombre_11, axs.precio_11, axs.stock_11,
+                    axs.nombre_12, axs.precio_12, axs.stock_12,
+                    axs.nombre_13, axs.precio_13, axs.stock_13,
+                    axs.nombre_14, axs.precio_14, axs.stock_14,
+                    axs.nombre_15, axs.precio_15, axs.stock_15,
+                    axs.nombre_16, axs.precio_16, axs.stock_16,
+                    axs.nombre_17, axs.precio_17, axs.stock_17,
+                    axs.nombre_18, axs.precio_18, axs.stock_18,
+                    axs.nombre_19, axs.precio_19, axs.stock_19,
+                    axs.nombre_20, axs.precio_20, axs.stock_20,
                     axs.precio_rango1, axs.precio_rango2, axs.precio_rango3
                 FROM articulo a
                 INNER JOIN articuloxsucursal axs ON a.idarticulo = axs.idarticulo

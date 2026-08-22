@@ -5,23 +5,27 @@ namespace App\Models;
 use App\Core\Config;
 use PDO;
 
-class Sale {
+class Sale
+{
     private $db;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->db = Config::getConnection();
     }
 
-    public function list($startDate, $endDate, $agencyId) {
+    public function list($startDate, $endDate, $agencyId)
+    {
         $sql = "SELECT v.idventa, v.num_comprobante, v.fecha_hora as fecha, v.total_venta, v.estado,
                        p.nombre as cliente, u.nombre as usuario, v.tipo_comprobante, v.forma_pago
                 FROM venta v
                 INNER JOIN persona p ON v.idcliente = p.idpersona
                 INNER JOIN usuario u ON v.idusuario = u.idusuario
                 WHERE v.idsucursal = :agencyId 
+                AND v.estado = 'Anulado'
                 AND DATE(v.fecha_hora) BETWEEN :start AND :end
                 ORDER BY v.idventa DESC";
-        
+
         $stmt = $this->db->prepare($sql);
         $stmt->execute([
             ':agencyId' => $agencyId,
@@ -32,7 +36,8 @@ class Sale {
         return $stmt->fetchAll();
     }
 
-    public function getDetails($id) {
+    public function getDetails($id)
+    {
         $sql = "SELECT v.*, p.nombre as cliente, p.num_documento, p.direccion, p.telefono, p.email,
                        s.nombre as sucursal_nombre, s.direccion as sucursal_direccion, s.telefono as sucursal_telefono, s.email as sucursal_email, s.nombre_comercial,
                        u.nombre as usuario_nombre
@@ -58,15 +63,24 @@ class Sale {
         return $header;
     }
 
-    public function create($data) {
+    public function create($data)
+    {
         $this->db->beginTransaction();
 
         try {
+            // Obtener el nombre del usuario para Kardex
+            $sql_user = "SELECT nombre FROM usuario WHERE idusuario = :idusuario";
+            $stmt_user = $this->db->prepare($sql_user);
+            $stmt_user->execute([':idusuario' => $data['idusuario']]);
+            $nombreUser = $stmt_user->fetchColumn() ?: 'Sistema';
+
+            $fecha_hora_kardex = $data['fecha_hora'] ?? date('Y-m-d H:i:s');
+
             // 1. Get Correlativo for the specific document type (Envio or Factura)
             // Note: In the legacy system, it depends on idsucursal and the column in add_correlativo
             $type = $data['tipo_comprobante'] ?? 'Envio';
             $col = ($type === 'Factura') ? 'num_factura' : 'num_envio';
-            
+
             $sql_corr_up = "UPDATE add_correlativo SET $col = $col + 1 WHERE idsucursal = :agencyId";
             $stmt_corr_up = $this->db->prepare($sql_corr_up);
             $stmt_corr_up->execute([':agencyId' => $data['idsucursal']]);
@@ -92,7 +106,7 @@ class Sale {
                         :tipo_entrega, :idvendedor, :comentario_venta, 'VENTA NORMAL',
                         NOW(), :saldo_venta
                     )";
-            
+
             $stmt = $this->db->prepare($sql);
             $stmt->execute([
                 ':idcliente' => $data['idcliente'],
@@ -142,7 +156,7 @@ class Sale {
                                     :stockinven, :subtotaldes1, :p_sistema, :subtotal1,
                                     :cant_pres, :total_qty, :presen, :p_compra
                                 )";
-                
+
                 $stmt_det = $this->db->prepare($sql_detalle);
                 $stmt_det->execute([
                     ':idventa' => $saleId,
@@ -162,13 +176,137 @@ class Sale {
 
                 // Update Stock if it's a product
                 if (($info['tipo_producto'] ?? '') === 'Productos') {
-                    $sql_stock = "UPDATE articuloxsucursal SET stocksucursal = stocksucursal - :qty 
+                    $stock_anterior = (float)($info['stocksucursal'] ?? 0);
+                    $stock_final = $stock_anterior - $totalQty;
+
+                    $sql_stock = "UPDATE articuloxsucursal SET stocksucursal = :new_stock 
                                   WHERE idarticulo = :id AND idsucursal = :agencyId";
                     $stmt_stock = $this->db->prepare($sql_stock);
                     $stmt_stock->execute([
-                        ':qty' => $totalQty,
+                        ':new_stock' => $stock_final,
                         ':id' => $item['idarticulo'],
                         ':agencyId' => $data['idsucursal']
+                    ]);
+
+                    // Insert into Kardex
+                    $sql_kardex = "INSERT INTO kardex_movimientos (
+                                    idarticulo, idsucursal, fecha_hora, concepto, num_documento, 
+                                    cantidad_existente, cantidad_modificacion, tipo_modificacion, 
+                                    cantidad_final, precio, responsable
+                                   ) VALUES (
+                                    :idarticulo, :idsucursal, :fecha_hora, 'Salida por Venta (App)', :num_doc,
+                                    :cant_exist, :cant_mod, 'Salida', :cant_final, :precio, :responsable
+                                   )";
+                    $stmt_kardex = $this->db->prepare($sql_kardex);
+                    $stmt_kardex->execute([
+                        ':idarticulo' => $item['idarticulo'],
+                        ':idsucursal' => $data['idsucursal'],
+                        ':fecha_hora' => $fecha_hora_kardex,
+                        ':num_doc' => $saleId,
+                        ':cant_exist' => $stock_anterior,
+                        ':cant_mod' => $totalQty,
+                        ':cant_final' => $stock_final,
+                        ':precio' => $item['precio_venta'],
+                        ':responsable' => $nombreUser
+                    ]);
+
+                    // Insert into operaciones_compras_ventas
+                    $sql_op = "INSERT INTO operaciones_compras_ventas (
+                                idingreso, idventa, idtraladosucursal, idtraladosucursal_entrada, iddevolucion,
+                                cantidad_compras, cantidad_ventas, cantidad_entrada, cantidad_devolucion, cantidad_salida,
+                                stock_inventario, fecha_horaCreacion, idarticulo, idusuario, idsucursal
+                               ) VALUES (
+                                '0', :idventa, '0', '0', '0',
+                                '0', :cant_ventas, '0', '0', '0',
+                                :stock_inv, :fecha, :idarticulo, :idusuario, :idsucursal
+                               )";
+                    $stmt_op = $this->db->prepare($sql_op);
+                    $stmt_op->execute([
+                        ':idventa' => $saleId,
+                        ':cant_ventas' => $totalQty,
+                        ':stock_inv' => $stock_anterior,
+                        ':fecha' => $fecha_hora_kardex,
+                        ':idarticulo' => $item['idarticulo'],
+                        ':idusuario' => $data['idusuario'],
+                        ':idsucursal' => $data['idsucursal']
+                    ]);
+                }
+
+                // Check for Recetas (Materia Prima)
+                $sql_receta = "SELECT dp.idarticulo as idarticulo_costo, dp.cantidad as cantmateriaprima 
+                               FROM produccion p 
+                               INNER JOIN detalle_produccion dp ON p.idproduccion = dp.idproduccion
+                               WHERE p.idproducto = :idarticulo AND dp.tipo_item = 'Producto'";
+                $stmt_receta = $this->db->prepare($sql_receta);
+                $stmt_receta->execute([':idarticulo' => $item['idarticulo']]);
+                $recetas = $stmt_receta->fetchAll();
+
+                foreach ($recetas as $receta) {
+                    $cant_descontar = $item['cantidad'] * $receta['cantmateriaprima'];
+
+                    // Obtener stock actual de la materia prima
+                    $sql_stock_mp = "SELECT stocksucursal FROM articuloxsucursal 
+                                     WHERE idarticulo = :id AND idsucursal = :agencyId";
+                    $stmt_stock_mp = $this->db->prepare($sql_stock_mp);
+                    $stmt_stock_mp->execute([
+                        ':id' => $receta['idarticulo_costo'],
+                        ':agencyId' => $data['idsucursal']
+                    ]);
+                    $stock_ant_mp = (float)($stmt_stock_mp->fetchColumn() ?: 0);
+                    $stock_fin_mp = $stock_ant_mp - $cant_descontar;
+
+                    // Descontar
+                    $sql_upd_mp = "UPDATE articuloxsucursal SET stocksucursal = :new_stock 
+                                   WHERE idarticulo = :id AND idsucursal = :agencyId";
+                    $stmt_upd_mp = $this->db->prepare($sql_upd_mp);
+                    $stmt_upd_mp->execute([
+                        ':new_stock' => $stock_fin_mp,
+                        ':id' => $receta['idarticulo_costo'],
+                        ':agencyId' => $data['idsucursal']
+                    ]);
+
+                    // Kardex MP
+                    // Usamos una nueva preparación para asegurar que exista (por si el if anterior no se ejecutó)
+                    $sql_kardex_mp = "INSERT INTO kardex_movimientos (
+                                    idarticulo, idsucursal, fecha_hora, concepto, num_documento, 
+                                    cantidad_existente, cantidad_modificacion, tipo_modificacion, 
+                                    cantidad_final, precio, responsable
+                                   ) VALUES (
+                                    :idarticulo, :idsucursal, :fecha_hora, 'Salida por Venta App (Materia Prima)', :num_doc,
+                                    :cant_exist, :cant_mod, 'Salida', :cant_final, :precio, :responsable
+                                   )";
+                    $stmt_kardex_mp = $this->db->prepare($sql_kardex_mp);
+                    $stmt_kardex_mp->execute([
+                        ':idarticulo' => $receta['idarticulo_costo'],
+                        ':idsucursal' => $data['idsucursal'],
+                        ':fecha_hora' => $fecha_hora_kardex,
+                        ':num_doc' => $saleId,
+                        ':cant_exist' => $stock_ant_mp,
+                        ':cant_mod' => $cant_descontar,
+                        ':cant_final' => $stock_fin_mp,
+                        ':precio' => 0,
+                        ':responsable' => $nombreUser
+                    ]);
+
+                    // Operaciones MP
+                    $sql_op_mp = "INSERT INTO operaciones_compras_ventas (
+                                idingreso, idventa, idtraladosucursal, idtraladosucursal_entrada, iddevolucion,
+                                cantidad_compras, cantidad_ventas, cantidad_entrada, cantidad_devolucion, cantidad_salida,
+                                stock_inventario, fecha_horaCreacion, idarticulo, idusuario, idsucursal
+                               ) VALUES (
+                                '0', :idventa, '0', '0', '0',
+                                '0', :cant_ventas, '0', '0', '0',
+                                :stock_inv, :fecha, :idarticulo, :idusuario, :idsucursal
+                               )";
+                    $stmt_op_mp = $this->db->prepare($sql_op_mp);
+                    $stmt_op_mp->execute([
+                        ':idventa' => $saleId,
+                        ':cant_ventas' => $cant_descontar,
+                        ':stock_inv' => $stock_ant_mp,
+                        ':fecha' => $fecha_hora_kardex,
+                        ':idarticulo' => $receta['idarticulo_costo'],
+                        ':idusuario' => $data['idusuario'],
+                        ':idsucursal' => $data['idsucursal']
                     ]);
                 }
             }

@@ -27,6 +27,11 @@ class Salidaprosucursal
         date_default_timezone_set('America/Guatemala');
         $fechaHora = date('Y-m-d H:i:s');
 
+        // Obtener nombre del usuario para el Kardex
+        $sqlUsuarioK = "SELECT nombre FROM usuario WHERE idusuario='" . $idusuario . "'";
+        $resUser = ejecutarConsultaSimpleFila($sqlUsuarioK);
+        $nombreUser = $resUser ? $resUser["nombre"] : 'Sistema';
+
         $sql = "INSERT INTO traslado_sucursal (idsucursaldestino,idusuario,idsucursalorigen,fecha_hora,descripcion_salida_producto,
         estado,total_venta)
         VALUES ('$idsucursal','$idusuario','$idsucursalorigen','$fecha_hora','$descripcion_salida_producto',
@@ -59,6 +64,7 @@ class Salidaprosucursal
                     WHERE asu.idarticulo='$idarticulo'  and asu.idsucursal='$idsucursalorigen' ";
                 $Articulo1 = ejecutarConsultaSimpleFila($sqlArticulo1);
                 $stocksucursal_anterior = $Articulo1["stocksucursal"];
+                $precio_compra = $Articulo1["pc_anterior"] ? $Articulo1["pc_anterior"] : 0;
 
                 $sql_detalle = "INSERT INTO detalle_traslado_sucursal(idtraladosucursal, idarticulo,cantidad,descripcion_detalle,
                 idsucursalorigen,idsucursaldestino,precio_venta,cantidadpresentacion,
@@ -74,10 +80,23 @@ class Salidaprosucursal
                         WHERE idarticulo =$idarticulo    and idsucursal='$idsucursalorigen' ";
                 ejecutarConsulta($sqlArticuloStockSalida);
 
-                $sqlCheckDestino = "SELECT idarticuloxsucursal FROM articuloxsucursal WHERE idarticulo='$idarticulo' AND idsucursal='$idsucursal'";
+                // KARDEX ORIGEN (SALIDA)
+                $kardex_stock_final_origen = $stocksucursal_anterior - $totalcantidadpresentacion;
+                $sqlInsertKardexOrigen = "INSERT INTO kardex_movimientos 
+                (idarticulo, idsucursal, fecha_hora, concepto, num_documento, cantidad_existente, cantidad_modificacion, 
+                tipo_modificacion, cantidad_final, precio, responsable)
+                VALUES 
+                ('$idarticulo', '$idsucursalorigen', '$fechaHora', 'Salida por Traslado', '$idtraladosucursalnew', 
+                '$stocksucursal_anterior', '$totalcantidadpresentacion', 'Salida', '$kardex_stock_final_origen', 
+                '$precio_compra', '$nombreUser')";
+                ejecutarConsulta($sqlInsertKardexOrigen);
+
+                $sqlCheckDestino = "SELECT idarticuloxsucursal, stocksucursal FROM articuloxsucursal WHERE idarticulo='$idarticulo' AND idsucursal='$idsucursal'";
                 $checkDestino = ejecutarConsultaSimpleFila($sqlCheckDestino);
+                $stock_anterior_destino = 0;
 
                 if ($checkDestino) {
+                    $stock_anterior_destino = $checkDestino["stocksucursal"];
                     $sqlArticuloStockEntrada = "UPDATE articuloxsucursal SET stocksucursal = stocksucursal + " . $totalcantidadpresentacion . " ,
                             precio_venta = " . $precio_venta . " ,precio_unidad=" . $precio_venta . "  
                             WHERE idarticulo =$idarticulo    and idsucursal='$idsucursal' ";
@@ -145,21 +164,21 @@ class Salidaprosucursal
                     ejecutarConsulta($sqlArticuloStockEntrada);
                 }
 
+                // KARDEX DESTINO (INGRESO)
+                $kardex_stock_final_destino = $stock_anterior_destino + $totalcantidadpresentacion;
+                $sqlInsertKardexDestino = "INSERT INTO kardex_movimientos 
+                (idarticulo, idsucursal, fecha_hora, concepto, num_documento, cantidad_existente, cantidad_modificacion, 
+                tipo_modificacion, cantidad_final, precio, responsable)
+                VALUES 
+                ('$idarticulo', '$idsucursal', '$fechaHora', 'Ingreso por Traslado', '$idtraladosucursalnew', 
+                '$stock_anterior_destino', '$totalcantidadpresentacion', 'Ingreso', '$kardex_stock_final_destino', 
+                '$precio_compra', '$nombreUser')";
+                ejecutarConsulta($sqlInsertKardexDestino);
 
-                $sql_detalleoperaciones = "INSERT INTO operaciones_compras_ventas(idingreso,idventa,idtraladosucursal,
-                                                                                idtraladosucursal_entrada,iddevolucion,cantidad_compras,
-                                                                                cantidad_ventas,cantidad_entrada,cantidad_devolucion,
-                                                                                cantidad_salida,stock_inventario,fecha_horaCreacion,
-                                                                                idarticulo,idusuario,idsucursal) 
-                                                                        VALUES ('0','0','$idtraladosucursalnew','0','0',
-                                                                                '0','0','0','0','$totalcantidadpresentacion',
-                                                                                '$stocksucursal_anterior','$fechaHora','$idarticulo',
-                                                                                '$idusuario','$idsucursalorigen')";
-                ejecutarConsulta($sql_detalleoperaciones);
+
             }
         }
 
-        $this->registrarAuditoria($idtraladosucursalnew, 'CREACIÓN', 'Se creó una nueva salida', $idusuario, $datosArticulos);
 
         return $idtraladosucursalnew;
     }
@@ -176,6 +195,11 @@ class Salidaprosucursal
     ) {
         date_default_timezone_set('America/Guatemala');
         $fechaHora = date('Y-m-d H:i:s');
+        
+        $sqlUsuarioK = "SELECT nombre FROM usuario WHERE idusuario='" . $idusuario . "'";
+        $resUser = ejecutarConsultaSimpleFila($sqlUsuarioK);
+        $nombreUser = $resUser ? $resUser["nombre"] : 'Sistema';
+
         //ACTUALIZAR EN LA TABLA PADRE
         $sqlUpdate = "UPDATE traslado_sucursal SET 
                             idsucursaldestino='$idsucursal',
@@ -200,15 +224,44 @@ class Salidaprosucursal
             $idsucursalorigen = $reg->idsucursalorigen;
             $idsucursaldestino = $reg->idsucursaldestino;
 
+            $sqlArticuloOrigen = "SELECT precio_compra, stocksucursal FROM articuloxsucursal WHERE idarticulo='$idarticulo' AND idsucursal='$idsucursalorigen'";
+            $ArticuloOrigen = ejecutarConsultaSimpleFila($sqlArticuloOrigen);
+            $stock_origen = $ArticuloOrigen ? $ArticuloOrigen["stocksucursal"] : 0;
+            $precio_compra = $ArticuloOrigen ? $ArticuloOrigen["precio_compra"] : 0;
+
+            $sqlArticuloDestino = "SELECT stocksucursal FROM articuloxsucursal WHERE idarticulo='$idarticulo' AND idsucursal='$idsucursaldestino'";
+            $ArticuloDestino = ejecutarConsultaSimpleFila($sqlArticuloDestino);
+            $stock_destino = $ArticuloDestino ? $ArticuloDestino["stocksucursal"] : 0;
+
             // Revertir salida: sumar al origen
             $sqlArticuloStockSalida = "UPDATE articuloxsucursal SET stocksucursal = stocksucursal + " . $totalcantidadpresentacion . " 
                     WHERE idarticulo = $idarticulo AND idsucursal = '$idsucursalorigen'";
             ejecutarConsulta($sqlArticuloStockSalida);
 
+            $kardex_stock_final_origen = $stock_origen + $totalcantidadpresentacion;
+            $sqlInsertKardexOrigen = "INSERT INTO kardex_movimientos 
+            (idarticulo, idsucursal, fecha_hora, concepto, num_documento, cantidad_existente, cantidad_modificacion, 
+            tipo_modificacion, cantidad_final, precio, responsable)
+            VALUES 
+            ('$idarticulo', '$idsucursalorigen', '$fechaHora', 'Ingreso por Reversión de Traslado', '$idtraladosucursal', 
+            '$stock_origen', '$totalcantidadpresentacion', 'Ingreso', '$kardex_stock_final_origen', 
+            '$precio_compra', '$nombreUser')";
+            ejecutarConsulta($sqlInsertKardexOrigen);
+
             // Revertir entrada: restar al destino
             $sqlArticuloStockEntrada = "UPDATE articuloxsucursal SET stocksucursal = stocksucursal - " . $totalcantidadpresentacion . " 
                     WHERE idarticulo = $idarticulo AND idsucursal = '$idsucursaldestino'";
             ejecutarConsulta($sqlArticuloStockEntrada);
+
+            $kardex_stock_final_destino = $stock_destino - $totalcantidadpresentacion;
+            $sqlInsertKardexDestino = "INSERT INTO kardex_movimientos 
+            (idarticulo, idsucursal, fecha_hora, concepto, num_documento, cantidad_existente, cantidad_modificacion, 
+            tipo_modificacion, cantidad_final, precio, responsable)
+            VALUES 
+            ('$idarticulo', '$idsucursaldestino', '$fechaHora', 'Salida por Reversión de Traslado', '$idtraladosucursal', 
+            '$stock_destino', '$totalcantidadpresentacion', 'Salida', '$kardex_stock_final_destino', 
+            '$precio_compra', '$nombreUser')";
+            ejecutarConsulta($sqlInsertKardexDestino);
         }
 
 
@@ -242,6 +295,7 @@ class Salidaprosucursal
                     WHERE asu.idarticulo='$idarticulo'  and asu.idsucursal='$idsucursalorigen' ";
                 $Articulo1 = ejecutarConsultaSimpleFila($sqlArticulo1);
                 $stocksucursal_anterior = $Articulo1["stocksucursal"];
+                $precio_compra = $Articulo1["pc_anterior"] ? $Articulo1["pc_anterior"] : 0;
 
                 $sql_detalle = "INSERT INTO detalle_traslado_sucursal(idtraladosucursal, idarticulo,cantidad,descripcion_detalle,
                 idsucursalorigen,idsucursaldestino,precio_venta,cantidadpresentacion,
@@ -257,10 +311,22 @@ class Salidaprosucursal
                         WHERE idarticulo =$idarticulo    and idsucursal='$idsucursalorigen' ";
                 ejecutarConsulta($sqlArticuloStockSalida);
 
-                $sqlCheckDestino = "SELECT idarticuloxsucursal FROM articuloxsucursal WHERE idarticulo='$idarticulo' AND idsucursal='$idsucursal'";
+                $kardex_stock_final_origen = $stocksucursal_anterior - $totalcantidadpresentacion;
+                $sqlInsertKardexOrigen = "INSERT INTO kardex_movimientos 
+                (idarticulo, idsucursal, fecha_hora, concepto, num_documento, cantidad_existente, cantidad_modificacion, 
+                tipo_modificacion, cantidad_final, precio, responsable)
+                VALUES 
+                ('$idarticulo', '$idsucursalorigen', '$fechaHora', 'Salida por Edición de Traslado', '$idtraladosucursal', 
+                '$stocksucursal_anterior', '$totalcantidadpresentacion', 'Salida', '$kardex_stock_final_origen', 
+                '$precio_compra', '$nombreUser')";
+                ejecutarConsulta($sqlInsertKardexOrigen);
+
+                $sqlCheckDestino = "SELECT idarticuloxsucursal, stocksucursal FROM articuloxsucursal WHERE idarticulo='$idarticulo' AND idsucursal='$idsucursal'";
                 $checkDestino = ejecutarConsultaSimpleFila($sqlCheckDestino);
+                $stock_anterior_destino = 0;
 
                 if ($checkDestino) {
+                    $stock_anterior_destino = $checkDestino["stocksucursal"];
                     $sqlArticuloStockEntrada = "UPDATE articuloxsucursal SET stocksucursal = stocksucursal + " . $totalcantidadpresentacion . " ,
                             precio_venta = " . $precio_venta . " ,precio_unidad=" . $precio_venta . "  
                             WHERE idarticulo =$idarticulo    and idsucursal='$idsucursal' ";
@@ -328,6 +394,16 @@ class Salidaprosucursal
                     ejecutarConsulta($sqlArticuloStockEntrada);
                 }
 
+                $kardex_stock_final_destino = $stock_anterior_destino + $totalcantidadpresentacion;
+                $sqlInsertKardexDestino = "INSERT INTO kardex_movimientos 
+                (idarticulo, idsucursal, fecha_hora, concepto, num_documento, cantidad_existente, cantidad_modificacion, 
+                tipo_modificacion, cantidad_final, precio, responsable)
+                VALUES 
+                ('$idarticulo', '$idsucursal', '$fechaHora', 'Ingreso por Edición de Traslado', '$idtraladosucursal', 
+                '$stock_anterior_destino', '$totalcantidadpresentacion', 'Ingreso', '$kardex_stock_final_destino', 
+                '$precio_compra', '$nombreUser')";
+                ejecutarConsulta($sqlInsertKardexDestino);
+
 
                 $sql_detalleoperaciones = "INSERT INTO operaciones_compras_ventas(idingreso,
                                                                                 idventa,idtraladosucursal,idtraladosucursal_entrada,
@@ -355,6 +431,15 @@ class Salidaprosucursal
     //Implementamos un método para anular la venta
     public function anular($idtraladosucursal)
     {
+        date_default_timezone_set('America/Guatemala');
+        $fechaHora = date('Y-m-d H:i:s');
+        
+        @session_start();
+        $idusuario_auditoria = $_SESSION["idusuario"];
+        $sqlUsuarioK = "SELECT nombre FROM usuario WHERE idusuario='" . $idusuario_auditoria . "'";
+        $resUser = ejecutarConsultaSimpleFila($sqlUsuarioK);
+        $nombreUser = $resUser ? $resUser["nombre"] : 'Sistema';
+
         $sql = "UPDATE traslado_sucursal SET estado='Anulado' WHERE idtraladosucursal='$idtraladosucursal'";
         ejecutarConsulta($sql);
 
@@ -370,15 +455,44 @@ class Salidaprosucursal
             $idsucursalorigen = $reg->idsucursalorigen;
             $idsucursaldestino = $reg->idsucursaldestino;
 
+            $sqlArticuloOrigen = "SELECT precio_compra, stocksucursal FROM articuloxsucursal WHERE idarticulo='$idarticulo' AND idsucursal='$idsucursalorigen'";
+            $ArticuloOrigen = ejecutarConsultaSimpleFila($sqlArticuloOrigen);
+            $stock_origen = $ArticuloOrigen ? $ArticuloOrigen["stocksucursal"] : 0;
+            $precio_compra = $ArticuloOrigen ? $ArticuloOrigen["precio_compra"] : 0;
+
+            $sqlArticuloDestino = "SELECT stocksucursal FROM articuloxsucursal WHERE idarticulo='$idarticulo' AND idsucursal='$idsucursaldestino'";
+            $ArticuloDestino = ejecutarConsultaSimpleFila($sqlArticuloDestino);
+            $stock_destino = $ArticuloDestino ? $ArticuloDestino["stocksucursal"] : 0;
+
             // Revertir salida: sumar al origen
             $sqlArticuloStockSalida = "UPDATE articuloxsucursal SET stocksucursal = stocksucursal + " . $totalcantidadpresentacion . " 
                     WHERE idarticulo = $idarticulo AND idsucursal = '$idsucursalorigen'";
             ejecutarConsulta($sqlArticuloStockSalida);
 
+            $kardex_stock_final_origen = $stock_origen + $totalcantidadpresentacion;
+            $sqlInsertKardexOrigen = "INSERT INTO kardex_movimientos 
+            (idarticulo, idsucursal, fecha_hora, concepto, num_documento, cantidad_existente, cantidad_modificacion, 
+            tipo_modificacion, cantidad_final, precio, responsable)
+            VALUES 
+            ('$idarticulo', '$idsucursalorigen', '$fechaHora', 'Ingreso por Anulación de Traslado', '$idtraladosucursal', 
+            '$stock_origen', '$totalcantidadpresentacion', 'Ingreso', '$kardex_stock_final_origen', 
+            '$precio_compra', '$nombreUser')";
+            ejecutarConsulta($sqlInsertKardexOrigen);
+
             // Revertir entrada: restar al destino
             $sqlArticuloStockEntrada = "UPDATE articuloxsucursal SET stocksucursal = stocksucursal - " . $totalcantidadpresentacion . " 
                     WHERE idarticulo = $idarticulo AND idsucursal = '$idsucursaldestino'";
             ejecutarConsulta($sqlArticuloStockEntrada);
+
+            $kardex_stock_final_destino = $stock_destino - $totalcantidadpresentacion;
+            $sqlInsertKardexDestino = "INSERT INTO kardex_movimientos 
+            (idarticulo, idsucursal, fecha_hora, concepto, num_documento, cantidad_existente, cantidad_modificacion, 
+            tipo_modificacion, cantidad_final, precio, responsable)
+            VALUES 
+            ('$idarticulo', '$idsucursaldestino', '$fechaHora', 'Salida por Anulación de Traslado', '$idtraladosucursal', 
+            '$stock_destino', '$totalcantidadpresentacion', 'Salida', '$kardex_stock_final_destino', 
+            '$precio_compra', '$nombreUser')";
+            ejecutarConsulta($sqlInsertKardexDestino);
         }
 
         $sqlDetalleIngresoElimminar = "DELETE from operaciones_compras_ventas where idtraladosucursal=" . $idtraladosucursal . "";

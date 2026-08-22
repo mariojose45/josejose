@@ -166,11 +166,15 @@ class Cuentasporcobrar
                 DATE(v.fecha_hora) as fecha,
                 v.tipo_banco,
                 v.recibo_caja_numero,
-                (SELECT COUNT(c.idcta_cobrar) FROM cta_cobrar c WHERE c.idventa=v.idventa AND c.condicion=1 LIMIT 1) AS numerodeabonos
+                (SELECT COUNT(c.idcta_cobrar) FROM cta_cobrar c WHERE c.idventa=v.idventa AND c.condicion=1 LIMIT 1) AS numerodeabonos,
+                u.nombre as usuario_creacion,
+                s.nombre as sucursal
                 FROM venta v 
                 INNER JOIN persona p  ON v.idcliente=p.idpersona 
+                inner join usuario u on u.idusuario=v.idusuario
+                inner join sucursal s on s.idsucursal=v.idsucursal
                 where v.estado <> 'Anulado' and v.forma_pago='Credito' 
-                and DATE(v.fecha_hora)>='$fecha_inicio' AND DATE(v.fecha_hora)<='$fecha_fin' and v.idsucursal='" . $_SESSION["idsucursal"] . "'
+                and DATE(v.fecha_hora)>='$fecha_inicio' AND DATE(v.fecha_hora)<='$fecha_fin' 
                 order by idventa DESC ";
         return ejecutarConsulta($sql);
     }
@@ -221,12 +225,15 @@ class Cuentasporcobrar
                 DATE(v.fecha_hora) as fecha,
                 v.tipo_banco,
                 v.recibo_caja_numero,
-                v.numero_ecoFactura
+                v.numero_ecoFactura,
+                u.nombre as nomusuario,
+                s.nombre as nomSucursal
                 FROM venta v 
                 INNER JOIN persona p  ON v.idcliente=p.idpersona 
                 inner join usuario u on u.idusuario=v.idusuario
+                inner join sucursal s on s.idsucursal=v.idsucursal
                 where v.estado <> 'Anulado' and v.forma_pago='Credito' and v.estadopago <> 'Pago Aplicado'
-                    and  v.idsucursal='" . $_SESSION["idsucursal"] . "'  and p.idsector='$idsector' and p.idruta='$idruta' 
+                     p.idsector='$idsector' and p.idruta='$idruta' 
                  order by idventa DESC ";
         return ejecutarConsulta($sql);
     }
@@ -254,12 +261,14 @@ class Cuentasporcobrar
                 DATE(v.fecha_hora) as fecha,
                 v.tipo_banco,
                 v.recibo_caja_numero,
-                v.numero_ecoFactura
+                v.numero_ecoFactura,
+                u.nombre as nomusuario,
+                s.nombre as nomSucursal
                 FROM venta v 
                 INNER JOIN persona p  ON v.idcliente=p.idpersona 
                 inner join usuario u on u.idusuario=v.idusuario
+                inner join sucursal s on s.idsucursal=v.idsucursal
                 where v.estado <> 'Anulado' and v.forma_pago='Credito' and v.estadopago <> 'Pago Aplicado'
-                    and  v.idsucursal='" . $_SESSION["idsucursal"] . "'   
                  order by idventa DESC ";
         return ejecutarConsulta($sql);
     }

@@ -45,7 +45,7 @@ if (!isset($_SESSION["nombre"])) {
     $nombrepresentacion18 = $rsPresen_v->nombre_presentacion18;
     $nombrepresentacion19 = $rsPresen_v->nombre_presentacion19;
     $nombrepresentacion20 = $rsPresen_v->nombre_presentacion20;
-    ?>
+?>
 
 
     <!--Contenido-->
@@ -173,12 +173,7 @@ if (!isset($_SESSION["nombre"])) {
                   </div>
                   <div class="form-group col-lg-4 col-md-12 col-sm-12 col-xs-12">
                     <label>Sucursal Una/Todas(*):</label>
-                    <select name="crearArticuloSucursal" id="crearArticuloSucursal" class="form-control selectpicker"
-                      required="">
-                      <option value="Una">Una</option>
-                      <option value="Todas">Todas</option>
-
-                    </select>
+                    <input type="text" class="form-control" name="crearArticuloSucursal" id="crearArticuloSucursal" value="Todas" readonly>
                   </div>
                   <div class="form-group col-lg-4 col-md-12 col-sm-12 col-xs-12">
                     <label>Facturar en Cero(*):</label>
@@ -494,7 +489,7 @@ if (!isset($_SESSION["nombre"])) {
                     <!-- Unidad -->
                     <?php
                     if (!empty($nombrepresentacion1) && $nombrepresentacion1 !== "NA" && $nombrepresentacion1 !== "0") {
-                      ?>
+                    ?>
                       <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
                         <input type="text" class="form-control centrar-texto" name="nombre_01" id="nombre_01"
                           value="<?php echo $nombrepresentacion1; ?>" readonly>
@@ -509,13 +504,13 @@ if (!isset($_SESSION["nombre"])) {
                           </div>
                         </div>
                       </div>
-                      <?php
+                    <?php
                     }
                     ?>
                     <!-- Blister -->
                     <?php
                     if (!empty($nombrepresentacion2) && $nombrepresentacion2 !== "NA" && $nombrepresentacion2 !== "0") {
-                      ?>
+                    ?>
                       <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
                         <input type="text" class="form-control centrar-texto" name="nombre_02" id="nombre_02"
                           value="<?php echo $nombrepresentacion2; ?>" readonly>
@@ -530,14 +525,14 @@ if (!isset($_SESSION["nombre"])) {
                           </div>
                         </div>
                       </div>
-                      <?php
+                    <?php
                     }
                     ?>
 
                     <!-- Caja -->
                     <?php
                     if (!empty($nombrepresentacion3) && $nombrepresentacion3 !== "NA" && $nombrepresentacion3 !== "0") {
-                      ?>
+                    ?>
                       <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
                         <input type="text" class="form-control centrar-texto" name="nombre_03" id="nombre_03"
                           value="<?php echo $nombrepresentacion3; ?>" readonly>
@@ -552,14 +547,14 @@ if (!isset($_SESSION["nombre"])) {
                           </div>
                         </div>
                       </div>
-                      <?php
+                    <?php
                     }
                     ?>
 
                     <!-- Fardo -->
                     <?php
                     if (!empty($nombrepresentacion4) && $nombrepresentacion4 !== "NA" && $nombrepresentacion4 !== "0") {
-                      ?>
+                    ?>
                       <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
                         <input type="text" class="form-control centrar-texto" name="nombre_04" id="nombre_04"
                           value="<?php echo $nombrepresentacion4; ?>" readonly>
@@ -574,14 +569,14 @@ if (!isset($_SESSION["nombre"])) {
                           </div>
                         </div>
                       </div>
-                      <?php
+                    <?php
                     }
                     ?>
 
                     <!-- Sacos -->
                     <?php
                     if (!empty($nombrepresentacion5) && $nombrepresentacion5 !== "NA" && $nombrepresentacion5 !== "0") {
-                      ?>
+                    ?>
                       <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
                         <input type="text" class="form-control centrar-texto" name="nombre_05" id="nombre_05"
                           value="<?php echo $nombrepresentacion5; ?>" readonly>
@@ -596,7 +591,7 @@ if (!isset($_SESSION["nombre"])) {
                           </div>
                         </div>
                       </div>
-                      <?php
+                    <?php
                     }
                     ?>
 
@@ -604,7 +599,7 @@ if (!isset($_SESSION["nombre"])) {
                   <div class="form-group col-lg-3 col-md-12 col-sm-12 col-xs-12">
                     <?php
                     if (!empty($nombrepresentacion6) && $nombrepresentacion6 !== "NA" && $nombrepresentacion6 !== "0") {
-                      ?>
+                    ?>
                       <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
                         <input type="text" class="form-control centrar-texto" name="nombre_06" id="nombre_06"
                           value="<?php echo $nombrepresentacion6; ?>" readonly>
@@ -619,12 +614,12 @@ if (!isset($_SESSION["nombre"])) {
                           </div>
                         </div>
                       </div>
-                      <?php
+                    <?php
                     }
                     ?>
                     <?php
                     if (!empty($nombrepresentacion7) && $nombrepresentacion7 !== "NA" && $nombrepresentacion7 !== "0") {
-                      ?>
+                    ?>
                       <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
                         <input type="text" class="form-control centrar-texto" name="nombre_07" id="nombre_07"
                           value="<?php echo $nombrepresentacion7; ?>" readonly>
@@ -639,12 +634,12 @@ if (!isset($_SESSION["nombre"])) {
                           </div>
                         </div>
                       </div>
-                      <?php
+                    <?php
                     }
                     ?>
                     <?php
                     if (!empty($nombrepresentacion8) && $nombrepresentacion8 !== "NA" && $nombrepresentacion8 !== "0") {
-                      ?>
+                    ?>
                       <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
                         <input type="text" class="form-control centrar-texto" name="nombre_08" id="nombre_08"
                           value="<?php echo $nombrepresentacion8; ?>" readonly>
@@ -659,12 +654,12 @@ if (!isset($_SESSION["nombre"])) {
                           </div>
                         </div>
                       </div>
-                      <?php
+                    <?php
                     }
                     ?>
                     <?php
                     if (!empty($nombrepresentacion9) && $nombrepresentacion9 !== "NA" && $nombrepresentacion9 !== "0") {
-                      ?>
+                    ?>
                       <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
                         <input type="text" class="form-control centrar-texto" name="nombre_09" id="nombre_09"
                           value="<?php echo $nombrepresentacion9; ?>" readonly>
@@ -679,12 +674,12 @@ if (!isset($_SESSION["nombre"])) {
                           </div>
                         </div>
                       </div>
-                      <?php
+                    <?php
                     }
                     ?>
                     <?php
                     if (!empty($nombrepresentacion10) && $nombrepresentacion10 !== "NA" && $nombrepresentacion10 !== "0") {
-                      ?>
+                    ?>
                       <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
                         <input type="text" class="form-control centrar-texto" name="nombre_10" id="nombre_10"
                           value="<?php echo $nombrepresentacion10; ?>" readonly>
@@ -699,14 +694,14 @@ if (!isset($_SESSION["nombre"])) {
                           </div>
                         </div>
                       </div>
-                      <?php
+                    <?php
                     }
                     ?>
                   </div>
                   <div class="form-group col-lg-3 col-md-12 col-sm-12 col-xs-12">
                     <?php
                     if (!empty($nombrepresentacion11) && $nombrepresentacion11 !== "NA" && $nombrepresentacion11 !== "0") {
-                      ?>
+                    ?>
                       <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
                         <input type="text" class="form-control centrar-texto" name="nombre_11" id="nombre_11"
                           value="<?php echo $nombrepresentacion11; ?>" readonly>
@@ -721,12 +716,12 @@ if (!isset($_SESSION["nombre"])) {
                           </div>
                         </div>
                       </div>
-                      <?php
+                    <?php
                     }
                     ?>
                     <?php
                     if (!empty($nombrepresentacion12) && $nombrepresentacion12 !== "NA" && $nombrepresentacion12 !== "0") {
-                      ?>
+                    ?>
                       <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
                         <input type="text" class="form-control centrar-texto" name="nombre_12" id="nombre_12"
                           value="<?php echo $nombrepresentacion12; ?>" readonly>
@@ -741,12 +736,12 @@ if (!isset($_SESSION["nombre"])) {
                           </div>
                         </div>
                       </div>
-                      <?php
+                    <?php
                     }
                     ?>
                     <?php
                     if (!empty($nombrepresentacion13) && $nombrepresentacion13 !== "NA" && $nombrepresentacion13 !== "0") {
-                      ?>
+                    ?>
                       <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
                         <input type="text" class="form-control centrar-texto" name="nombre_13" id="nombre_13"
                           value="<?php echo $nombrepresentacion13; ?>" readonly>
@@ -761,12 +756,12 @@ if (!isset($_SESSION["nombre"])) {
                           </div>
                         </div>
                       </div>
-                      <?php
+                    <?php
                     }
                     ?>
                     <?php
                     if (!empty($nombrepresentacion14) && $nombrepresentacion14 !== "NA" && $nombrepresentacion14 !== "0") {
-                      ?>
+                    ?>
                       <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
                         <input type="text" class="form-control centrar-texto" name="nombre_14" id="nombre_14"
                           value="<?php echo $nombrepresentacion14; ?>" readonly>
@@ -781,12 +776,12 @@ if (!isset($_SESSION["nombre"])) {
                           </div>
                         </div>
                       </div>
-                      <?php
+                    <?php
                     }
                     ?>
                     <?php
                     if (!empty($nombrepresentacion15) && $nombrepresentacion15 !== "NA" && $nombrepresentacion15 !== "0") {
-                      ?>
+                    ?>
                       <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
                         <input type="text" class="form-control centrar-texto" name="nombre_15" id="nombre_15"
                           value="<?php echo $nombrepresentacion15; ?>" readonly>
@@ -801,14 +796,14 @@ if (!isset($_SESSION["nombre"])) {
                           </div>
                         </div>
                       </div>
-                      <?php
+                    <?php
                     }
                     ?>
                   </div>
                   <div class="form-group col-lg-3 col-md-12 col-sm-12 col-xs-12">
                     <?php
                     if (!empty($nombrepresentacion16) && $nombrepresentacion16 !== "NA" && $nombrepresentacion16 !== "0") {
-                      ?>
+                    ?>
                       <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
                         <input type="text" class="form-control centrar-texto" name="nombre_16" id="nombre_16"
                           value="<?php echo $nombrepresentacion16; ?>" readonly>
@@ -823,12 +818,12 @@ if (!isset($_SESSION["nombre"])) {
                           </div>
                         </div>
                       </div>
-                      <?php
+                    <?php
                     }
                     ?>
                     <?php
                     if (!empty($nombrepresentacion17) && $nombrepresentacion17 !== "NA" && $nombrepresentacion17 !== "0") {
-                      ?>
+                    ?>
                       <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
                         <input type="text" class="form-control centrar-texto" name="nombre_17" id="nombre_17"
                           value="<?php echo $nombrepresentacion17; ?>" readonly>
@@ -843,12 +838,12 @@ if (!isset($_SESSION["nombre"])) {
                           </div>
                         </div>
                       </div>
-                      <?php
+                    <?php
                     }
                     ?>
                     <?php
                     if (!empty($nombrepresentacion18) && $nombrepresentacion18 !== "NA" && $nombrepresentacion18 !== "0") {
-                      ?>
+                    ?>
                       <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
                         <input type="text" class="form-control centrar-texto" name="nombre_18" id="nombre_18"
                           value="<?php echo $nombrepresentacion18; ?>" readonly>
@@ -863,12 +858,12 @@ if (!isset($_SESSION["nombre"])) {
                           </div>
                         </div>
                       </div>
-                      <?php
+                    <?php
                     }
                     ?>
                     <?php
                     if (!empty($nombrepresentacion19) && $nombrepresentacion19 !== "NA" && $nombrepresentacion19 !== "0") {
-                      ?>
+                    ?>
                       <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
                         <input type="text" class="form-control centrar-texto" name="nombre_19" id="nombre_19"
                           value="<?php echo $nombrepresentacion19; ?>" readonly>
@@ -883,12 +878,12 @@ if (!isset($_SESSION["nombre"])) {
                           </div>
                         </div>
                       </div>
-                      <?php
+                    <?php
                     }
                     ?>
                     <?php
                     if (!empty($nombrepresentacion19) && $nombrepresentacion19 !== "NA" && $nombrepresentacion19 !== "0") {
-                      ?>
+                    ?>
                       <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
                         <input type="text" class="form-control centrar-texto" name="nombre_20" id="nombre_20"
                           value="<?php echo $nombrepresentacion20; ?>" readonly>
@@ -903,7 +898,7 @@ if (!isset($_SESSION["nombre"])) {
                           </div>
                         </div>
                       </div>
-                      <?php
+                    <?php
                     }
                     ?>
                   </div>
@@ -930,7 +925,7 @@ if (!isset($_SESSION["nombre"])) {
 
     </div><!-- /.content-wrapper -->
     <!--Fin-Contenido-->
-    <?php
+  <?php
   } else {
     require 'noacceso.php';
   }
@@ -940,7 +935,7 @@ if (!isset($_SESSION["nombre"])) {
   <script type="text/javascript" src="../public/js/JsBarcode.all.min.js"></script>
   <script type="text/javascript" src="../public/js/jquery.PrintArea.js"></script>
   <script type="text/javascript" src="scripts/articulo.js"></script>
-  <?php
+<?php
 }
 ob_end_flush();
 ?>
