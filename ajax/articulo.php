@@ -566,7 +566,10 @@ switch ($_GET["op"]) {
 
 
     case 'listarxGeneral':
-        $rspta = $articulo->listarxGeneral();
+        $idsucursal = isset($_REQUEST["idsucursal"]) ? limpiarCadena($_REQUEST["idsucursal"]) : "";
+        $filtro_stock = isset($_REQUEST["filtro_stock"]) ? limpiarCadena($_REQUEST["filtro_stock"]) : "todos";
+
+        $rspta = $articulo->listarxGeneral($idsucursal, $filtro_stock);
         //Vamos a declarar un array
         $data = array();
 

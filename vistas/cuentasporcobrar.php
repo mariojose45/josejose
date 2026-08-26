@@ -263,6 +263,8 @@ if (!isset($_SESSION["nombre"])) {
                 <thead>
                   <th>Opciones</th>
                   <th>Idventa</th>
+                  <th>Ruta</th>
+                  <th>Sector</th>
                   <th>Sucursal</th>
                   <th>User Creacion</th>
                   <th>Cliente</th>
@@ -278,19 +280,21 @@ if (!isset($_SESSION["nombre"])) {
                 <tbody>
                 </tbody>
                 <tfoot>
-                  <th></th>
-                  <th></th>
-                  <th></th>
-                  <th></th>
-                  <th></th>
-                  <th></th>
-                  <th></th>
-                  <th></th>
-                  <th></th>
-                  <th></th>
-                  <th></th>
-                  <th></th>
-                  <th></th>
+                  <th>Opciones</th>
+                  <th>Idventa</th>
+                  <th>Ruta</th>
+                  <th>Sector</th>
+                  <th>Sucursal</th>
+                  <th>User Creacion</th>
+                  <th>Cliente</th>
+                  <th>Tipo Doc</th>
+                  <th>DTE</th>
+                  <th>Fecha Fac</th>
+                  <th>Total Venta</th>
+                  <th>Abono</th>
+                  <th>Saldo Venta</th>
+                  <th># Pagos</th>
+                  <th>Estado</th>
                 </tfoot>
               </table>
             </div>

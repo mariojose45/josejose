@@ -22,7 +22,7 @@ class Sale
                 INNER JOIN persona p ON v.idcliente = p.idpersona
                 INNER JOIN usuario u ON v.idusuario = u.idusuario
                 WHERE v.idsucursal = :agencyId 
-                AND v.estado = 'Anulado'
+                AND v.estado = 'Aceptado'
                 AND DATE(v.fecha_hora) BETWEEN :start AND :end
                 ORDER BY v.idventa DESC";
 

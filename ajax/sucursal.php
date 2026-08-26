@@ -101,6 +101,14 @@ switch ($_GET["op"]) {
         echo json_encode($dbdata);
         break;
 
+    case 'selectSucursalOpciones':
+        $rspta = $sucursal->listar();
+        echo '<option value="">Todas las Sucursales</option>';
+        while ($reg = $rspta->fetch_object()) {
+            echo '<option value=' . $reg->idsucursal . '>' . $reg->nombre . '</option>';
+        }
+        break;
+
     case 'obtenerClaveOrdenes':
         $idsucursal = $_SESSION["idsucursal"];
         $rspta = $sucursal->obtenerClaveOrdenes($idsucursal);

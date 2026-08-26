@@ -227,13 +227,17 @@ class Cuentasporcobrar
                 v.recibo_caja_numero,
                 v.numero_ecoFactura,
                 u.nombre as nomusuario,
-                s.nombre as nomSucursal
+                s.nombre as nomSucursal,
+                r.nombre AS nombRuta,
+                sec.nombre AS nomSector
                 FROM venta v 
                 INNER JOIN persona p  ON v.idcliente=p.idpersona 
                 inner join usuario u on u.idusuario=v.idusuario
                 inner join sucursal s on s.idsucursal=v.idsucursal
+                LEFT JOIN ruta_visita r ON r.idruta=p.idruta
+                LEFT JOIN sector sec ON sec.idsector=p.idsector
                 where v.estado <> 'Anulado' and v.forma_pago='Credito' and v.estadopago <> 'Pago Aplicado'
-                     p.idsector='$idsector' and p.idruta='$idruta' 
+                   and  p.idsector='$idsector' and p.idruta='$idruta' 
                  order by idventa DESC ";
         return ejecutarConsulta($sql);
     }
@@ -263,11 +267,15 @@ class Cuentasporcobrar
                 v.recibo_caja_numero,
                 v.numero_ecoFactura,
                 u.nombre as nomusuario,
-                s.nombre as nomSucursal
+                s.nombre as nomSucursal,
+                r.nombre AS nombRuta,
+                sec.nombre AS nomSector
                 FROM venta v 
                 INNER JOIN persona p  ON v.idcliente=p.idpersona 
                 inner join usuario u on u.idusuario=v.idusuario
                 inner join sucursal s on s.idsucursal=v.idsucursal
+                LEFT JOIN ruta_visita r ON r.idruta=p.idruta
+                LEFT JOIN sector sec ON sec.idsector=p.idsector                
                 where v.estado <> 'Anulado' and v.forma_pago='Credito' and v.estadopago <> 'Pago Aplicado'
                  order by idventa DESC ";
         return ejecutarConsulta($sql);

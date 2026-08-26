@@ -972,7 +972,7 @@ class Articulo
         return ejecutarConsulta($sql);
     }
 
-    public function listarxGeneral()
+    public function listarxGeneral($idsucursal = "", $filtro_stock = "todos")
     {
         $sql = "SELECT 
                 a.idarticulo,
@@ -1025,6 +1025,21 @@ class Articulo
 					    GROUP BY idarticulo, idsucursal
 					) AS v ON v.idarticulo = asu.idarticulo AND v.idsucursal = asu.idsucursal                
                 where   a.tipo_producto='Productos' and asu.condicion=1 ";
+
+        if (!empty($idsucursal)) {
+            $sql .= " AND asu.idsucursal = '$idsucursal' ";
+        }
+
+        if ($filtro_stock == "mayor_cero") {
+            $sql .= " AND asu.stocksucursal > 0 ";
+        } else if ($filtro_stock == "no_negativos") {
+            $sql .= " AND asu.stocksucursal >= 0 ";
+        } else if ($filtro_stock == "solo_ceros") {
+            $sql .= " AND asu.stocksucursal = 0 ";
+        } else if ($filtro_stock == "solo_negativos") {
+            $sql .= " AND asu.stocksucursal < 0 ";
+        }
+
         return ejecutarConsulta($sql);
     }
 

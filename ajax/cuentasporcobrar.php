@@ -179,17 +179,19 @@ switch ($_GET["op"]) {
             $data[] = array(
                 "0" => '<button class="btn btn-warning btn-block" onclick="agregarDetalle(' . $reg->idventa . ',\'' . $reg->idcliente . '\',\'' . $reg->nombre_cliente . '\',\'' . $reg->tipo_comprobante . '\',\'' . $reg->numero_ecoFactura . '\',\'' . $reg->fecha . '\',\'' . $reg->total_venta . '\',\'' . $reg->total_abono . '\',\'' . $reg->saldo_venta . '\')"><span class="fa fa-plus"></span></button>',
                 "1" => $reg->idventa,
-                "2" => $reg->nomSucursal,
-                "3" => $reg->nomusuario,
-                "4" => $reg->nombre_cliente,
-                "5" => $reg->tipo_comprobante,
-                "6" => $reg->numero_ecoFactura,
-                "7" => $reg->fecha,
-                "8" => $reg->total_venta,
-                "9" => $reg->total_abono,
-                "10" => $reg->saldo_venta,
-                "11" => $reg->numero_pagos,
-                "12" => ($reg->estadopago == 'Pago Aplicado') ? '<span class="label bg-green">Pago Aplicado</span>' :
+                "2" => $reg->nombRuta,
+                "3" => $reg->nomSector,
+                "4" => $reg->nomSucursal,
+                "5" => $reg->nomusuario,
+                "6" => $reg->nombre_cliente,
+                "7" => $reg->tipo_comprobante,
+                "8" => $reg->numero_ecoFactura,
+                "9" => $reg->fecha,
+                "10" => $reg->total_venta,
+                "11" => $reg->total_abono,
+                "12" => $reg->saldo_venta,
+                "13" => $reg->numero_pagos,
+                "14" => ($reg->estadopago == 'Pago Aplicado') ? '<span class="label bg-green">Pago Aplicado</span>' :
                     '<span class="label bg-red">Pendiente Pago</span>'
             );
         }
@@ -212,17 +214,19 @@ switch ($_GET["op"]) {
             $data[] = array(
                 "0" => '<button class="btn btn-warning btn-block" onclick="agregarDetalle(' . $reg->idventa . ',\'' . $reg->idcliente . '\',\'' . $reg->nombre_cliente . '\',\'' . $reg->tipo_comprobante . '\',\'' . $reg->numero_ecoFactura . '\',\'' . $reg->fecha . '\',\'' . $reg->total_venta . '\',\'' . $reg->total_abono . '\',\'' . $reg->saldo_venta . '\')"><span class="fa fa-plus"></span></button>',
                 "1" => $reg->idventa,
-                "2" => $reg->nomSucursal,
-                "3" => $reg->nomusuario,
-                "4" => $reg->nombre_cliente,
-                "5" => $reg->tipo_comprobante,
-                "6" => $reg->numero_ecoFactura,
-                "7" => $reg->fecha,
-                "8" => $reg->total_venta,
-                "9" => $reg->total_abono,
-                "10" => $reg->saldo_venta,
-                "11" => $reg->numero_pagos,
-                "12" => ($reg->estadopago == 'Pago Aplicado') ? '<span class="label bg-green">Pago Aplicado</span>' :
+                "2" => $reg->nombRuta,
+                "3" => $reg->nomSector,
+                "4" => $reg->nomSucursal,
+                "5" => $reg->nomusuario,
+                "6" => $reg->nombre_cliente,
+                "7" => $reg->tipo_comprobante,
+                "8" => $reg->numero_ecoFactura,
+                "9" => $reg->fecha,
+                "10" => $reg->total_venta,
+                "11" => $reg->total_abono,
+                "12" => $reg->saldo_venta,
+                "13" => $reg->numero_pagos,
+                "14" => ($reg->estadopago == 'Pago Aplicado') ? '<span class="label bg-green">Pago Aplicado</span>' :
                     '<span class="label bg-red">Pendiente Pago</span>'
             );
         }
