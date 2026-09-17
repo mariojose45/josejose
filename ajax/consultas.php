@@ -302,19 +302,19 @@ switch ($_GET["op"]) {
 
     case 'totales_cajas_superiores':
         $idsucursal_filtro = isset($_GET["idsucursal_filtro"]) ? $_GET["idsucursal_filtro"] : "";
-        
+
         $rsptac = $consulta->totalcomprahoy($idsucursal_filtro);
         $regc = $rsptac->fetch_object();
         $totalc = $regc ? $regc->total_compra : 0;
-        
+
         $rsptav = $consulta->totalventahoy($idsucursal_filtro);
         $regv = $rsptav->fetch_object();
         $totalv = $regv ? $regv->total_venta : 0;
-        
+
         $rsptavm = $consulta->totalventaM($idsucursal_filtro);
         $regvm = $rsptavm->fetch_object();
         $totalvm = $regvm ? $regvm->total_venta : 0;
-        
+
         $rsptavcobrar = $consulta->totalventaCobrar($idsucursal_filtro);
         $regvcobrar = $rsptavcobrar->fetch_object();
         $totalitem = $regvcobrar ? $regvcobrar->numerodeitems : 0;
@@ -330,7 +330,7 @@ switch ($_GET["op"]) {
         $totalitem_pagar = $regvpagar ? $regvpagar->numerodeitems : 0;
         $totalpagar = $regvpagar ? $regvpagar->totalpagar : 0;
         $totalpagos_pagar = $regvpagar ? $regvpagar->total_pagos : 0;
-        
+
         echo json_encode(array(
             "totalc" => number_format($totalc, 2, '.', ''),
             "totalv" => number_format($totalv, 2, '.', ''),
@@ -343,38 +343,38 @@ switch ($_GET["op"]) {
             "totalpagar" => number_format($totalpagar, 2, '.', ''),
             "totalpagos_pagar" => number_format($totalpagos_pagar, 2, '.', '')
         ));
-    break;
+        break;
 
     case 'listarDetalleCtasporCobrar':
         $idsucursal_filtro = isset($_GET['idsucursal_filtro']) ? $_GET['idsucursal_filtro'] : "";
         $rspta = $consulta->listarDetalleCtasporCobrar($idsucursal_filtro);
-        $data = Array();  
-        while ($reg=$rspta->fetch_object()){    
-            $data[]=array(
-                "0"=>$reg->idventa,                    
-                "1"=>$reg->nombre_cliente,
-                "2"=>$reg->tipo_comprobante, 
-                "3"=>$reg->numero_ecoFactura,
-                "4"=>$reg->fecha, 
-                "5"=>$reg->total_venta,
-                "6"=>$reg->total_abono,
-                "7"=>$reg->saldo_venta,
-                "8"=>$reg->numero_pagos,
-                "9"=>($reg->estadopago=='Pago Aplicado')?'<span class="label bg-green">Pago Aplicado</span>':'<span class="label bg-red">Pendiente Pago</span>' 
+        $data = array();
+        while ($reg = $rspta->fetch_object()) {
+            $data[] = array(
+                "0" => $reg->idventa,
+                "1" => $reg->nombre_cliente,
+                "2" => $reg->tipo_comprobante,
+                "3" => $reg->numero_ecoFactura,
+                "4" => $reg->fecha,
+                "5" => $reg->total_venta,
+                "6" => $reg->total_abono,
+                "7" => $reg->saldo_venta,
+                "8" => $reg->numero_pagos,
+                "9" => ($reg->estadopago == 'Pago Aplicado') ? '<span class="label bg-green">Pago Aplicado</span>' : '<span class="label bg-red">Pendiente Pago</span>'
             );
         }
         $results = array(
-            "sEcho"=>1, 
-            "iTotalRecords"=>count($data),
-            "iTotalDisplayRecords"=>count($data),
-            "aaData"=>$data
+            "sEcho" => 1,
+            "iTotalRecords" => count($data),
+            "iTotalDisplayRecords" => count($data),
+            "aaData" => $data
         );
-        echo json_encode($results); 
-    break;
+        echo json_encode($results);
+        break;
 
     case 'graficos_escritorio':
         $idsucursal_filtro = isset($_GET["idsucursal_filtro"]) ? $_GET["idsucursal_filtro"] : "";
-        
+
         $data = array();
 
         // 1. Compras últimos 10 días
@@ -441,11 +441,20 @@ switch ($_GET["op"]) {
         $ventasComp = $consulta->ventascomparativas($idsucursal_filtro);
         $current_year = date("Y");
         $prev_year = $current_year - 1;
-        
+
         $meses = array(
-            1 => 'Enero', 2 => 'Febrero', 3 => 'Marzo', 4 => 'Abril', 
-            5 => 'Mayo', 6 => 'Junio', 7 => 'Julio', 8 => 'Agosto', 
-            9 => 'Septiembre', 10 => 'Octubre', 11 => 'Noviembre', 12 => 'Diciembre'
+            1 => 'Enero',
+            2 => 'Febrero',
+            3 => 'Marzo',
+            4 => 'Abril',
+            5 => 'Mayo',
+            6 => 'Junio',
+            7 => 'Julio',
+            8 => 'Agosto',
+            9 => 'Septiembre',
+            10 => 'Octubre',
+            11 => 'Noviembre',
+            12 => 'Diciembre'
         );
         $data_current = array_fill(1, 12, 0);
         $data_prev = array_fill(1, 12, 0);
@@ -467,7 +476,7 @@ switch ($_GET["op"]) {
         );
 
         echo json_encode($data);
-    break;
+        break;
 
     case 'InventarioxSucusal':
         $idsucursal_filtro = isset($_GET["idsucursal_filtro"]) ? $_GET["idsucursal_filtro"] : "";
@@ -914,18 +923,26 @@ switch ($_GET["op"]) {
             if ($reg->tipo_comprobante == 'Factura') {
                 # code... 
                 $url = '../reportes/exTicket_Fel.php?id=';
-                //  $url2='../reportes/exTicket.php?id=';   
-
+                $url2 = '../reportes/exTicket_Fel58mm.php?id=';
+                $url3 = '../reportes/exVentaFormatoCarta_Fel.php?id=';
+                $url4 = '../reportes/exVentaBlancoFAC.php?id=';
+            } elseif ($reg->tipo_comprobante == 'Cambiaria') {
+                # code... 
+                $url = '../reportes/exTicket_FelFCAM.php?id=';
+                $url2 = '../reportes/exTicket_Fel_FCAM58mm.php?id=';
+                $url3 = '../reportes/exVentaFormatoCarta_FelFCAM.php?id=';
+                $url4 = '../reportes/exVentaBlancoCAM.php?id=';
             } else {
                 $url = '../reportes/exTicket.php?id=';
-                //  $url2='../reportes/exTicket.php?id='; 
+                $url2 = '../reportes/exTicket58mm.php?id=';
+                $url3 = '../reportes/exVentaFormatoCarta.php?id=';
+                $url4 = '../reportes/exVentaBlancoENVIO.php?id=';
             }
 
             if ($reg->estado == 'Aceptado') {
                 # code... 
                 $resventa = $reg->total_venta;
                 $resventades = $reg->total_ventades;
-
             } else {
                 $resventa = 0;
                 $resventades = 0;
@@ -934,7 +951,6 @@ switch ($_GET["op"]) {
             if ($reg->forma_pago == 'Tarjeta') {
                 # code... 
                 $resDatostarjeta = $reg->tipo_pagoBacVisaNet . " / " . $reg->opcionesAdicionales . " / " . $reg->valor_tarjeta;
-
             } else {
                 $resDatostarjeta = " ";
             }
@@ -944,7 +960,15 @@ switch ($_GET["op"]) {
 
 
             $data[] = array(
-                "0" => '<a target="_blank" href="' . $url . $reg->idventa . '"><button class="btn btn-success"><i class="fa fa-print"></i> </button> </a>',
+                "0" => ($reg->estado == 'Aceptado') ? ' <button class="btn btn-danger" title="Anular Venta" onclick="anular(' . $reg->idventa . ')"><i class="fa fa-close"></i></button>' .
+                    '<a target="_blank" href="' . $url . $reg->idventa . '" title="Ticket 79mm"><button class="btn btn-success" title="Imprimir Ticket 79mm"><i class="fa fa-print"></i> </button> </a>' .
+                    '<a target="_blank" href="' . $url2 . $reg->idventa . '"  title="Ticket 58mm"><button class="btn btn-info" title="Imprimir Ticket 58mm"><i class="fa fa-print"></i> </button> </a>' .
+                    '<a target="_blank" href="' . $url4 . $reg->idventa . '"  title="Carta en Blanco"><button class="btn btn-info" title="Imprimir Carta en Blanco"><i class="fa fa-print"></i> </button> </a>' .
+
+                    '<a target="_blank" href="' . $url3 . $reg->idventa . '"  title="Carta Colores"><button class="btn btn-warning"><i class="fa fa-print"></i> </button> </a>' :
+                    '<a target="_blank" href="' . $url . $reg->idventa . '"><button class="btn btn-success"><i class="fa fa-print"></i> </button> </a>' .
+                    '<a target="_blank" href="' . $url2 . $reg->idventa . '"  title="Ticket 58mm"><button class="btn btn-info"><i class="fa fa-print"></i> </button> </a>' .
+                    '<a target="_blank" href="' . $url3 . $reg->idventa . '"  title="Carta"><button class="btn btn-warning"><i class="fa fa-print"></i> </button> </a>',
                 "1" => $reg->idventa,
                 "2" => $reg->cliente,
                 "3" => $reg->usuario,
@@ -1003,7 +1027,6 @@ switch ($_GET["op"]) {
                 # code... 
                 $resventa = $reg->total_venta;
                 $resventades = $reg->total_ventades;
-
             } else {
                 $resventa = 0;
                 $resventades = 0;
@@ -1012,7 +1035,6 @@ switch ($_GET["op"]) {
             if ($reg->forma_pago == 'Tarjeta') {
                 # code... 
                 $resDatostarjeta = $reg->tipo_pagoBacVisaNet . " / " . $reg->opcionesAdicionales . " / " . $reg->valor_tarjeta;
-
             } else {
                 $resDatostarjeta = " ";
             }
@@ -1084,7 +1106,6 @@ switch ($_GET["op"]) {
                 # code... 
                 $resventa = $reg->total_venta;
                 $resventades = $reg->total_ventades;
-
             } else {
                 $resventa = 0;
                 $resventades = 0;
@@ -1093,7 +1114,6 @@ switch ($_GET["op"]) {
             if ($reg->forma_pago == 'Tarjeta') {
                 # code... 
                 $resDatostarjeta = $reg->tipo_pagoBacVisaNet . " / " . $reg->opcionesAdicionales . " / " . $reg->valor_tarjeta;
-
             } else {
                 $resDatostarjeta = " ";
             }
@@ -1237,13 +1257,11 @@ switch ($_GET["op"]) {
                 $url = '../reportes/exTicket_Fel.php?id=';
                 $url2 = '../reportes/exTicket_Fel58mm.php?id=';
                 $url3 = '../reportes/exVentaFormatoCarta_Fel.php?id=';
-
             } elseif ($reg->tipo_comprobante == 'Cambiaria') {
                 # code... 
                 $url = '../reportes/exTicket_FelFCAM.php?id=';
                 $url2 = '../reportes/exTicket_Fel_FCAM58mm.php?id=';
                 $url3 = '../reportes/exVentaFormatoCarta_FelFCAM.php?id=';
-
             } else {
                 $url = '../reportes/exTicket.php?id=';
                 $url2 = '../reportes/exTicket58mm.php?id=';
@@ -1329,37 +1347,35 @@ switch ($_GET["op"]) {
 
     case 'rpt_registro_ingresoEmpleados':
 
-        $fecha_inicio=$_REQUEST["fecha_inicio"];
-        $fecha_fin=$_REQUEST["fecha_fin"];
+        $fecha_inicio = $_REQUEST["fecha_inicio"];
+        $fecha_fin = $_REQUEST["fecha_fin"];
 
-        $rspta=$consulta->rpt_registro_ingresoEmpleados($fecha_inicio,$fecha_fin);
+        $rspta = $consulta->rpt_registro_ingresoEmpleados($fecha_inicio, $fecha_fin);
         //Vamos a declarar un array
-        $data= Array(); 
- 
-        while ($reg=$rspta->fetch_object()){ 
- 
-           $data[]=array(
-                "0"=>($reg->condicion)?
- 					' <button class="btn btn-danger" onclick="desactivar('.$reg->idregistro_app.')"><i class="fa fa-close"></i></button>':' ',
-                "1"=>$reg->codigo,
-                "2"=>"<img src='../files/articulos/".$reg->foto."' height='50px' width='50px' >",
-                "3"=>$reg->nombres,
-                "4"=>$reg->puesto,
-                "5"=>$reg->fecha,
-                "6" => ($reg->tipo_salida_entrada == 0)? '<span class="badge bg-success">ENTRADA</span>': '<span class="badge bg-danger">SALIDA</span>',
-                "7"=>($reg->condicion)?'<span class="label bg-green">Activado</span>':
-                '<span class="label bg-red">Desactivado</span>'
-                );
+        $data = array();
+
+        while ($reg = $rspta->fetch_object()) {
+
+            $data[] = array(
+                "0" => ($reg->condicion) ?
+                    ' <button class="btn btn-danger" onclick="desactivar(' . $reg->idregistro_app . ')"><i class="fa fa-close"></i></button>' : ' ',
+                "1" => $reg->codigo,
+                "2" => "<img src='../files/articulos/" . $reg->foto . "' height='50px' width='50px' >",
+                "3" => $reg->nombres,
+                "4" => $reg->puesto,
+                "5" => $reg->fecha,
+                "6" => ($reg->tipo_salida_entrada == 0) ? '<span class="badge bg-success">ENTRADA</span>' : '<span class="badge bg-danger">SALIDA</span>',
+                "7" => ($reg->condicion) ? '<span class="label bg-green">Activado</span>' :
+                    '<span class="label bg-red">Desactivado</span>'
+            );
         }
         $results = array(
-            "sEcho"=>1, //Información para el datatables
-            "iTotalRecords"=>count($data), //enviamos el total registros al datatable
-            "iTotalDisplayRecords"=>count($data), //enviamos el total registros a visualizar
-            "aaData"=>$data);
+            "sEcho" => 1, //Información para el datatables
+            "iTotalRecords" => count($data), //enviamos el total registros al datatable
+            "iTotalDisplayRecords" => count($data), //enviamos el total registros a visualizar
+            "aaData" => $data
+        );
         echo json_encode($results);
- 
-    break;
 
-
+        break;
 }
-?>

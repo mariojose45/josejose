@@ -28,10 +28,10 @@ $logo = '../files/articulos/' . $reg->sucursal_imagen;
 if ($reg->sucursal_imagen == "" || $reg->sucursal_imagen == "0") {
     $logo = '../files/articulos/1590204245.jpg';
 }
-$pdf->Image($logo, 9, 4, 40);
+$pdf->Image($logo, 19, 4, 20);
 
 // ================= TITULO ===================
-$pdf->Ln(36); // ← CORREGIDO
+$pdf->Ln(15); // ← CORREGIDO
 $pdf->SetFont('Arial', 'B', 10);
 $pdf->SetX($MARGEN);
 $pdf->Cell($UTIL, 5, utf8_decode("SALIDA DE PRODUCTO"), 0, 1, 'C');
@@ -46,24 +46,7 @@ $pdf->Ln(1);
 $pdf->SetX($MARGEN);
 $pdf->Cell($UTIL, 3, "", "B", 1);
 
-// ============= DATOS SUCURSAL ================
-$pdf->SetFont('Arial', '', 8);
 
-$pdf->SetX($MARGEN);
-$pdf->MultiCell($UTIL, 4, utf8_decode($reg->sucursal_nombre), 0, 'C');
-
-$pdf->SetX($MARGEN);
-$pdf->Cell($UTIL, 4, "Nit: " . $reg->sucursal_nit, 0, 1, 'C');
-
-$pdf->SetX($MARGEN);
-$pdf->MultiCell($UTIL, 4, utf8_decode("Direc: " . $reg->sucursal_direccion), 0, 'C');
-
-$pdf->SetX($MARGEN);
-$pdf->MultiCell($UTIL, 4, "Tel: " . $reg->sucursal_telefono, 0, 'C');
-
-$pdf->Ln(1);
-$pdf->SetX($MARGEN);
-$pdf->Cell($UTIL, 3, "", "B", 1);
 
 // ============== INFO TRASLADO ==================
 $pdf->SetFont('Arial', '', 8);
@@ -95,9 +78,9 @@ while ($d = $rsptad->fetch_object()) {
     $pdf->SetX($MARGEN);
     $pdf->MultiCell($UTIL, 4, utf8_decode($d->articulo . " " . $d->presentacion . " " . $d->descripcion_detalle), 0, 'L');
 
-    $pdf->SetFont('Arial', '', 8);
+    $pdf->SetFont('Arial', '', 7);
     $pdf->SetX($MARGEN);
-    $linea = "Cant: " . $d->cantidad . "   PU: " . number_format($d->precio_venta, 2) . "   Sub: " . number_format($d->subtotal, 2);
+    $linea = "Cant: " . (float)$d->cantidad . "   PU: " . number_format($d->precio_venta, 2) . "   Sub: " . number_format($d->subtotal, 2);
     $pdf->Cell($UTIL, 4, $linea, 0, 1, 'L');
 
     $pdf->SetX($MARGEN);

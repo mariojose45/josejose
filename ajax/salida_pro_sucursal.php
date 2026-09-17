@@ -77,7 +77,9 @@ if (!isset($_SESSION["nombre"])) {
             case 'listar':
                 $fecha_inicio = $_REQUEST["fecha_inicio"];
                 $fecha_fin = $_REQUEST["fecha_fin"];
-                $rspta = $salidaprosucursal->listar($fecha_inicio, $fecha_fin);
+                $idsucursal = isset($_REQUEST["idsucursal"]) ? $_REQUEST["idsucursal"] : "";
+                
+                    $rspta = $salidaprosucursal->listar($fecha_inicio, $fecha_fin,$idsucursal);
                 //Vamos a declarar un array 
                 $data = array();
 

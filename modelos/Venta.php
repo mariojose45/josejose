@@ -1,4 +1,4 @@
-<?php 
+<?php
 ob_start();
 require_once __DIR__ . '/../config/SessionControl.php'; // ✅ esto controla el inicio y expiración de sesión
 
@@ -43,32 +43,28 @@ define('_NIT_', $numestable["_NIT_"]);
 define('CERTIFICADOR', $numestable["certificador"]);
 define('PRUEBA_PRODUCCION', $numestable["prueba_produccion"]);
 
- 
 
-Class Venta   
-{ 
+
+class Venta
+{
     //Implementamos nuestro constructor 
-    public function __construct()
-    {  
+    public function __construct() {}
 
-    }      
-    
 
     public function insertarSolicitudProductos($datosArticulosSp)
     {
         date_default_timezone_set('America/Guatemala');
-        $fechaHora = date('Y-m-d H:i:s'); 
+        $fechaHora = date('Y-m-d H:i:s');
 
-        $sql="INSERT INTO solicitud_productos (idusuario,idsucursal,condicion,fecha_creacion,estado)
-        VALUES ('".$_SESSION["idusuario"]."','".$_SESSION["idsucursal"]."','1','$fechaHora','Aceptado')";
+        $sql = "INSERT INTO solicitud_productos (idusuario,idsucursal,condicion,fecha_creacion,estado)
+        VALUES ('" . $_SESSION["idusuario"] . "','" . $_SESSION["idsucursal"] . "','1','$fechaHora','Aceptado')";
         //print_r($sql);
-        $idsolicitud_productosnew=ejecutarConsulta_retornarID($sql);
+        $idsolicitud_productosnew = ejecutarConsulta_retornarID($sql);
 
-        if($idsolicitud_productosnew)
-        {
+        if ($idsolicitud_productosnew) {
             $articulos = $datosArticulosSp['articulos'];
             $numArticulos = count($articulos['idarticulo']);
-            for ($i = 0; $i < $numArticulos; $i++){
+            for ($i = 0; $i < $numArticulos; $i++) {
                 $idarticulo = $articulos['idarticulo'][$i];
                 $precio_compra = $articulos['precio_compra'][$i];
                 $stockinven = $articulos['stockinven'][$i];
@@ -98,40 +94,35 @@ Class Venta
                                                         '$cantidad',
                                                         '$presentacion',
                                                         '$totalcantidadpresentacion',
-                                                        '".$_SESSION["idusuario"]."',
-                                                        '".$_SESSION["idsucursal"]."',
+                                                        '" . $_SESSION["idusuario"] . "',
+                                                        '" . $_SESSION["idsucursal"] . "',
                                                         'Aceptado',
                                                         '1')";
-               // print_r($sql_detalle);
+                // print_r($sql_detalle);
                 ejecutarConsulta($sql_detalle) or $sw = false;
-
-            
-
             }
         }
 
-        return $idsolicitud_productosnew; 
-
-
-    }    
+        return $idsolicitud_productosnew;
+    }
 
     ///meotodo para listar los registros
-    public function MostrarPedidosHechos($fecha_inicio_reporte,$fecha_fin_reporte)
+    public function MostrarPedidosHechos($fecha_inicio_reporte, $fecha_fin_reporte)
     {
-        $sql="SELECT 	s.*,
+        $sql = "SELECT 	s.*,
 			u.nombre AS usuario
 			FROM solicitud_productos s
 			INNER JOIN usuario u ON u.idusuario =s.idusuario
-            where s.idsucursal='".$_SESSION["idsucursal"]."' 
+            where s.idsucursal='" . $_SESSION["idsucursal"] . "' 
             and  DATE(s.fecha_creacion)>='$fecha_inicio_reporte' 
             AND DATE(s.fecha_creacion)<='$fecha_fin_reporte' ";
-        return ejecutarConsulta($sql);      
+        return ejecutarConsulta($sql);
     }
 
 
     public function pedidoscabecera($idsolicitud_productos)
     {
-        $sql="SELECT 	s.*,
+        $sql = "SELECT 	s.*,
 			u.nombre AS usuario,
             ss.nombre as sucursal_nombre, 
             ss.direccion as sucursal_direccion,
@@ -146,12 +137,12 @@ Class Venta
 			INNER JOIN usuario u ON u.idusuario =s.idusuario
             INNER JOIN sucursal ss ON ss.idsucursal=s.idsucursal
             where s.idsolicitud_productos='$idsolicitud_productos' ";
-        return ejecutarConsulta($sql);      
+        return ejecutarConsulta($sql);
     }
 
     public function pedidoscabeceraDetalle($idsolicitud_productos)
     {
-        $sql="SELECT 
+        $sql = "SELECT 
                     dsp.iddetalle_solicitud_productos,
                     dsp.idsolicitud_productos,
                     dsp.idarticulo,
@@ -165,71 +156,108 @@ Class Venta
                 INNER JOIN articulo a ON a.idarticulo=dsp.idarticulo
                 WHERE 
                 dsp.idsolicitud_productos='$idsolicitud_productos' ";
-        return ejecutarConsulta($sql);      
+        return ejecutarConsulta($sql);
     }
 
 
     //Implementamos un método para insertar registros
-    public function insertar($idcliente,$codigo_cliente,$nit,$nombre_cliente,$telefono_cliente,
-    $direccion_cliente,$correo_cliente,$tipo_documento_cliente,$idusuario,$idcotizacion,$fecha_hora,$forma_pago,
-        $tipo_comprobante,$total_venta,$total_ventades,$cefectivo,$ccredito,$ctarjeta,$ctransferencia,
-        $rescambio,$valor_tarjeta,$tipo_pagoBacVisaNet,$opcionesAdicionales,$observacion_credito,
-        $datosArticulos,$total_venta_r,$total_ventades_r,$tipo_entrega,
-        $numero_pagos,$fecha_hora_pago,$fecha_hora_vencimiento_factura,$monto_abono,
-        $idtransporte,$idmensajero,$idvendedor,$descuento_general,$valor_descuentoGeneral,$tipo_cliente,
-        $detalles_credito,$idtaller,$destino,$forma_productos,$comentario_venta,$tipo_venta_operacion,
-        $idcobradores,$idtecnico,$venta_lote)
-    { 
+    public function insertar(
+        $idcliente,
+        $codigo_cliente,
+        $nit,
+        $nombre_cliente,
+        $telefono_cliente,
+        $direccion_cliente,
+        $correo_cliente,
+        $tipo_documento_cliente,
+        $idusuario,
+        $idcotizacion,
+        $fecha_hora,
+        $forma_pago,
+        $tipo_comprobante,
+        $total_venta,
+        $total_ventades,
+        $cefectivo,
+        $ccredito,
+        $ctarjeta,
+        $ctransferencia,
+        $rescambio,
+        $valor_tarjeta,
+        $tipo_pagoBacVisaNet,
+        $opcionesAdicionales,
+        $observacion_credito,
+        $datosArticulos,
+        $total_venta_r,
+        $total_ventades_r,
+        $tipo_entrega,
+        $numero_pagos,
+        $fecha_hora_pago,
+        $fecha_hora_vencimiento_factura,
+        $monto_abono,
+        $idtransporte,
+        $idmensajero,
+        $idvendedor,
+        $descuento_general,
+        $valor_descuentoGeneral,
+        $tipo_cliente,
+        $detalles_credito,
+        $idtaller,
+        $destino,
+        $forma_productos,
+        $comentario_venta,
+        $tipo_venta_operacion,
+        $idcobradores,
+        $idtecnico,
+        $venta_lote
+    ) {
 
         date_default_timezone_set('America/Guatemala');
-        $fechaHora = date('Y-m-d H:i:s'); 
+        $fechaHora = date('Y-m-d H:i:s');
 
         @session_start();
         $sqlUsuarioK = "SELECT nombre FROM usuario WHERE idusuario='" . $idusuario . "'";
         $resUser = ejecutarConsultaSimpleFila($sqlUsuarioK);
         $nombreUser = $resUser ? $resUser["nombre"] : 'Sistema';
         /////CAPTURA DE CLIENTE NUEVO Y UPDATE
-        if ($idcliente == '0')  
-        { 
+        if ($idcliente == '0') {
             $sqlcorrelativo = "UPDATE add_correlativo SET codigo_cliente=codigo_cliente+1 
-            WHERE idsucursal='".$_SESSION["idsucursal"]."' ";
-            ejecutarConsulta($sqlcorrelativo); 
+            WHERE idsucursal='" . $_SESSION["idsucursal"] . "' ";
+            ejecutarConsulta($sqlcorrelativo);
 
-            $sqlCorre = "SELECT * FROM add_correlativo WHERE idsucursal='".$_SESSION["idsucursal"]."' ";
+            $sqlCorre = "SELECT * FROM add_correlativo WHERE idsucursal='" . $_SESSION["idsucursal"] . "' ";
             $correlativo = ejecutarConsultaSimpleFila($sqlCorre);
-            $corre = $correlativo["codigo_cliente"]; 
+            $corre = $correlativo["codigo_cliente"];
             $codigo_cliente = 'COD' . $corre;
 
             $sqlcliente = "INSERT INTO persona (tipo_persona,nombre,tipo_documento,num_documento,direccion,
                                                 telefono,email,tipo_cliente,codigo_cliente,fechaCreacion)
                                 VALUES ('Cliente','$nombre_cliente','$tipo_documento_cliente','$nit',
                                 '$direccion_cliente','$telefono_cliente','$correo_cliente','$tipo_cliente','$codigo_cliente','$fechaHora')";
-            $residcliente = ejecutarConsulta_retornarID($sqlcliente); 
+            $residcliente = ejecutarConsulta_retornarID($sqlcliente);
 
             if (!$residcliente) {
                 throw new Exception("Error al insertar nuevo cliente.");
             }
-        } else   
-        {
+        } else {
             $sqlCorre = "SELECT * FROM persona WHERE idpersona='$idcliente'";
             $correlativo = ejecutarConsultaSimpleFila($sqlCorre);
-            $corre = $correlativo["codigo_cliente"]; 
+            $corre = $correlativo["codigo_cliente"];
 
-                               // Verificamos si $corre es '0', está vacío o es null
+            // Verificamos si $corre es '0', está vacío o es null
             if (empty($corre) || $corre == '0') {
-                    // Si está vacío, null, o es '0', ejecutamos la lógica de actualización del código cliente
+                // Si está vacío, null, o es '0', ejecutamos la lógica de actualización del código cliente
 
                 $sqlcorrelativo = "UPDATE add_correlativo SET codigo_cliente=codigo_cliente+1 
-                WHERE idsucursal='".$_SESSION["idsucursal"]."' ";
-                ejecutarConsulta($sqlcorrelativo); 
+                WHERE idsucursal='" . $_SESSION["idsucursal"] . "' ";
+                ejecutarConsulta($sqlcorrelativo);
 
-                $sqlCorrelativo = "SELECT * FROM add_correlativo WHERE idsucursal='".$_SESSION["idsucursal"]."' ";
+                $sqlCorrelativo = "SELECT * FROM add_correlativo WHERE idsucursal='" . $_SESSION["idsucursal"] . "' ";
                 $correlativos = ejecutarConsultaSimpleFila($sqlCorrelativo);
-                $corress = $correlativos["codigo_cliente"]; 
-                $codigo_clientes = 'COD' . $corress;    
+                $corress = $correlativos["codigo_cliente"];
+                $codigo_clientes = 'COD' . $corress;
 
                 $sqlupdadtepersona = "UPDATE persona SET codigo_cliente='$codigo_clientes' WHERE idpersona='$idcliente'";
-                ejecutarConsulta($sqlupdadtepersona);                         
+                ejecutarConsulta($sqlupdadtepersona);
             }
 
             $sqlcorrelativo = "UPDATE persona SET 
@@ -241,9 +269,9 @@ Class Venta
             tipo_cliente='$tipo_cliente'
             WHERE idpersona='$idcliente'";
 
-            ejecutarConsulta($sqlcorrelativo);  
+            ejecutarConsulta($sqlcorrelativo);
             $residcliente = $idcliente;
-        }  
+        }
         ///////   
 
 
@@ -252,103 +280,85 @@ Class Venta
 
 
 
-        $sqlPersona="SELECT * FROM persona WHERE idpersona='$residcliente'";
-        $Persona= ejecutarConsultaSimpleFila($sqlPersona);
+        $sqlPersona = "SELECT * FROM persona WHERE idpersona='$residcliente'";
+        $Persona = ejecutarConsultaSimpleFila($sqlPersona);
         #echo json_encode($Persona);
-        $nit="CF";
-        $tipoidentificador="1";
-        if($Persona["num_documento"]=="C/F")
-        {
-
-        }
-        else
-        {
-            if ($Persona["tipo_documento"]=="NIT") 
-            {
-                $flagNit=str_replace("-", "", $Persona["num_documento"]);
-                if(strlen($flagNit)<= 15)
-                {
-                    $nit=$Persona["num_documento"];
-                    $tipoidentificador="1";
+        $nit = "CF";
+        $tipoidentificador = "1";
+        if ($Persona["num_documento"] == "C/F") {
+        } else {
+            if ($Persona["tipo_documento"] == "NIT") {
+                $flagNit = str_replace("-", "", $Persona["num_documento"]);
+                if (strlen($flagNit) <= 15) {
+                    $nit = $Persona["num_documento"];
+                    $tipoidentificador = "1";
+                } else {
+                    $nit = "CF";
+                    $tipoidentificador = "1";
                 }
-                else
-                {
-                    $nit="CF";
-                    $tipoidentificador="1";
-     
-                }                
+            } elseif ($Persona["tipo_documento"] == "DPI") {
+                $nit = $Persona["num_documento"];
+                $tipoidentificador = "2";
+            } elseif ($Persona["tipo_documento"] == "PASAPORTE") {
+                $nit = $Persona["num_documento"];
+                $tipoidentificador = "3";
             }
-            elseif($Persona["tipo_documento"]=="DPI")
-            {
-                $nit=$Persona["num_documento"]; 
-                $tipoidentificador="2";
-            }
-            elseif($Persona["tipo_documento"]=="PASAPORTE")
-            {
-                $nit=$Persona["num_documento"];
-                $tipoidentificador="3";
-            }
-
         }
 
         ////fin datos establecimiento y persona        
 
 
-        if($tipo_comprobante=="Envio" )
-        {
+        if ($tipo_comprobante == "Envio") {
 
-            $sqlcorrelativo="UPDATE add_correlativo SET num_envio=num_envio+1 WHERE idsucursal='".$_SESSION["idsucursal"]."' ";
-            ejecutarConsulta($sqlcorrelativo); 
+            $sqlcorrelativo = "UPDATE add_correlativo SET num_envio=num_envio+1 WHERE idsucursal='" . $_SESSION["idsucursal"] . "' ";
+            ejecutarConsulta($sqlcorrelativo);
 
-            $sqlCorre="SELECT * FROM add_correlativo WHERE idsucursal='".$_SESSION["idsucursal"]."'";
-            $correlativo= ejecutarConsultaSimpleFila($sqlCorre);
-            $corre=$correlativo["num_envio"];        
-     
-            $sql="INSERT INTO venta (idcliente,idusuario,idsucursal,tipo_comprobante,num_comprobante,fecha_hora,total_venta,estado,cefectivo,rescambio,forma_pago,total_ventades,
+            $sqlCorre = "SELECT * FROM add_correlativo WHERE idsucursal='" . $_SESSION["idsucursal"] . "'";
+            $correlativo = ejecutarConsultaSimpleFila($sqlCorre);
+            $corre = $correlativo["num_envio"];
+
+            $sql = "INSERT INTO venta (idcliente,idusuario,idsucursal,tipo_comprobante,num_comprobante,fecha_hora,total_venta,estado,cefectivo,rescambio,forma_pago,total_ventades,
             tipo_pagoBacVisaNet,opcionesAdicionales,valor_tarjeta,ccredito,observacion_credito,ctarjeta,ctransferencia,fecha_creacion,tipo_entrega,idvendedor,descuento_general,valor_descuentoGeneral,numero_pagos,
             fecha_hora_pago,fecha_hora_vencimiento_factura,monto_abono,destino,forma_productos,comentario_venta,tipo_venta_operacion,idcobradores,idtecnico,venta_lote)
-            VALUES ('$residcliente','$idusuario','".$_SESSION["idsucursal"]."','$tipo_comprobante','$corre','$fecha_hora','$total_venta_r','Aceptado','$cefectivo','$rescambio','$forma_pago','$total_ventades_r',
+            VALUES ('$residcliente','$idusuario','" . $_SESSION["idsucursal"] . "','$tipo_comprobante','$corre','$fecha_hora','$total_venta_r','Aceptado','$cefectivo','$rescambio','$forma_pago','$total_ventades_r',
             '$tipo_pagoBacVisaNet','$opcionesAdicionales','$valor_tarjeta','$ccredito','$observacion_credito','$ctarjeta','$ctransferencia','$fechaHora','$tipo_entrega','$idvendedor','$descuento_general','$valor_descuentoGeneral','$numero_pagos',
-            '$fecha_hora_pago','$fecha_hora_vencimiento_factura','$monto_abono','$destino','$forma_productos','$comentario_venta','$tipo_venta_operacion','$idcobradores','$idtecnico','$venta_lote')";   
-            $idventanew=ejecutarConsulta_retornarID($sql); 
+            '$fecha_hora_pago','$fecha_hora_vencimiento_factura','$monto_abono','$destino','$forma_productos','$comentario_venta','$tipo_venta_operacion','$idcobradores','$idtecnico','$venta_lote')";
+            $idventanew = ejecutarConsulta_retornarID($sql);
 
-            if($tipo_entrega == "Tienda"){
-                $sqlCredito="UPDATE venta SET estado_venta='COMPLETO' WHERE idventa='$idventanew' ";
+            if ($tipo_entrega == "Tienda") {
+                $sqlCredito = "UPDATE venta SET estado_venta='COMPLETO' WHERE idventa='$idventanew' ";
                 ejecutarConsulta($sqlCredito);
-            }else if($tipo_entrega == "Transporte"){
-                $sqlCredito="UPDATE venta SET idtransporte='$idtransporte',estado_venta='ENPROCESO' WHERE idventa='$idventanew' ";
+            } else if ($tipo_entrega == "Transporte") {
+                $sqlCredito = "UPDATE venta SET idtransporte='$idtransporte',estado_venta='ENPROCESO' WHERE idventa='$idventanew' ";
                 ejecutarConsulta($sqlCredito);
-            }else if($tipo_entrega == "Mensajero"){
-                $sqlCredito="UPDATE venta SET idmensajero='$idmensajero',estado_venta='ENPROCESO' WHERE idventa='$idventanew' ";
+            } else if ($tipo_entrega == "Mensajero") {
+                $sqlCredito = "UPDATE venta SET idmensajero='$idmensajero',estado_venta='ENPROCESO' WHERE idventa='$idventanew' ";
                 ejecutarConsulta($sqlCredito);
             }
- 
-            if($forma_pago=="Credito" )
-            {
-                $sqlCredito="UPDATE venta SET saldo_venta='$ccredito' WHERE idventa='$idventanew' ";
-                ejecutarConsulta($sqlCredito); 
-            } 
 
-            if($idcotizacion==""){
-                $residcotizacion=0;
-            } 
-            else{
-                $residcotizacion=$idcotizacion;
-                $sqlcorrelativo="UPDATE cotizacion SET idventa='$idventanew', cobradosino='SI' WHERE idcotizacion ='$idcotizacion'";
-                ejecutarConsulta($sqlcorrelativo);  
-            }                    
-         
+            if ($forma_pago == "Credito") {
+                $sqlCredito = "UPDATE venta SET saldo_venta='$ccredito' WHERE idventa='$idventanew' ";
+                ejecutarConsulta($sqlCredito);
+            }
 
-            $num_elementos=0; 
-            $sw=true;   
+            if ($idcotizacion == "") {
+                $residcotizacion = 0;
+            } else {
+                $residcotizacion = $idcotizacion;
+                $sqlcorrelativo = "UPDATE cotizacion SET idventa='$idventanew', cobradosino='SI' WHERE idcotizacion ='$idcotizacion'";
+                ejecutarConsulta($sqlcorrelativo);
+            }
+
+
+            $num_elementos = 0;
+            $sw = true;
 
 
 
-            if($idventanew)
-            {
+            if ($idventanew) {
                 $articulos = $datosArticulos['articulos'];
                 $numArticulos = count($articulos['idarticulo']);
-                for ($i = 0; $i < $numArticulos; $i++){
+                for ($i = 0; $i < $numArticulos; $i++) {
                     $idarticulo = $articulos['idarticulo'][$i];
                     $precio_compra = $articulos['precio_compra'][$i];
                     $stockinven = $articulos['stockinven'][$i];
@@ -370,17 +380,17 @@ Class Venta
                     $subtotaldes1 = $articulos['subtotaldes1'][$i];
 
 
-                    $sqlPCcompra="SELECT 
+                    $sqlPCcompra = "SELECT 
                                     asu.precio_compra as pc_compra, 
                                     asu.stocksucursal,
                                     a.tipo_producto
                                 FROM articuloxsucursal asu
                                 inner join articulo a on a.idarticulo=asu.idarticulo
-                                WHERE asu.idarticulo='$idarticulo'  and asu.idsucursal='".$_SESSION["idsucursal"]."' ";
-                    $respc= ejecutarConsultaSimpleFila($sqlPCcompra); 
-                    $pc_compra=$respc["pc_compra"];
-                    $tipoproducto=$respc["tipo_producto"];
-                  
+                                WHERE asu.idarticulo='$idarticulo'  and asu.idsucursal='" . $_SESSION["idsucursal"] . "' ";
+                    $respc = ejecutarConsultaSimpleFila($sqlPCcompra);
+                    $pc_compra = $respc["pc_compra"];
+                    $tipoproducto = $respc["tipo_producto"];
+
 
                     $sql_detalle = "INSERT INTO detalle_venta(idventa,idarticulo,cantidad,precio_venta,descuento,stockinven,subtotaldes1,
                     precio_ventaSistema,precio_ventaSistema2,subtotal1,cantidadpresentacion,totalcantidadpresentacion,presen,precio_recargo,q_ref,precio_recargoPV,precio_recargoQRef,precio_compra) 
@@ -390,43 +400,43 @@ Class Venta
                     '$precio_recargoQRef','$pc_compra')";
                     ejecutarConsulta($sql_detalle) or $sw = false;
 
-                    $sql_proc = "CALL procesar_venta_articulo($idventanew, $idarticulo, $totalcantidadpresentacion, ".$_SESSION["idsucursal"].", ".$_SESSION["idusuario"].");";
-                    ejecutarConsulta($sql_proc); 
+                    $sql_proc = "CALL procesar_venta_articulo($idventanew, $idarticulo, $totalcantidadpresentacion, " . $_SESSION["idsucursal"] . ", " . $_SESSION["idusuario"] . ");";
+                    ejecutarConsulta($sql_proc);
 
-                    if ($tipoproducto=="Productos" ) {
+                    if ($tipoproducto == "Productos") {
                         # code...
-                            $sqlArticuloStock="UPDATE articuloxsucursal SET stocksucursal = stocksucursal - ".$totalcantidadpresentacion." 
+                        $sqlArticuloStock = "UPDATE articuloxsucursal SET stocksucursal = stocksucursal - " . $totalcantidadpresentacion . " 
                             WHERE idarticulo =$idarticulo  
-                            and idsucursal='".$_SESSION["idsucursal"]."' ";
-                            ejecutarConsulta($sqlArticuloStock);    
-                            
-                            $stock_anterior_k = $respc["stocksucursal"];
-                            $stock_final_k = $stock_anterior_k - $totalcantidadpresentacion;
+                            and idsucursal='" . $_SESSION["idsucursal"] . "' ";
+                        ejecutarConsulta($sqlArticuloStock);
 
-                            $sqlInsertKardex = "INSERT INTO kardex_movimientos 
+                        $stock_anterior_k = $respc["stocksucursal"];
+                        $stock_final_k = $stock_anterior_k - $totalcantidadpresentacion;
+
+                        $sqlInsertKardex = "INSERT INTO kardex_movimientos 
                             (idarticulo, idsucursal, fecha_hora, concepto, num_documento, cantidad_existente, cantidad_modificacion, 
                             tipo_modificacion, cantidad_final, precio, responsable)
                             VALUES 
-                            ('$idarticulo', '".$_SESSION["idsucursal"]."', '$fechaHora', 'Salida por Venta', '$idventanew', 
+                            ('$idarticulo', '" . $_SESSION["idsucursal"] . "', '$fechaHora', 'Salida por Venta', '$idventanew', 
                             '$stock_anterior_k', '$totalcantidadpresentacion', 'Salida', '$stock_final_k', 
                             '$precio_venta', '$nombreUser')";
-                            ejecutarConsulta($sqlInsertKardex);
+                        ejecutarConsulta($sqlInsertKardex);
 
-                            $sql_detalleoperaciones = "INSERT INTO operaciones_compras_ventas(idingreso,idventa,idtraladosucursal,idtraladosucursal_entrada,iddevolucion,cantidad_compras,cantidad_ventas,
+                        $sql_detalleoperaciones = "INSERT INTO operaciones_compras_ventas(idingreso,idventa,idtraladosucursal,idtraladosucursal_entrada,iddevolucion,cantidad_compras,cantidad_ventas,
                             cantidad_entrada,cantidad_devolucion,cantidad_salida,stock_inventario,fecha_horaCreacion,idarticulo,idusuario,
                             idsucursal) 
                             VALUES ('0',
                             '$idventanew','0','0','0','0','$totalcantidadpresentacion','0','0','0','$stock_anterior_k','$fechaHora',
                             '$idarticulo','$idusuario',
-                            '".$_SESSION["idsucursal"]."')";
-                            ejecutarConsulta($sql_detalleoperaciones);
-                    } 
-                    
+                            '" . $_SESSION["idsucursal"] . "')";
+                        ejecutarConsulta($sql_detalleoperaciones);
+                    }
 
- 
+
+
 
                     //VALIDAR SI ES TOPPING O EXTRA
-                        // 🔧 CORRECCIÓN PRINCIPAL:
+                    // 🔧 CORRECCIÓN PRINCIPAL:
                     // ==== INICIO CAMBIO EXTRAS/TOPPINGS (versión correcta: GLOBAL + FILTRO POR PADRE) ====
                     // Espera arreglos globales en $articulos: 
                     //   idarticuloExtra_extras[], tipo_item_extras[], cantidad_extra[], idproducto_extra[], (opcional) check_extras[]
@@ -441,20 +451,26 @@ Class Venta
                         $n = count($extras);
                         for ($j = 0; $j < $n; $j++) {
                             // 1) Debe pertenecer al artículo padre actual
-                            if (!isset($productos[$j]) || (int)$productos[$j] !== (int)$idarticulo) { continue; }
+                            if (!isset($productos[$j]) || (int)$productos[$j] !== (int)$idarticulo) {
+                                continue;
+                            }
 
                             // 2) Si hay checkbox y viene desmarcado, saltar
-                            if (isset($checks[$j]) && !$checks[$j]) { continue; }
+                            if (isset($checks[$j]) && !$checks[$j]) {
+                                continue;
+                            }
 
                             $tipo           = isset($tipos[$j]) ? $tipos[$j] : 'Topping';
                             $idextra        = (int)$extras[$j];
                             $cantidad_extra = isset($cantidades[$j]) ? (float)$cantidades[$j] : 0.0;
-                            if ($idextra <= 0 || $cantidad_extra <= 0) { continue; }
+                            if ($idextra <= 0 || $cantidad_extra <= 0) {
+                                continue;
+                            }
 
                             // Cantidad real a descontar = cantidad_extra * total cantidad del artículo padre
                             $total_a_descontar = $cantidad_extra * (float)$totalcantidadpresentacion;
 
-                            $sqlArticuloK = "SELECT stocksucursal FROM articuloxsucursal WHERE idarticulo='$idextra' AND idsucursal='".$_SESSION["idsucursal"]."'";
+                            $sqlArticuloK = "SELECT stocksucursal FROM articuloxsucursal WHERE idarticulo='$idextra' AND idsucursal='" . $_SESSION["idsucursal"] . "'";
                             $ArticuloK = ejecutarConsultaSimpleFila($sqlArticuloK);
                             $stock_anterior_k = $ArticuloK ? $ArticuloK["stocksucursal"] : 0;
                             $stock_final_k = $stock_anterior_k - $total_a_descontar;
@@ -471,7 +487,7 @@ Class Venta
                             (idarticulo, idsucursal, fecha_hora, concepto, num_documento, cantidad_existente, cantidad_modificacion, 
                             tipo_modificacion, cantidad_final, precio, responsable)
                             VALUES 
-                            ('$idextra', '".$_SESSION["idsucursal"]."', '$fechaHora', '$conceptoExtra', '$idventanew', 
+                            ('$idextra', '" . $_SESSION["idsucursal"] . "', '$fechaHora', '$conceptoExtra', '$idventanew', 
                             '$stock_anterior_k', '$total_a_descontar', 'Salida', '$stock_final_k', 
                             '0', '$nombreUser')";
                             ejecutarConsulta($sqlInsertKardex);
@@ -482,7 +498,7 @@ Class Venta
                             VALUES ('0',
                             '$idventanew','0','0','0','0','$total_a_descontar','0','0','0','$stock_anterior_k','$fechaHora',
                             '$idextra','$idusuario',
-                            '".$_SESSION["idsucursal"]."')";
+                            '" . $_SESSION["idsucursal"] . "')";
                             ejecutarConsulta($sql_detalleoperaciones);
 
                             if ($tipo === 'Topping') {
@@ -498,8 +514,7 @@ Class Venta
                                                     '0', '0', '0', 'Topping', '$idarticulo'
                                                 )";
                                 ejecutarConsulta($sql_topping) or $sw = false;
-
-                            } else { 
+                            } else {
                                 // 4b) Extra: trae precio
                                 $sqlPrecio = "SELECT precio_unidad, stocksucursal, precio_compra
                                             FROM articuloxsucursal 
@@ -531,39 +546,39 @@ Class Venta
                         }
                     }
                     // ==== FIN CAMBIO EXTRAS/TOPPINGS ====
-                        // 🔧 FIN DE CORRECCIÓN
-                        $sqlVerificacionExistencia = "SELECT 
+                    // 🔧 FIN DE CORRECCIÓN
+                    $sqlVerificacionExistencia = "SELECT 
                                 p.idproducto,
                                 dp.cantidad as cantmateriaprima,
                                 dp.idarticulo as idarticulo_costo
                              FROM produccion p 
                              INNER JOIN detalle_produccion dp ON p.idproduccion=dp.idproduccion
                              WHERE p.idproducto='$idarticulo' and dp.tipo_item='Producto'";
-                        $EXIS = ejecutarConsulta($sqlVerificacionExistencia);
+                    $EXIS = ejecutarConsulta($sqlVerificacionExistencia);
 
-                        $numexis = 0;
-                        while ($reeeq = $EXIS->fetch_object()) {
-                            $Tcan = (float)$cantidad * (float)$reeeq->cantmateriaprima; 
+                    $numexis = 0;
+                    while ($reeeq = $EXIS->fetch_object()) {
+                        $Tcan = (float)$cantidad * (float)$reeeq->cantmateriaprima;
 
-                            $sqlArticuloK = "SELECT stocksucursal FROM articuloxsucursal WHERE idarticulo='".$reeeq->idarticulo_costo."' AND idsucursal='".$_SESSION["idsucursal"]."'";
-                            $ArticuloK = ejecutarConsultaSimpleFila($sqlArticuloK);
-                            $stock_anterior_k = $ArticuloK ? $ArticuloK["stocksucursal"] : 0;
-                            $stock_final_k = $stock_anterior_k - $Tcan;
+                        $sqlArticuloK = "SELECT stocksucursal FROM articuloxsucursal WHERE idarticulo='" . $reeeq->idarticulo_costo . "' AND idsucursal='" . $_SESSION["idsucursal"] . "'";
+                        $ArticuloK = ejecutarConsultaSimpleFila($sqlArticuloK);
+                        $stock_anterior_k = $ArticuloK ? $ArticuloK["stocksucursal"] : 0;
+                        $stock_final_k = $stock_anterior_k - $Tcan;
 
-                            $updateArticuloDetalle = "UPDATE articuloxsucursal SET stocksucursal=$stock_final_k
+                        $updateArticuloDetalle = "UPDATE articuloxsucursal SET stocksucursal=$stock_final_k
                                                     WHERE idarticulo='" . $reeeq->idarticulo_costo . "'  and idsucursal='" . $_SESSION["idsucursal"] . "' ";
-                            ejecutarConsulta($updateArticuloDetalle);
+                        ejecutarConsulta($updateArticuloDetalle);
 
-                            $sqlInsertKardex = "INSERT INTO kardex_movimientos 
+                        $sqlInsertKardex = "INSERT INTO kardex_movimientos 
                             (idarticulo, idsucursal, fecha_hora, concepto, num_documento, cantidad_existente, cantidad_modificacion, 
                             tipo_modificacion, cantidad_final, precio, responsable)
                             VALUES 
-                            ('".$reeeq->idarticulo_costo."', '".$_SESSION["idsucursal"]."', '$fechaHora', 'Salida por Venta (Materia Prima)', '$idventanew', 
+                            ('" . $reeeq->idarticulo_costo . "', '" . $_SESSION["idsucursal"] . "', '$fechaHora', 'Salida por Venta (Materia Prima)', '$idventanew', 
                             '$stock_anterior_k', '$Tcan', 'Salida', '$stock_final_k', 
                             '0', '$nombreUser')";
-                            ejecutarConsulta($sqlInsertKardex);
+                        ejecutarConsulta($sqlInsertKardex);
 
-                            $sql_detalleoperaciones = "INSERT INTO operaciones_compras_ventas(
+                        $sql_detalleoperaciones = "INSERT INTO operaciones_compras_ventas(
                                                             idingreso,idventa,idtraladosucursal,idtraladosucursal_entrada,iddevolucion,
                                                             cantidad_compras,cantidad_ventas,cantidad_entrada,cantidad_devolucion,
                                                             cantidad_salida,stock_inventario,fecha_horaCreacion,idarticulo,idusuario,idsucursal
@@ -571,125 +586,107 @@ Class Venta
                                                             '0','$idventanew','0','0','0','0','$Tcan','0','0','0','$stock_anterior_k','$fechaHora',
                                                             '" . $reeeq->idarticulo_costo . "','$idusuario','" . $_SESSION["idsucursal"] . "'
                                                         )";
-                            ejecutarConsulta($sql_detalleoperaciones);
+                        ejecutarConsulta($sql_detalleoperaciones);
 
 
-                            $numexis++;
-                        }
-                        if ($numexis == 0) {
-                        }
+                        $numexis++;
+                    }
+                    if ($numexis == 0) {
+                    }
                     //
                 }
-
-
-
-
-
             }
+        } else {
+            if (CERTIFICADOR == "GUATEFACTURAS") {
+                $sqlcorrelativo = "UPDATE add_correlativo SET num_factura=num_factura+1 WHERE idsucursal='" . $_SESSION["idsucursal"] . "'";
+                ejecutarConsulta($sqlcorrelativo);
 
-        }
-        else
-        {
-            if (CERTIFICADOR=="GUATEFACTURAS") 
-            {
-                            $sqlcorrelativo="UPDATE add_correlativo SET num_factura=num_factura+1 WHERE idsucursal='".$_SESSION["idsucursal"]."'";
-                            ejecutarConsulta($sqlcorrelativo); 
+                $sqlCorre = "SELECT * FROM add_correlativo WHERE idsucursal='" . $_SESSION["idsucursal"] . "'";
+                $correlativo = ejecutarConsultaSimpleFila($sqlCorre);
+                $corre = $correlativo["num_factura"];
 
-                            $sqlCorre="SELECT * FROM add_correlativo WHERE idsucursal='".$_SESSION["idsucursal"]."'";
-                            $correlativo= ejecutarConsultaSimpleFila($sqlCorre);
-                            $corre=$correlativo["num_factura"];        
-
-                        ////GUARDA VENTA
-                            $sql="INSERT INTO venta (idcliente,idusuario,idsucursal,tipo_comprobante,num_comprobante,fecha_hora,total_venta,estado,cefectivo,rescambio,forma_pago,total_ventades,
+                ////GUARDA VENTA
+                $sql = "INSERT INTO venta (idcliente,idusuario,idsucursal,tipo_comprobante,num_comprobante,fecha_hora,total_venta,estado,cefectivo,rescambio,forma_pago,total_ventades,
                             tipo_pagoBacVisaNet,opcionesAdicionales,valor_tarjeta,ccredito,observacion_credito,ctarjeta,
                             ctransferencia,fecha_creacion,tipo_entrega,numero_pagos,fecha_hora_pago,fecha_hora_vencimiento_factura,monto_abono,
                             idvendedor,descuento_general,valor_descuentoGeneral,destino,forma_productos,comentario_venta,tipo_venta_operacion,idcobradores,idtecnico,
                             venta_lote)
-                            VALUES ('$residcliente','$idusuario','".$_SESSION["idsucursal"]."','$tipo_comprobante','$corre','$fecha_hora','$total_venta_r','Aceptado','$cefectivo','$rescambio','$forma_pago','$total_ventades_r',
+                            VALUES ('$residcliente','$idusuario','" . $_SESSION["idsucursal"] . "','$tipo_comprobante','$corre','$fecha_hora','$total_venta_r','Aceptado','$cefectivo','$rescambio','$forma_pago','$total_ventades_r',
                             '$tipo_pagoBacVisaNet','$opcionesAdicionales','$valor_tarjeta','$ccredito','$observacion_credito',
                             '$ctarjeta','$ctransferencia','$fechaHora','$tipo_entrega','$numero_pagos','$fecha_hora_pago',
                             '$fecha_hora_vencimiento_factura','$monto_abono','$idvendedor',
                             '$descuento_general','$valor_descuentoGeneral','$destino','$forma_productos','$comentario_venta','$tipo_venta_operacion','$idcobradores','$idtecnico',
-                            '$venta_lote')";        
-                            $idventanew=ejecutarConsulta_retornarID($sql); 
-                        ////FIN GUARDA VENTA
+                            '$venta_lote')";
+                $idventanew = ejecutarConsulta_retornarID($sql);
+                ////FIN GUARDA VENTA
 
-                        ////TIPO ENTREGA
-                            if($tipo_entrega == "Tienda"){
-                                $sqlCredito="UPDATE venta SET estado_venta='COMPLETO' WHERE idventa='$idventanew' ";
-                                ejecutarConsulta($sqlCredito);
-                            }else if($tipo_entrega == "Transporte"){
-                                $sqlCredito="UPDATE venta SET idtransporte='$idtransporte',estado_venta='ENPROCESO' WHERE idventa='$idventanew' ";
-                                ejecutarConsulta($sqlCredito);
-                            }else if($tipo_entrega == "Mensajero"){
-                                $sqlCredito="UPDATE venta SET idmensajero='$idmensajero',estado_venta='ENPROCESO' WHERE idventa='$idventanew' ";
-                                ejecutarConsulta($sqlCredito);
-                            }
+                ////TIPO ENTREGA
+                if ($tipo_entrega == "Tienda") {
+                    $sqlCredito = "UPDATE venta SET estado_venta='COMPLETO' WHERE idventa='$idventanew' ";
+                    ejecutarConsulta($sqlCredito);
+                } else if ($tipo_entrega == "Transporte") {
+                    $sqlCredito = "UPDATE venta SET idtransporte='$idtransporte',estado_venta='ENPROCESO' WHERE idventa='$idventanew' ";
+                    ejecutarConsulta($sqlCredito);
+                } else if ($tipo_entrega == "Mensajero") {
+                    $sqlCredito = "UPDATE venta SET idmensajero='$idmensajero',estado_venta='ENPROCESO' WHERE idventa='$idventanew' ";
+                    ejecutarConsulta($sqlCredito);
+                }
 
-                            if($forma_pago=="Credito" )
-                            {
-                                $sqlCredito="UPDATE venta SET saldo_venta='$ccredito' WHERE idventa='$idventanew' ";
-                                ejecutarConsulta($sqlCredito); 
-                            } 
+                if ($forma_pago == "Credito") {
+                    $sqlCredito = "UPDATE venta SET saldo_venta='$ccredito' WHERE idventa='$idventanew' ";
+                    ejecutarConsulta($sqlCredito);
+                }
 
-                            if($idcotizacion==""){
-                                $residcotizacion=0;
-                            } 
-                            else{
-                                $residcotizacion=$idcotizacion;
-                                $sqlcorrelativo="UPDATE cotizacion SET idventa='$idventanew', cobradosino='SI' WHERE idcotizacion ='$idcotizacion'";
-                                ejecutarConsulta($sqlcorrelativo);  
-                            }                                 
-                        ////FIN TIPO ENTREGA
+                if ($idcotizacion == "") {
+                    $residcotizacion = 0;
+                } else {
+                    $residcotizacion = $idcotizacion;
+                    $sqlcorrelativo = "UPDATE cotizacion SET idventa='$idventanew', cobradosino='SI' WHERE idcotizacion ='$idcotizacion'";
+                    ejecutarConsulta($sqlcorrelativo);
+                }
+                ////FIN TIPO ENTREGA
 
-                        ////DETALLE DE VENTA
-                                date_default_timezone_set("America/Guatemala");
-                                $nombreCliente = $Persona["nombre"]; // Suponiendo que este es tu nombre
+                ////DETALLE DE VENTA
+                date_default_timezone_set("America/Guatemala");
+                $nombreCliente = $Persona["nombre"]; // Suponiendo que este es tu nombre
 
-                                if ($tipo_comprobante=="Factura") 
-                                {
-                                    # code...
-                                    /*pqueño contribuyente
+                if ($tipo_comprobante == "Factura") {
+                    # code...
+                    /*pqueño contribuyente
                                     $tipoDocumento='FPEQ';
                                     $tipoDocumentoInt=3;*/
 
-                                    $tipoDocumento='FACT';
-                                    $tipoDocumentoInt=1;
+                    $tipoDocumento = 'FACT';
+                    $tipoDocumentoInt = 1;
+                } elseif ($tipo_comprobante == "Cambiaria") {
+                    # code...
+                    $tipoDocumento = 'FCAM';
+                    $tipoDocumentoInt = 2;
 
-
-                                }
-                                elseif ($tipo_comprobante=="Cambiaria") 
-                                {
-                                     # code...
-                                     $tipoDocumento='FCAM';
-                                     $tipoDocumentoInt=2;
-
-                                    /*pqueño contribuyente
+                    /*pqueño contribuyente
                                     $tipoDocumento='FCAP';
                                     $tipoDocumentoInt=4;*/
-                                }
+                }
 
 
-                                /*
+                /*
                                 4 es nit
                                 3 es pasaporte o extranjero
                                 2 es dpi
 
                                 tiporeceptor
                                 */
-                                if ($Persona["tipo_documento"]=="NIT") {
-                                    $res_tipoIdentificacion='4';
-                                }
-                                else if ($Persona["tipo_documento"]=="PASAPORTE") {
-                                    $res_tipoIdentificacion='3';
-                                }
-                                else if ($Persona["tipo_documento"]=="DPI") {
-                                    $res_tipoIdentificacion='2';
-                                }
-                                // Escapar las comillas dobles
-                                $nombreClienteEscapado = str_replace('"', '\"', $nombreCliente);
+                if ($Persona["tipo_documento"] == "NIT") {
+                    $res_tipoIdentificacion = '4';
+                } else if ($Persona["tipo_documento"] == "PASAPORTE") {
+                    $res_tipoIdentificacion = '3';
+                } else if ($Persona["tipo_documento"] == "DPI") {
+                    $res_tipoIdentificacion = '2';
+                }
+                // Escapar las comillas dobles
+                $nombreClienteEscapado = str_replace('"', '\"', $nombreCliente);
 
-                                $JsonIntegracionEcoFactura='{
+                $JsonIntegracionEcoFactura = '{
                                     "usuario":"' . _CLIENTE_ . '",
                                     "clave":"' . _PASS_ . '",   
                                     "nit":"' . _NIT_ . '",                                      
@@ -714,53 +711,52 @@ Class Venta
                                     "nombreCliente": "' . $nombreClienteEscapado . '",
                                     "direccionCliente": "' . $Persona["direccion"] . '",
                                     "correoCliente": "' . $Persona["email"] . '",
-                                    "NumeroAbonoFCAM":"'.$numero_pagos.'",
+                                    "NumeroAbonoFCAM":"' . $numero_pagos . '",
                                     "FechaVencimientoFCAM": "' . date("Ymd", strtotime($fecha_hora_vencimiento_factura)) . '",         
-                                    "MontoAbonosFCAM":  "'.$monto_abono.'",
+                                    "MontoAbonosFCAM":  "' . $monto_abono . '",
                                     "detallesDocumento":[{DetalleFactura}]                               
                                 }';
 
-                                $num_elementos=0;  
-                                $sw=true;
-                                $JsonDetalleFacturaIntegracion="";
+                $num_elementos = 0;
+                $sw = true;
+                $JsonDetalleFacturaIntegracion = "";
 
-                                if($idventanew)
-                                {
-                                    $articulos = $datosArticulos['articulos'];
-                                    $numArticulos = count($articulos['idarticulo']);
-                                    for ($i = 0; $i < $numArticulos; $i++){
-                                        $idarticulo = $articulos['idarticulo'][$i];
-                                        $precio_compra = $articulos['precio_compra'][$i];
-                                        $stockinven = $articulos['stockinven'][$i];
-                                        $cantidadpresentacion = $articulos['cantidadpresentacion'][$i];
-                                        $cantidad = $articulos['cantidad'][$i];
-                                        $totalcantidadpresentacion = $articulos['totalcantidadpresentacion'][$i];
-                                        $presentacion = $articulos['presentacion'][$i];
-                                        $presen = $articulos['presen'][$i];
-                                        $precio_ventaSistema = $articulos['precio_ventaSistema'][$i];
-                                        $precio_ventaSistema2 = $articulos['precio_ventaSistema2'][$i];
-                                        $q_ref = $articulos['q_ref'][$i];
-                                        $precio_venta = $articulos['precio_venta'][$i];
-                                        $precio_recargoPV = $articulos['precio_recargoPV'][$i];
-                                        $precio_recargoQRef = $articulos['precio_recargoQRef'][$i];
-                                        $descuento_permitido = $articulos['descuento_permitido'][$i];
-                                        $descuento_porcentaje = $articulos['descuento_porcentaje'][$i];
-                                        $descripcion_detalle = $articulos['descripcion_detalle'][$i];
-                                        $subtotal1 = $articulos['subtotal1'][$i];
-                                        $subtotaldes1 = $articulos['subtotaldes1'][$i];
+                if ($idventanew) {
+                    $articulos = $datosArticulos['articulos'];
+                    $numArticulos = count($articulos['idarticulo']);
+                    for ($i = 0; $i < $numArticulos; $i++) {
+                        $idarticulo = $articulos['idarticulo'][$i];
+                        $precio_compra = $articulos['precio_compra'][$i];
+                        $stockinven = $articulos['stockinven'][$i];
+                        $cantidadpresentacion = $articulos['cantidadpresentacion'][$i];
+                        $cantidad = $articulos['cantidad'][$i];
+                        $totalcantidadpresentacion = $articulos['totalcantidadpresentacion'][$i];
+                        $presentacion = $articulos['presentacion'][$i];
+                        $presen = $articulos['presen'][$i];
+                        $precio_ventaSistema = $articulos['precio_ventaSistema'][$i];
+                        $precio_ventaSistema2 = $articulos['precio_ventaSistema2'][$i];
+                        $q_ref = $articulos['q_ref'][$i];
+                        $precio_venta = $articulos['precio_venta'][$i];
+                        $precio_recargoPV = $articulos['precio_recargoPV'][$i];
+                        $precio_recargoQRef = $articulos['precio_recargoQRef'][$i];
+                        $descuento_permitido = $articulos['descuento_permitido'][$i];
+                        $descuento_porcentaje = $articulos['descuento_porcentaje'][$i];
+                        $descripcion_detalle = $articulos['descripcion_detalle'][$i];
+                        $subtotal1 = $articulos['subtotal1'][$i];
+                        $subtotaldes1 = $articulos['subtotaldes1'][$i];
 
-                                        $sqlPCcompra = "SELECT 
+                        $sqlPCcompra = "SELECT 
                                                             asu.precio_compra as pc_compra, 
                                                             asu.stocksucursal,
                                                             a.tipo_producto
                                                         FROM articuloxsucursal asu
                                                         inner join articulo a on a.idarticulo=asu.idarticulo
                                                         WHERE asu.idarticulo='$idarticulo'  and asu.idsucursal='" . $_SESSION["idsucursal"] . "' ";
-                                        $respc = ejecutarConsultaSimpleFila($sqlPCcompra);
-                                        $pc_compra = $respc["pc_compra"];
-                                        $tipoproducto = $respc["tipo_producto"];
+                        $respc = ejecutarConsultaSimpleFila($sqlPCcompra);
+                        $pc_compra = $respc["pc_compra"];
+                        $tipoproducto = $respc["tipo_producto"];
 
-                                        $sql_detalle = "INSERT INTO detalle_venta(idventa,idarticulo,cantidad,precio_venta,descuento,
+                        $sql_detalle = "INSERT INTO detalle_venta(idventa,idarticulo,cantidad,precio_venta,descuento,
                                         stockinven,subtotaldes1,precio_ventaSistema,precio_ventaSistema2,subtotal1,cantidadpresentacion,
                                         totalcantidadpresentacion,presen,precio_recargo,q_ref,precio_recargoPV,precio_recargoQRef,precio_compra) 
                                         VALUES ('$idventanew','$idarticulo','$cantidad','$precio_venta','$descuento_porcentaje',
@@ -768,105 +764,111 @@ Class Venta
                                         '$precio_ventaSistema2','$subtotal1','$cantidadpresentacion',
                                         '$totalcantidadpresentacion','$presen','0','$q_ref','$precio_recargoPV',
                                         '$precio_recargoQRef','$pc_compra')";
-                                        ejecutarConsulta($sql_detalle) or $sw = false;
+                        ejecutarConsulta($sql_detalle) or $sw = false;
 
-                                        $sqlArticulo="SELECT * FROM articulo WHERE idarticulo='$idarticulo'";
-                                        $Articulo= ejecutarConsultaSimpleFila($sqlArticulo);
+                        $sqlArticulo = "SELECT * FROM articulo WHERE idarticulo='$idarticulo'";
+                        $Articulo = ejecutarConsultaSimpleFila($sqlArticulo);
 
-                                        if ($tipoproducto=="Productos" ) {
-                                            # code...
-                                                $sqlArticuloStock="UPDATE articuloxsucursal SET stocksucursal = stocksucursal - ".$totalcantidadpresentacion." 
-                                                WHERE idarticulo =$idarticulo  and idsucursal='".$_SESSION["idsucursal"]."' ";
-                                                ejecutarConsulta($sqlArticuloStock);                    
-                                                
-                                                $stock_anterior_k = $respc["stocksucursal"];
-                                                $stock_final_k = $stock_anterior_k - $totalcantidadpresentacion;
+                        if ($tipoproducto == "Productos") {
+                            # code...
+                            $sqlArticuloStock = "UPDATE articuloxsucursal SET stocksucursal = stocksucursal - " . $totalcantidadpresentacion . " 
+                                                WHERE idarticulo =$idarticulo  and idsucursal='" . $_SESSION["idsucursal"] . "' ";
+                            ejecutarConsulta($sqlArticuloStock);
 
-                                                $sqlInsertKardex = "INSERT INTO kardex_movimientos 
+                            $stock_anterior_k = $respc["stocksucursal"];
+                            $stock_final_k = $stock_anterior_k - $totalcantidadpresentacion;
+
+                            $sqlInsertKardex = "INSERT INTO kardex_movimientos 
                                                 (idarticulo, idsucursal, fecha_hora, concepto, num_documento, cantidad_existente, cantidad_modificacion, 
                                                 tipo_modificacion, cantidad_final, precio, responsable)
                                                 VALUES 
-                                                ('$idarticulo', '".$_SESSION["idsucursal"]."', '$fechaHora', 'Salida por Venta', '$idventanew', 
+                                                ('$idarticulo', '" . $_SESSION["idsucursal"] . "', '$fechaHora', 'Salida por Venta', '$idventanew', 
                                                 '$stock_anterior_k', '$totalcantidadpresentacion', 'Salida', '$stock_final_k', 
                                                 '$precio_venta', '$nombreUser')";
-                                                ejecutarConsulta($sqlInsertKardex);
+                            ejecutarConsulta($sqlInsertKardex);
 
-                                                $sql_detalleoperaciones = "INSERT INTO operaciones_compras_ventas(idingreso,idventa,idtraladosucursal,idtraladosucursal_entrada,iddevolucion,cantidad_compras,cantidad_ventas,
+                            $sql_detalleoperaciones = "INSERT INTO operaciones_compras_ventas(idingreso,idventa,idtraladosucursal,idtraladosucursal_entrada,iddevolucion,cantidad_compras,cantidad_ventas,
                                                 cantidad_entrada,cantidad_devolucion,cantidad_salida,stock_inventario,fecha_horaCreacion,idarticulo,idusuario,
                                                 idsucursal) 
                                                 VALUES ('0',
                                                 '$idventanew','0','0','0','0','$totalcantidadpresentacion','0','0','0','$stock_anterior_k','$fechaHora',
                                                 '$idarticulo','$idusuario',
-                                                '".$_SESSION["idsucursal"]."')";
-                                                ejecutarConsulta($sql_detalleoperaciones);
-                                        } else {
-                                            # code...
+                                                '" . $_SESSION["idsucursal"] . "')";
+                            ejecutarConsulta($sql_detalleoperaciones);
+                        } else {
+                            # code...
 
-                                        } 
+                        }
 
-                                        //VALIDAR SI ES TOPPING O EXTRA
-                                            // 🔧 CORRECCIÓN PRINCIPAL:
-                                        // ==== INICIO CAMBIO EXTRAS/TOPPINGS (versión correcta: GLOBAL + FILTRO POR PADRE) ====
-                                        // Espera arreglos globales en $articulos: 
-                                        //   idarticuloExtra_extras[], tipo_item_extras[], cantidad_extra[], idproducto_extra[], (opcional) check_extras[]
-                                        if (isset($articulos['idarticuloExtra_extras']) && is_array($articulos['idarticuloExtra_extras'])) {
+                        //VALIDAR SI ES TOPPING O EXTRA
+                        // 🔧 CORRECCIÓN PRINCIPAL:
+                        // ==== INICIO CAMBIO EXTRAS/TOPPINGS (versión correcta: GLOBAL + FILTRO POR PADRE) ====
+                        // Espera arreglos globales en $articulos: 
+                        //   idarticuloExtra_extras[], tipo_item_extras[], cantidad_extra[], idproducto_extra[], (opcional) check_extras[]
+                        if (isset($articulos['idarticuloExtra_extras']) && is_array($articulos['idarticuloExtra_extras'])) {
 
-                                            $extras     = $articulos['idarticuloExtra_extras'];
-                                            $tipos      = isset($articulos['tipo_item_extras']) ? $articulos['tipo_item_extras'] : [];
-                                            $cantidades = isset($articulos['cantidad_extra'])   ? $articulos['cantidad_extra']   : [];
-                                            $productos  = isset($articulos['idproducto_extra']) ? $articulos['idproducto_extra'] : [];
-                                            $checks     = isset($articulos['check_extras'])     ? $articulos['check_extras']     : [];
+                            $extras     = $articulos['idarticuloExtra_extras'];
+                            $tipos      = isset($articulos['tipo_item_extras']) ? $articulos['tipo_item_extras'] : [];
+                            $cantidades = isset($articulos['cantidad_extra'])   ? $articulos['cantidad_extra']   : [];
+                            $productos  = isset($articulos['idproducto_extra']) ? $articulos['idproducto_extra'] : [];
+                            $checks     = isset($articulos['check_extras'])     ? $articulos['check_extras']     : [];
 
-                                            $n = count($extras);
-                                            for ($j = 0; $j < $n; $j++) {
-                                                // 1) Debe pertenecer al artículo padre actual
-                                                if (!isset($productos[$j]) || (int)$productos[$j] !== (int)$idarticulo) { continue; }
+                            $n = count($extras);
+                            for ($j = 0; $j < $n; $j++) {
+                                // 1) Debe pertenecer al artículo padre actual
+                                if (!isset($productos[$j]) || (int)$productos[$j] !== (int)$idarticulo) {
+                                    continue;
+                                }
 
-                                                // 2) Si hay checkbox y viene desmarcado, saltar
-                                                if (isset($checks[$j]) && !$checks[$j]) { continue; }
+                                // 2) Si hay checkbox y viene desmarcado, saltar
+                                if (isset($checks[$j]) && !$checks[$j]) {
+                                    continue;
+                                }
 
-                                                $tipo           = isset($tipos[$j]) ? $tipos[$j] : 'Topping';
-                                                $idextra        = (int)$extras[$j];
-                                                $cantidad_extra = isset($cantidades[$j]) ? (float)$cantidades[$j] : 0.0;
-                                                if ($idextra <= 0 || $cantidad_extra <= 0) { continue; }
+                                $tipo           = isset($tipos[$j]) ? $tipos[$j] : 'Topping';
+                                $idextra        = (int)$extras[$j];
+                                $cantidad_extra = isset($cantidades[$j]) ? (float)$cantidades[$j] : 0.0;
+                                if ($idextra <= 0 || $cantidad_extra <= 0) {
+                                    continue;
+                                }
 
-                                                // Cantidad real a descontar = cantidad_extra * total cantidad del artículo padre
-                                                $total_a_descontar = $cantidad_extra * (float)$totalcantidadpresentacion;
+                                // Cantidad real a descontar = cantidad_extra * total cantidad del artículo padre
+                                $total_a_descontar = $cantidad_extra * (float)$totalcantidadpresentacion;
 
-                                                $sqlArticuloK = "SELECT stocksucursal FROM articuloxsucursal WHERE idarticulo='$idextra' AND idsucursal='".$_SESSION["idsucursal"]."'";
-                                                $ArticuloK = ejecutarConsultaSimpleFila($sqlArticuloK);
-                                                $stock_anterior_k = $ArticuloK ? $ArticuloK["stocksucursal"] : 0;
-                                                $stock_final_k = $stock_anterior_k - $total_a_descontar;
+                                $sqlArticuloK = "SELECT stocksucursal FROM articuloxsucursal WHERE idarticulo='$idextra' AND idsucursal='" . $_SESSION["idsucursal"] . "'";
+                                $ArticuloK = ejecutarConsultaSimpleFila($sqlArticuloK);
+                                $stock_anterior_k = $ArticuloK ? $ArticuloK["stocksucursal"] : 0;
+                                $stock_final_k = $stock_anterior_k - $total_a_descontar;
 
-                                                // 3) Descontar stock del extra
-                                                $sqlArticuloStock = "UPDATE articuloxsucursal 
+                                // 3) Descontar stock del extra
+                                $sqlArticuloStock = "UPDATE articuloxsucursal 
                                                                     SET stocksucursal = $stock_final_k 
                                                                     WHERE idarticulo = '$idextra' 
                                                                     AND idsucursal  = '" . $_SESSION["idsucursal"] . "'";
-                                                ejecutarConsulta($sqlArticuloStock) or $sw = false;
+                                ejecutarConsulta($sqlArticuloStock) or $sw = false;
 
-                                                $conceptoExtra = ($tipo === 'Topping') ? 'Salida por Venta (Topping)' : 'Salida por Venta (Extra)';
-                                                $sqlInsertKardex = "INSERT INTO kardex_movimientos 
+                                $conceptoExtra = ($tipo === 'Topping') ? 'Salida por Venta (Topping)' : 'Salida por Venta (Extra)';
+                                $sqlInsertKardex = "INSERT INTO kardex_movimientos 
                                                 (idarticulo, idsucursal, fecha_hora, concepto, num_documento, cantidad_existente, cantidad_modificacion, 
                                                 tipo_modificacion, cantidad_final, precio, responsable)
                                                 VALUES 
-                                                ('$idextra', '".$_SESSION["idsucursal"]."', '$fechaHora', '$conceptoExtra', '$idventanew', 
+                                                ('$idextra', '" . $_SESSION["idsucursal"] . "', '$fechaHora', '$conceptoExtra', '$idventanew', 
                                                 '$stock_anterior_k', '$total_a_descontar', 'Salida', '$stock_final_k', 
                                                 '0', '$nombreUser')";
-                                                ejecutarConsulta($sqlInsertKardex);
+                                ejecutarConsulta($sqlInsertKardex);
 
-                                                $sql_detalleoperaciones = "INSERT INTO operaciones_compras_ventas(idingreso,idventa,idtraladosucursal,idtraladosucursal_entrada,iddevolucion,cantidad_compras,cantidad_ventas,
+                                $sql_detalleoperaciones = "INSERT INTO operaciones_compras_ventas(idingreso,idventa,idtraladosucursal,idtraladosucursal_entrada,iddevolucion,cantidad_compras,cantidad_ventas,
                                                 cantidad_entrada,cantidad_devolucion,cantidad_salida,stock_inventario,fecha_horaCreacion,idarticulo,idusuario,
                                                 idsucursal) 
                                                 VALUES ('0',
                                                 '$idventanew','0','0','0','0','$total_a_descontar','0','0','0','$stock_anterior_k','$fechaHora',
                                                 '$idextra','$idusuario',
-                                                '".$_SESSION["idsucursal"]."')";
-                                                ejecutarConsulta($sql_detalleoperaciones);
+                                                '" . $_SESSION["idsucursal"] . "')";
+                                ejecutarConsulta($sql_detalleoperaciones);
 
-                                                if ($tipo === 'Topping') {
-                                                    // 4a) Topping: línea de detalle sin precio
-                                                    $sql_topping = "INSERT INTO detalle_venta(
+                                if ($tipo === 'Topping') {
+                                    // 4a) Topping: línea de detalle sin precio
+                                    $sql_topping = "INSERT INTO detalle_venta(
                                                                         idventa, idarticulo, cantidad, precio_venta, descuento, stockinven, subtotaldes1,
                                                                         precio_ventaSistema, precio_ventaSistema2, subtotal1, cantidadpresentacion,
                                                                         totalcantidadpresentacion, presen, precio_recargo, q_ref, precio_recargoPV, 
@@ -876,23 +878,22 @@ Class Venta
                                                                         '0', '0', '0', '$total_a_descontar', '$total_a_descontar', 'UNIDAD', '0', '0',
                                                                         '0', '0', '0', 'Topping', '$idarticulo'
                                                                     )";
-                                                    ejecutarConsulta($sql_topping) or $sw = false;
-
-                                                } else { 
-                                                    // 4b) Extra: trae precio
-                                                    $sqlPrecio = "SELECT precio_unidad, stocksucursal, precio_compra
+                                    ejecutarConsulta($sql_topping) or $sw = false;
+                                } else {
+                                    // 4b) Extra: trae precio
+                                    $sqlPrecio = "SELECT precio_unidad, stocksucursal, precio_compra
                                                                 FROM articuloxsucursal 
                                                                 WHERE idarticulo = '$idextra' 
                                                                     AND idsucursal  = '" . $_SESSION["idsucursal"] . "' 
                                                                 LIMIT 1";
-                                                    $resPrecio = ejecutarConsultaSimpleFila($sqlPrecio) ?: [];
-                                                    $precio_venta_extra  = isset($resPrecio['precio_unidad']) ? (float)$resPrecio['precio_unidad'] : 0.0;
-                                                    $stocksucursal_extra = isset($resPrecio['stocksucursal'])  ? (float)$resPrecio['stocksucursal']  : 0.0;
-                                                    $precio_compra_extra = isset($resPrecio['precio_compra'])  ? (float)$resPrecio['precio_compra']  : 0.0;
+                                    $resPrecio = ejecutarConsultaSimpleFila($sqlPrecio) ?: [];
+                                    $precio_venta_extra  = isset($resPrecio['precio_unidad']) ? (float)$resPrecio['precio_unidad'] : 0.0;
+                                    $stocksucursal_extra = isset($resPrecio['stocksucursal'])  ? (float)$resPrecio['stocksucursal']  : 0.0;
+                                    $precio_compra_extra = isset($resPrecio['precio_compra'])  ? (float)$resPrecio['precio_compra']  : 0.0;
 
-                                                    $subtotaleExtra = $total_a_descontar * $precio_venta_extra;
+                                    $subtotaleExtra = $total_a_descontar * $precio_venta_extra;
 
-                                                    $sql_extra = "INSERT INTO detalle_venta(
+                                    $sql_extra = "INSERT INTO detalle_venta(
                                                                     idventa, idarticulo, cantidad, precio_venta, descuento, stockinven, subtotaldes1,
                                                                     precio_ventaSistema, precio_ventaSistema2, subtotal1, cantidadpresentacion,
                                                                     totalcantidadpresentacion, presen, precio_recargo, q_ref, precio_recargoPV, 
@@ -905,16 +906,16 @@ Class Venta
                                                                     'UNIDAD', '0', '$precio_venta_extra', '0', '0', '$precio_compra_extra',
                                                                     'Extra', '$idarticulo'
                                                                 )";
-                                                    ejecutarConsulta($sql_extra) or $sw = false;
-                                                }
-                                            }
-                                        }
-                                        // ==== FIN CAMBIO EXTRAS/TOPPINGS ====
-                                            // 🔧 FIN DE CORRECCIÓN
-                                        $resvalidarimpuesto='false'; 
+                                    ejecutarConsulta($sql_extra) or $sw = false;
+                                }
+                            }
+                        }
+                        // ==== FIN CAMBIO EXTRAS/TOPPINGS ====
+                        // 🔧 FIN DE CORRECCIÓN
+                        $resvalidarimpuesto = 'false';
 
-                                            if ($i == 0){
-                                                $JsonDetalleFacturaIntegracion.='{
+                        if ($i == 0) {
+                            $JsonDetalleFacturaIntegracion .= '{
                                                     "numeroLinea": "' . ($i + 1) . '",
                                                     "codigoArticulo": "' . $Articulo["codigo"] . '",
                                                     "nombreArticulo": "' . $Articulo["nombre"] . ' ' . $descripcion_detalle . '",
@@ -928,10 +929,10 @@ Class Venta
                                                     "impExento": "0",
                                                     "impOtros": "0",
                                                     "impTotal": "' . $q_ref . '",
-                                                    "isExcepto": '.$resvalidarimpuesto.'
+                                                    "isExcepto": ' . $resvalidarimpuesto . '
                                                 }';
-                                            }else{
-                                                $JsonDetalleFacturaIntegracion.=',{
+                        } else {
+                            $JsonDetalleFacturaIntegracion .= ',{
                                                     "numeroLinea": "' . ($i + 1) . '",
                                                     "codigoArticulo": "' . $Articulo["codigo"] . '",
                                                     "nombreArticulo": "' . $Articulo["nombre"] . ' ' . $descripcion_detalle . '",
@@ -945,46 +946,45 @@ Class Venta
                                                     "impExento": "0",
                                                     "impOtros": "0",
                                                     "impTotal": "' . $q_ref . '",
-                                                    "isExcepto": '.$resvalidarimpuesto.'                       
+                                                    "isExcepto": ' . $resvalidarimpuesto . '                       
                                                 }';
-                                            }
+                        }
 
- 
-                                            //valida el descuento de la materia prima
-                                        $sqlVerificacionExistencia="SELECT 
+
+                        //valida el descuento de la materia prima
+                        $sqlVerificacionExistencia = "SELECT 
                                         p.idproducto,
                                         dp.cantidad as cantmateriaprima,
                                         dp.idarticulo as idarticulo_costo
                                         FROM produccion p 
                                         INNER JOIN detalle_produccion dp ON p.idproduccion=dp.idproduccion
                                         WHERE p.idproducto='$idarticulo' and dp.tipo_item='Producto'";
-                                        $EXIS=ejecutarConsulta($sqlVerificacionExistencia);
+                        $EXIS = ejecutarConsulta($sqlVerificacionExistencia);
 
-                                        $numexis=0; 
+                        $numexis = 0;
 
-                                        while($reeeq=$EXIS->fetch_object())
-                                        {
-                                            $Tcan=$cantidad * $reeeq->cantmateriaprima;
+                        while ($reeeq = $EXIS->fetch_object()) {
+                            $Tcan = $cantidad * $reeeq->cantmateriaprima;
 
-                                            $sqlArticuloK = "SELECT stocksucursal FROM articuloxsucursal WHERE idarticulo='".$reeeq->idarticulo_costo."' AND idsucursal='".$_SESSION["idsucursal"]."'";
-                                            $ArticuloK = ejecutarConsultaSimpleFila($sqlArticuloK);
-                                            $stock_anterior_k = $ArticuloK ? $ArticuloK["stocksucursal"] : 0;
-                                            $stock_final_k = $stock_anterior_k - $Tcan;
+                            $sqlArticuloK = "SELECT stocksucursal FROM articuloxsucursal WHERE idarticulo='" . $reeeq->idarticulo_costo . "' AND idsucursal='" . $_SESSION["idsucursal"] . "'";
+                            $ArticuloK = ejecutarConsultaSimpleFila($sqlArticuloK);
+                            $stock_anterior_k = $ArticuloK ? $ArticuloK["stocksucursal"] : 0;
+                            $stock_final_k = $stock_anterior_k - $Tcan;
 
-                                            $updateArticuloDetalle="UPDATE articuloxsucursal SET stocksucursal=$stock_final_k
-                                            WHERE idarticulo='".$reeeq->idarticulo_costo."'   and idsucursal='".$_SESSION["idsucursal"]."' ";
-                                            ejecutarConsulta($updateArticuloDetalle); 
+                            $updateArticuloDetalle = "UPDATE articuloxsucursal SET stocksucursal=$stock_final_k
+                                            WHERE idarticulo='" . $reeeq->idarticulo_costo . "'   and idsucursal='" . $_SESSION["idsucursal"] . "' ";
+                            ejecutarConsulta($updateArticuloDetalle);
 
-                                            $sqlInsertKardex = "INSERT INTO kardex_movimientos 
+                            $sqlInsertKardex = "INSERT INTO kardex_movimientos 
                                             (idarticulo, idsucursal, fecha_hora, concepto, num_documento, cantidad_existente, cantidad_modificacion, 
                                             tipo_modificacion, cantidad_final, precio, responsable)
                                             VALUES 
-                                            ('".$reeeq->idarticulo_costo."', '".$_SESSION["idsucursal"]."', '$fechaHora', 'Salida por Venta (Materia Prima)', '$idventanew', 
+                                            ('" . $reeeq->idarticulo_costo . "', '" . $_SESSION["idsucursal"] . "', '$fechaHora', 'Salida por Venta (Materia Prima)', '$idventanew', 
                                             '$stock_anterior_k', '$Tcan', 'Salida', '$stock_final_k', 
                                             '0', '$nombreUser')";
-                                            ejecutarConsulta($sqlInsertKardex);
+                            ejecutarConsulta($sqlInsertKardex);
 
-                                            $sql_detalleoperaciones = "INSERT INTO operaciones_compras_ventas(
+                            $sql_detalleoperaciones = "INSERT INTO operaciones_compras_ventas(
                                                                             idingreso,idventa,idtraladosucursal,idtraladosucursal_entrada,iddevolucion,
                                                                             cantidad_compras,cantidad_ventas,cantidad_entrada,cantidad_devolucion,
                                                                             cantidad_salida,stock_inventario,fecha_horaCreacion,idarticulo,idusuario,idsucursal
@@ -992,82 +992,77 @@ Class Venta
                                                                             '0','$idventanew','0','0','0','0','$Tcan','0','0','0','$stock_anterior_k','$fechaHora',
                                                                             '" . $reeeq->idarticulo_costo . "','$idusuario','" . $_SESSION["idsucursal"] . "'
                                                                         )";
-                                            ejecutarConsulta($sql_detalleoperaciones);
+                            ejecutarConsulta($sql_detalleoperaciones);
 
-                                            $numexis++;
-                                        }
-                                        if($numexis==0){
-                                        }
-                                    }
-                                }
+                            $numexis++;
+                        }
+                        if ($numexis == 0) {
+                        }
+                    }
+                }
 
 
-                                $JsonIntegracionEcoFactura=str_replace("{DetalleFactura}", $JsonDetalleFacturaIntegracion, $JsonIntegracionEcoFactura);    
+                $JsonIntegracionEcoFactura = str_replace("{DetalleFactura}", $JsonDetalleFacturaIntegracion, $JsonIntegracionEcoFactura);
 
-                        ///FIN DE DETALLE VENTA
+                ///FIN DE DETALLE VENTA
             }
-
-        }     
-
+        }
 
 
 
-            //API URL
-            if ($tipo_comprobante == "Factura" || $tipo_comprobante == "Cambiaria") 
-            {
-                //URLS de Desarrollo
 
-                if (CERTIFICADOR == "GUATEFACTURAS") 
-                {
-                   /* if (PRUEBA_PRODUCCION == "PRUEBAS") {
+        //API URL
+        if ($tipo_comprobante == "Factura" || $tipo_comprobante == "Cambiaria") {
+            //URLS de Desarrollo
+
+            if (CERTIFICADOR == "GUATEFACTURAS") {
+                /* if (PRUEBA_PRODUCCION == "PRUEBAS") {
                         $url = 'http://daocastro-001-site8.itempurl.com/api/GuateFactura/generarDocumento'; //url de pruebas
                     } elseif (PRUEBA_PRODUCCION == "PRODUCCION") {
 
                       
                     }*/
-                    $url = 'http://api.fel.olintech.com/api/GuateFactura/generarDocumento'; //url de produccion
-               
-                    //////
-                    $resultado = $this->callAPI("POST", $url, $JsonIntegracionEcoFactura);
-                    $ArrayResultado = json_decode($resultado, true);
+                $url = 'http://api.fel.olintech.com/api/GuateFactura/generarDocumento'; //url de produccion
 
-                    /*print_r($JsonIntegracionEcoFactura);
+                //////
+                $resultado = $this->callAPI("POST", $url, $JsonIntegracionEcoFactura);
+                $ArrayResultado = json_decode($resultado, true);
+
+                /*print_r($JsonIntegracionEcoFactura);
                     print_r($resultado);
                     print_r($ArrayResultado);*/
 
 
-                    if (!isset($ArrayResultado['resultado']['serie'])) {
-                        $sqlUpdatenovalidado = "UPDATE venta SET tipo_comprobante='Envio' WHERE idventa='$idventanew'";
-                        ejecutarConsulta($sqlUpdatenovalidado);
-                        
-                        $sqlLgs = "INSERT INTO logs (idventa,idusuario,idsucursal,JsonIntegracionEcoFactura,resultado,ArrayResultado)
+                if (!isset($ArrayResultado['resultado']['serie'])) {
+                    $sqlUpdatenovalidado = "UPDATE venta SET tipo_comprobante='Envio' WHERE idventa='$idventanew'";
+                    ejecutarConsulta($sqlUpdatenovalidado);
+
+                    $sqlLgs = "INSERT INTO logs (idventa,idusuario,idsucursal,JsonIntegracionEcoFactura,resultado,ArrayResultado)
                             VALUES ('$idventanew','$idusuario','" . $_SESSION["idsucursal"] . "',
                             '$JsonIntegracionEcoFactura','$resultado','" . json_encode($ArrayResultado) . "')";
-                        ejecutarConsulta($sqlLgs); 
-                    } 
-                        // Si existe 'resultado' con la estructura esperada, es una certificación exitosa
-                    else 
-                   {
-                          
-                        $sqlUpdate = "UPDATE venta SET 
+                    ejecutarConsulta($sqlLgs);
+                }
+                // Si existe 'resultado' con la estructura esperada, es una certificación exitosa
+                else {
+
+                    $sqlUpdate = "UPDATE venta SET 
                                 autorizacionEcoFactura='" . $ArrayResultado["resultado"]["numeroAutorizacion"] . "',
                                 serie_ecoFactura='" . $ArrayResultado["resultado"]["serie"] . "',
                                 numero_ecoFactura='" . $ArrayResultado["resultado"]["preimpreso"] . "' WHERE idventa='$idventanew'";
-                        ejecutarConsulta($sqlUpdate);
-                    }
-
+                    ejecutarConsulta($sqlUpdate);
                 }
             }
-        
+        }
+
         //return $idventanew;  
-                             $sqlValidoVentas="SELECT * FROM venta WHERE  idventa='$idventanew'"; 
-                            $resvalidoventass= ejecutarConsultaSimpleFila($sqlValidoVentas);
-                            $restipo_comprobante=$resvalidoventass["tipo_comprobante"];    
+        $sqlValidoVentas = "SELECT * FROM venta WHERE  idventa='$idventanew'";
+        $resvalidoventass = ejecutarConsultaSimpleFila($sqlValidoVentas);
+        $restipo_comprobante = $resvalidoventass["tipo_comprobante"];
 
         //return $idventanew;  
 
         //INSERTAR EN EL DETALLE_CREDIT_VENTA
-        if($forma_pago == "Credito"){
+        if ($forma_pago == "Credito") {
             //aray de datos $detalles_credito
             foreach ($detalles_credito as $detalle) {
                 $cuota_no = $detalle['num_pago'];
@@ -1079,21 +1074,21 @@ Class Venta
                 ejecutarConsulta($detalle_credito_venta);
             }
         }
-        if($idtaller){
-            $sqlTaller="UPDATE ingreso_vehiculo SET idventa='$idventanew', facturado='1' WHERE idingreso_vehiculo ='$idtaller'";
+        if ($idtaller) {
+            $sqlTaller = "UPDATE ingreso_vehiculo SET idventa='$idventanew', facturado='1' WHERE idingreso_vehiculo ='$idtaller'";
             ejecutarConsulta($sqlTaller);
         }
         return [
             'idventanew' => $idventanew,
             'tipo_comprobante' => $restipo_comprobante
-        ]; 
-    } 
- 
+        ];
+    }
 
 
 
-    
-   /* function InsertDetalleCosto($idarticulo,$idventanew,$_cantidad,$_cantidad2,$idingreso,
+
+
+    /* function InsertDetalleCosto($idarticulo,$idventanew,$_cantidad,$_cantidad2,$idingreso,
     $Saldocosto,$idsucursal,$idusuario,$fecha_vencimiento)
     {
 
@@ -1117,13 +1112,42 @@ Class Venta
     //HASTA ACA LLEGA EL INSERTAR LA VENTA *********************************************************************/
 
     //Implementamos un método para insertar registros
-    public function guardaryeditarnc($idventa,$idcliente,$codigo_cliente,$nit,$nombre_cliente,$telefono_cliente,$direccion_cliente,$correo_cliente,$tipo_documento_cliente,$idusuario,$idcotizacion,$fecha_hora,
-    $forma_pago,$tipo_comprobante,$total_venta,$total_ventades,$cefectivo,$ccredito,$ctarjeta,$ctransferencia,$rescambio,$valor_tarjeta,$tipo_pagoBacVisaNet,$opcionesAdicionales,$observacion_credito,
-        $datosArticulos,$autorizacionEcoFactura_venta,$serie_comprobante_venta,$numero_ecoFactura_venta,$fecha_hora_nc,$motivo_nc)
-    { 
+    public function guardaryeditarnc(
+        $idventa,
+        $idcliente,
+        $codigo_cliente,
+        $nit,
+        $nombre_cliente,
+        $telefono_cliente,
+        $direccion_cliente,
+        $correo_cliente,
+        $tipo_documento_cliente,
+        $idusuario,
+        $idcotizacion,
+        $fecha_hora,
+        $forma_pago,
+        $tipo_comprobante,
+        $total_venta,
+        $total_ventades,
+        $cefectivo,
+        $ccredito,
+        $ctarjeta,
+        $ctransferencia,
+        $rescambio,
+        $valor_tarjeta,
+        $tipo_pagoBacVisaNet,
+        $opcionesAdicionales,
+        $observacion_credito,
+        $datosArticulos,
+        $autorizacionEcoFactura_venta,
+        $serie_comprobante_venta,
+        $numero_ecoFactura_venta,
+        $fecha_hora_nc,
+        $motivo_nc
+    ) {
 
         date_default_timezone_set('America/Guatemala');
-        $fechaHora = date('Y-m-d H:i:s'); 
+        $fechaHora = date('Y-m-d H:i:s');
 
         @session_start();
         $idusuario_session = $_SESSION["idusuario"];
@@ -1131,46 +1155,44 @@ Class Venta
         $resUser = ejecutarConsultaSimpleFila($sqlUsuarioK);
         $nombreUser = $resUser ? $resUser["nombre"] : 'Sistema';
         /////CAPTURA DE CLIENTE NUEVO Y UPDATE
-            if ($idcliente == '0') 
-            { 
-                $sqlcorrelativo = "UPDATE add_correlativo SET codigo_cliente=codigo_cliente+1 WHERE idsucursal='".$_SESSION["idsucursal"]."' ";
-                ejecutarConsulta($sqlcorrelativo); 
+        if ($idcliente == '0') {
+            $sqlcorrelativo = "UPDATE add_correlativo SET codigo_cliente=codigo_cliente+1 WHERE idsucursal='" . $_SESSION["idsucursal"] . "' ";
+            ejecutarConsulta($sqlcorrelativo);
 
-                $sqlCorre = "SELECT * FROM add_correlativo WHERE idsucursal='".$_SESSION["idsucursal"]."' ";
-                $correlativo = ejecutarConsultaSimpleFila($sqlCorre);
-                $corre = $correlativo["codigo_cliente"]; 
-                $codigo_cliente = 'COD' . $corre;
+            $sqlCorre = "SELECT * FROM add_correlativo WHERE idsucursal='" . $_SESSION["idsucursal"] . "' ";
+            $correlativo = ejecutarConsultaSimpleFila($sqlCorre);
+            $corre = $correlativo["codigo_cliente"];
+            $codigo_cliente = 'COD' . $corre;
 
-                $sqlcliente = "INSERT INTO persona (tipo_persona,nombre,tipo_documento,num_documento,direccion,telefono,email,tipo_cliente,codigo_cliente,fechaCreacion)
+            $sqlcliente = "INSERT INTO persona (tipo_persona,nombre,tipo_documento,num_documento,direccion,telefono,email,tipo_cliente,codigo_cliente,fechaCreacion)
                 VALUES ('Cliente','$nombre_cliente','$tipo_documento_cliente','$nit','$direccion_cliente','$telefono_cliente','$correo_cliente','PUBLICO','$codigo_cliente','$fechaHora')";
-                $residcliente = ejecutarConsulta_retornarID($sqlcliente); 
+            $residcliente = ejecutarConsulta_retornarID($sqlcliente);
 
-                if (!$residcliente) {
-                    throw new Exception("Error al insertar nuevo cliente.");
-                }
-            } else   
-            {
-                $sqlCorre = "SELECT * FROM persona WHERE idpersona='$idcliente'";
-                $correlativo = ejecutarConsultaSimpleFila($sqlCorre);
-                $corre = $correlativo["codigo_cliente"]; 
+            if (!$residcliente) {
+                throw new Exception("Error al insertar nuevo cliente.");
+            }
+        } else {
+            $sqlCorre = "SELECT * FROM persona WHERE idpersona='$idcliente'";
+            $correlativo = ejecutarConsultaSimpleFila($sqlCorre);
+            $corre = $correlativo["codigo_cliente"];
 
-                                   // Verificamos si $corre es '0', está vacío o es null
-                if (empty($corre) || $corre == '0') {
-                        // Si está vacío, null, o es '0', ejecutamos la lógica de actualización del código cliente
+            // Verificamos si $corre es '0', está vacío o es null
+            if (empty($corre) || $corre == '0') {
+                // Si está vacío, null, o es '0', ejecutamos la lógica de actualización del código cliente
 
-                    $sqlcorrelativo = "UPDATE add_correlativo SET codigo_cliente=codigo_cliente+1 WHERE idsucursal='".$_SESSION["idsucursal"]."' ";
-                    ejecutarConsulta($sqlcorrelativo); 
+                $sqlcorrelativo = "UPDATE add_correlativo SET codigo_cliente=codigo_cliente+1 WHERE idsucursal='" . $_SESSION["idsucursal"] . "' ";
+                ejecutarConsulta($sqlcorrelativo);
 
-                    $sqlCorrelativo = "SELECT * FROM add_correlativo WHERE idsucursal='".$_SESSION["idsucursal"]."' ";
-                    $correlativos = ejecutarConsultaSimpleFila($sqlCorrelativo);
-                    $corress = $correlativos["codigo_cliente"]; 
-                    $codigo_clientes = 'COD' . $corress;    
+                $sqlCorrelativo = "SELECT * FROM add_correlativo WHERE idsucursal='" . $_SESSION["idsucursal"] . "' ";
+                $correlativos = ejecutarConsultaSimpleFila($sqlCorrelativo);
+                $corress = $correlativos["codigo_cliente"];
+                $codigo_clientes = 'COD' . $corress;
 
-                    $sqlupdadtepersona = "UPDATE persona SET codigo_cliente='$codigo_clientes' WHERE idpersona='$idcliente'";
-                    ejecutarConsulta($sqlupdadtepersona);                         
-                }
+                $sqlupdadtepersona = "UPDATE persona SET codigo_cliente='$codigo_clientes' WHERE idpersona='$idcliente'";
+                ejecutarConsulta($sqlupdadtepersona);
+            }
 
-                $sqlcorrelativo = "UPDATE persona SET 
+            $sqlcorrelativo = "UPDATE persona SET 
                 direccion='$direccion_cliente',
                 telefono='$telefono_cliente',
                 email='$correo_cliente',
@@ -1178,84 +1200,69 @@ Class Venta
                 nombre='$nombre_cliente'
                 WHERE idpersona='$idcliente'";
 
-                ejecutarConsulta($sqlcorrelativo);  
-                $residcliente = $idcliente;
-            }  
+            ejecutarConsulta($sqlcorrelativo);
+            $residcliente = $idcliente;
+        }
         ///////   
 
 
         ////datos establecimiento y persona
-            $sqlPersona="SELECT * FROM persona WHERE idpersona='$residcliente'";
-            $Persona= ejecutarConsultaSimpleFila($sqlPersona);
-            #echo json_encode($Persona);
-            $nit="CF";
-            $tipoidentificador="1";
-            if($Persona["num_documento"]=="C/F")
-            {
-
+        $sqlPersona = "SELECT * FROM persona WHERE idpersona='$residcliente'";
+        $Persona = ejecutarConsultaSimpleFila($sqlPersona);
+        #echo json_encode($Persona);
+        $nit = "CF";
+        $tipoidentificador = "1";
+        if ($Persona["num_documento"] == "C/F") {
+        } else {
+            if ($Persona["tipo_documento"] == "NIT") {
+                $flagNit = str_replace("-", "", $Persona["num_documento"]);
+                if (strlen($flagNit) <= 15) {
+                    $nit = $Persona["num_documento"];
+                    $tipoidentificador = "1";
+                } else {
+                    $nit = "CF";
+                    $tipoidentificador = "1";
+                }
+            } elseif ($Persona["tipo_documento"] == "DPI") {
+                $nit = $Persona["num_documento"];
+                $tipoidentificador = "2";
+            } elseif ($Persona["tipo_documento"] == "PASAPORTE") {
+                $nit = $Persona["num_documento"];
+                $tipoidentificador = "3";
             }
-            else
-            {
-                if ($Persona["tipo_documento"]=="NIT") 
-                {
-                    $flagNit=str_replace("-", "", $Persona["num_documento"]);
-                    if(strlen($flagNit)<= 15)
-                    {
-                        $nit=$Persona["num_documento"];
-                        $tipoidentificador="1";
-                    }
-                    else
-                    {
-                        $nit="CF";
-                        $tipoidentificador="1";
-         
-                    }                
-                }
-                elseif($Persona["tipo_documento"]=="DPI")
-                {
-                    $nit=$Persona["num_documento"]; 
-                    $tipoidentificador="2";
-                }
-                elseif($Persona["tipo_documento"]=="PASAPORTE")
-                {
-                    $nit=$Persona["num_documento"];
-                    $tipoidentificador="3";
-                }
-
-            }
+        }
 
         ////fin datos establecimiento y persona        
 
 
-        if($tipo_comprobante=="Envio" )
-        {
+        if ($tipo_comprobante == "Envio") {
 
-            $sqlcorrelativo="UPDATE add_correlativo SET num_nc=num_nc+1 WHERE idsucursal='".$_SESSION["idsucursal"]."' ";
-            ejecutarConsulta($sqlcorrelativo); 
+            $sqlcorrelativo = "UPDATE add_correlativo SET num_nc=num_nc+1 WHERE idsucursal='" . $_SESSION["idsucursal"] . "' ";
+            ejecutarConsulta($sqlcorrelativo);
 
-            $sqlCorre="SELECT * FROM add_correlativo WHERE idsucursal='".$_SESSION["idsucursal"]."'";
-            $correlativo= ejecutarConsultaSimpleFila($sqlCorre);
-            $corre=$correlativo["num_nc"];        
+            $sqlCorre = "SELECT * FROM add_correlativo WHERE idsucursal='" . $_SESSION["idsucursal"] . "'";
+            $correlativo = ejecutarConsultaSimpleFila($sqlCorre);
+            $corre = $correlativo["num_nc"];
 
-            $sql="INSERT INTO nota_credito (idcliente,idusuario,idsucursal,tipo_comprobante,num_comprobante,fecha_hora,total_venta,estado,cefectivo,rescambio,forma_pago,total_ventades,
+            $sql = "INSERT INTO nota_credito (idcliente,idusuario,idsucursal,tipo_comprobante,num_comprobante,fecha_hora,total_venta,estado,cefectivo,rescambio,forma_pago,total_ventades,
             tipo_pagoBacVisaNet,opcionesAdicionales,valor_tarjeta,ccredito,observacion_credito,ctarjeta,ctransferencia,fecha_creacion,autorizacionEcoFactura_venta,serie_comprobante_venta,numero_ecoFactura_venta,fecha_hora_nc,motivo_nc,idventa)
-            VALUES ('$residcliente','$idusuario','".$_SESSION["idsucursal"]."','$tipo_comprobante','$corre','$fecha_hora','$total_venta','Aceptado','$cefectivo','$rescambio','$forma_pago','$total_ventades',
+            VALUES ('$residcliente','$idusuario','" . $_SESSION["idsucursal"] . "','$tipo_comprobante','$corre','$fecha_hora','$total_venta','Aceptado','$cefectivo','$rescambio','$forma_pago','$total_ventades',
             '$tipo_pagoBacVisaNet','$opcionesAdicionales','$valor_tarjeta','$ccredito','$observacion_credito','$ctarjeta','$ctransferencia','$fechaHora','$autorizacionEcoFactura_venta','$serie_comprobante_venta','$numero_ecoFactura_venta','$fecha_hora_nc','$motivo_nc','$idventa')";
-            $idventanew=ejecutarConsulta_retornarID($sql);  
- 
-           $sqlnc="UPDATE venta SET idnota_credito='$idventanew',notacredito='SI' WHERE idventa='$idventa' ";
-            ejecutarConsulta($sqlnc); 
+            $idventanew = ejecutarConsulta_retornarID($sql);
+
+            $sqlnc = "UPDATE venta SET idnota_credito='$idventanew',notacredito='SI' WHERE idventa='$idventa' ";
+            ejecutarConsulta($sqlnc);
 
 
-            $num_elementos=0; 
-            $sw=true;   
+            $num_elementos = 0;
+            $sw = true;
 
 
 
-            if($idventanew){
+            if ($idventanew) {
                 $articulos = $datosArticulos['articulos'];
                 $numArticulos = count($articulos['idarticulo']);
-                for ($i = 0; $i < $numArticulos; $i++){
+                for ($i = 0; $i < $numArticulos; $i++) {
                     $idarticulo = $articulos['idarticulo'][$i];
                     $descripcion_detalle = $articulos['descripcion_detalle'][$i];
                     $stockinven = $articulos['stockinven'][$i];
@@ -1274,16 +1281,16 @@ Class Venta
                     $subtotal1 = $articulos['subtotal1'][$i];
                     $subtotaldes1 = $articulos['subtotaldes1'][$i];
 
-                    $sqlPCcompra="SELECT 
+                    $sqlPCcompra = "SELECT 
                                     asu.precio_compra as pc_compra, 
                                     asu.stocksucursal,
                                     a.tipo_producto
                                 FROM articuloxsucursal asu
                                 inner join articulo a on a.idarticulo=asu.idarticulo
-                                WHERE asu.idarticulo='$idarticulo'  and asu.idsucursal='".$_SESSION["idsucursal"]."' ";
-                    $respc= ejecutarConsultaSimpleFila($sqlPCcompra); 
-                    $pc_compra=$respc["pc_compra"];
-                    $tipoproducto=$respc["tipo_producto"];                
+                                WHERE asu.idarticulo='$idarticulo'  and asu.idsucursal='" . $_SESSION["idsucursal"] . "' ";
+                    $respc = ejecutarConsultaSimpleFila($sqlPCcompra);
+                    $pc_compra = $respc["pc_compra"];
+                    $tipoproducto = $respc["tipo_producto"];
 
 
                     $sql_detalle = "INSERT INTO detalle_nota_credito(idnota_credito,
@@ -1305,128 +1312,123 @@ Class Venta
                     '$precio_recargoQRef')";
                     ejecutarConsulta($sql_detalle) or $sw = false;
 
-                    if ($tipoproducto=="Productos" ) {
-                            $stock_anterior_k = $respc["stocksucursal"];
-                            $stock_final_k = $stock_anterior_k + $totalcantidadpresentacion;
+                    if ($tipoproducto == "Productos") {
+                        $stock_anterior_k = $respc["stocksucursal"];
+                        $stock_final_k = $stock_anterior_k + $totalcantidadpresentacion;
 
-                            $sqlArticuloStock="UPDATE articuloxsucursal SET stocksucursal = $stock_final_k 
-                            WHERE idarticulo =$idarticulo  and idsucursal='".$_SESSION["idsucursal"]."' ";
-                            ejecutarConsulta($sqlArticuloStock);                    
-                            
-                            $sqlInsertKardex = "INSERT INTO kardex_movimientos 
+                        $sqlArticuloStock = "UPDATE articuloxsucursal SET stocksucursal = $stock_final_k 
+                            WHERE idarticulo =$idarticulo  and idsucursal='" . $_SESSION["idsucursal"] . "' ";
+                        ejecutarConsulta($sqlArticuloStock);
+
+                        $sqlInsertKardex = "INSERT INTO kardex_movimientos 
                             (idarticulo, idsucursal, fecha_hora, concepto, num_documento, cantidad_existente, cantidad_modificacion, 
                             tipo_modificacion, cantidad_final, precio, responsable)
                             VALUES 
-                            ('$idarticulo', '".$_SESSION["idsucursal"]."', '$fechaHora', 'Ingreso por Nota de Crédito (Devolución)', '$idventanew', 
+                            ('$idarticulo', '" . $_SESSION["idsucursal"] . "', '$fechaHora', 'Ingreso por Nota de Crédito (Devolución)', '$idventanew', 
                             '$stock_anterior_k', '$totalcantidadpresentacion', 'Ingreso', '$stock_final_k', 
                             '$pc_compra', '$nombreUser')";
-                            ejecutarConsulta($sqlInsertKardex);
-                    }else{
-                            $stock_anterior_k = $respc["stocksucursal"];
+                        ejecutarConsulta($sqlInsertKardex);
+                    } else {
+                        $stock_anterior_k = $respc["stocksucursal"];
                     }
 
 
                     //INICIO
-                        $sql_detalleoperaciones = "INSERT INTO operaciones_compras_ventas(idingreso,idventa,idtraladosucursal,idtraladosucursal_entrada,iddevolucion,cantidad_compras,cantidad_ventas,
+                    $sql_detalleoperaciones = "INSERT INTO operaciones_compras_ventas(idingreso,idventa,idtraladosucursal,idtraladosucursal_entrada,iddevolucion,cantidad_compras,cantidad_ventas,
                         cantidad_entrada,cantidad_devolucion,cantidad_salida,stock_inventario,fecha_horaCreacion,idarticulo,idusuario,idsucursal) 
                         VALUES ('0','0','0','0','$idventanew','0','0','0','$totalcantidadpresentacion','0','$stock_anterior_k','$fechaHora','$idarticulo',
                         '$idusuario',
-                        '".$_SESSION["idsucursal"]."')";
-                        ejecutarConsulta($sql_detalleoperaciones);  
+                        '" . $_SESSION["idsucursal"] . "')";
+                    ejecutarConsulta($sql_detalleoperaciones);
                     ////FIN 
 
                     //valida el descuento de la materia prima
-                                    $sqlVerificacionExistencia="SELECT 
+                    $sqlVerificacionExistencia = "SELECT 
                                     p.idproducto,
                                     dp.cantidad as cantmateriaprima,
                                     dp.idarticulo as idarticulo_costo
                                     FROM produccion p 
                                     INNER JOIN detalle_produccion dp ON p.idproduccion=dp.idproduccion
                                     WHERE p.idproducto='$idarticulo' ";
-                                    $EXIS=ejecutarConsulta($sqlVerificacionExistencia);
+                    $EXIS = ejecutarConsulta($sqlVerificacionExistencia);
 
-                                    $numexis=0; 
+                    $numexis = 0;
 
-                                    while($reeeq=$EXIS->fetch_object())
-                                    {
-                                        $Tcan=$cantidad * $reeeq->cantmateriaprima;
+                    while ($reeeq = $EXIS->fetch_object()) {
+                        $Tcan = $cantidad * $reeeq->cantmateriaprima;
 
-                                        $sqlArticuloK = "SELECT stocksucursal FROM articuloxsucursal WHERE idarticulo='".$reeeq->idarticulo_costo."' AND idsucursal='".$_SESSION["idsucursal"]."'";
-                                        $ArticuloK = ejecutarConsultaSimpleFila($sqlArticuloK);
-                                        $stock_anterior_materia = $ArticuloK ? $ArticuloK["stocksucursal"] : 0;
-                                        $stock_final_materia = $stock_anterior_materia + $Tcan;
+                        $sqlArticuloK = "SELECT stocksucursal FROM articuloxsucursal WHERE idarticulo='" . $reeeq->idarticulo_costo . "' AND idsucursal='" . $_SESSION["idsucursal"] . "'";
+                        $ArticuloK = ejecutarConsultaSimpleFila($sqlArticuloK);
+                        $stock_anterior_materia = $ArticuloK ? $ArticuloK["stocksucursal"] : 0;
+                        $stock_final_materia = $stock_anterior_materia + $Tcan;
 
-                                        $updateArticuloDetalle="UPDATE articuloxsucursal SET stocksucursal=$stock_final_materia
-                                        WHERE idarticulo='".$reeeq->idarticulo_costo."'   and idsucursal='".$_SESSION["idsucursal"]."' ";
-                                        ejecutarConsulta($updateArticuloDetalle);
+                        $updateArticuloDetalle = "UPDATE articuloxsucursal SET stocksucursal=$stock_final_materia
+                                        WHERE idarticulo='" . $reeeq->idarticulo_costo . "'   and idsucursal='" . $_SESSION["idsucursal"] . "' ";
+                        ejecutarConsulta($updateArticuloDetalle);
 
-                                        $sqlInsertKardex = "INSERT INTO kardex_movimientos 
+                        $sqlInsertKardex = "INSERT INTO kardex_movimientos 
                                         (idarticulo, idsucursal, fecha_hora, concepto, num_documento, cantidad_existente, cantidad_modificacion, 
                                         tipo_modificacion, cantidad_final, precio, responsable)
                                         VALUES 
-                                        ('".$reeeq->idarticulo_costo."', '".$_SESSION["idsucursal"]."', '$fechaHora', 'Ingreso por Nota de Crédito (Materia Prima)', '$idventanew', 
+                                        ('" . $reeeq->idarticulo_costo . "', '" . $_SESSION["idsucursal"] . "', '$fechaHora', 'Ingreso por Nota de Crédito (Materia Prima)', '$idventanew', 
                                         '$stock_anterior_materia', '$Tcan', 'Ingreso', '$stock_final_materia', 
                                         '0', '$nombreUser')";
-                                        ejecutarConsulta($sqlInsertKardex);
+                        ejecutarConsulta($sqlInsertKardex);
 
-                                        $sql_detalleoperaciones = "INSERT INTO operaciones_compras_ventas(idingreso,idventa,idtraladosucursal,idtraladosucursal_entrada,iddevolucion,cantidad_compras,cantidad_ventas,cantidad_entrada,cantidad_devolucion,cantidad_salida,stock_inventario,fecha_horaCreacion,idarticulo,idusuario,idsucursal) 
-                                            VALUES ('0','0','0','0','$idventanew','0','0','0','$Tcan','0','$stock_anterior_materia','$fechaHora','".$reeeq->idarticulo_costo."','$idusuario','".$_SESSION["idsucursal"]."')";
-                                            ejecutarConsulta($sql_detalleoperaciones);      
+                        $sql_detalleoperaciones = "INSERT INTO operaciones_compras_ventas(idingreso,idventa,idtraladosucursal,idtraladosucursal_entrada,iddevolucion,cantidad_compras,cantidad_ventas,cantidad_entrada,cantidad_devolucion,cantidad_salida,stock_inventario,fecha_horaCreacion,idarticulo,idusuario,idsucursal) 
+                                            VALUES ('0','0','0','0','$idventanew','0','0','0','$Tcan','0','$stock_anterior_materia','$fechaHora','" . $reeeq->idarticulo_costo . "','$idusuario','" . $_SESSION["idsucursal"] . "')";
+                        ejecutarConsulta($sql_detalleoperaciones);
 
-                                        $numexis++;
-                                    }
-                                    if($numexis==0){
-                                    }
+                        $numexis++;
+                    }
+                    if ($numexis == 0) {
+                    }
                 }
             }
+        } else {
+            if (CERTIFICADOR == "GUATEFACTURAS") {
+                ////GUARDAR NC
+                $sqlcorrelativo = "UPDATE add_correlativo SET num_nc=num_nc+1 WHERE idsucursal='" . $_SESSION["idsucursal"] . "' ";
+                ejecutarConsulta($sqlcorrelativo);
 
-        }
-        else
-        {
-            if (CERTIFICADOR=="GUATEFACTURAS") 
-            {
-                        ////GUARDAR NC
-                            $sqlcorrelativo="UPDATE add_correlativo SET num_nc=num_nc+1 WHERE idsucursal='".$_SESSION["idsucursal"]."' ";
-                            ejecutarConsulta($sqlcorrelativo); 
+                $sqlCorre = "SELECT * FROM add_correlativo WHERE idsucursal='" . $_SESSION["idsucursal"] . "'";
+                $correlativo = ejecutarConsultaSimpleFila($sqlCorre);
+                $corre = $correlativo["num_nc"];
 
-                            $sqlCorre="SELECT * FROM add_correlativo WHERE idsucursal='".$_SESSION["idsucursal"]."'";
-                            $correlativo= ejecutarConsultaSimpleFila($sqlCorre);
-                            $corre=$correlativo["num_nc"];        
-
-                            $sql="INSERT INTO nota_credito (idcliente,idusuario,idsucursal,tipo_comprobante,num_comprobante,
+                $sql = "INSERT INTO nota_credito (idcliente,idusuario,idsucursal,tipo_comprobante,num_comprobante,
                             fecha_hora,total_venta,estado,cefectivo,rescambio,forma_pago,total_ventades,
                             tipo_pagoBacVisaNet,opcionesAdicionales,valor_tarjeta,ccredito,observacion_credito,ctarjeta,
                             ctransferencia,fecha_creacion,autorizacionEcoFactura_venta,serie_comprobante_venta,numero_ecoFactura_venta,
                             fecha_hora_nc,motivo_nc,idventa)
-                            VALUES ('$residcliente','$idusuario','".$_SESSION["idsucursal"]."','$tipo_comprobante','$corre',
+                            VALUES ('$residcliente','$idusuario','" . $_SESSION["idsucursal"] . "','$tipo_comprobante','$corre',
                             '$fecha_hora','$total_venta','Aceptado','$cefectivo','$rescambio','$forma_pago','$total_ventades',
                             '$tipo_pagoBacVisaNet','$opcionesAdicionales','$valor_tarjeta','$ccredito','$observacion_credito',
                             '$ctarjeta','$ctransferencia','$fechaHora','$autorizacionEcoFactura_venta','$serie_comprobante_venta','$numero_ecoFactura_venta',
                             '$fecha_hora_nc','$motivo_nc','$idventa')";
-                            $idventanew=ejecutarConsulta_retornarID($sql);  
-                 
-                           $sqlnc="UPDATE venta SET idnota_credito='$idventanew',notacredito='SI' WHERE idventa='$idventa' ";
-                            ejecutarConsulta($sqlnc); 
-                                
-                        ////FIN GUARDAR NC
+                $idventanew = ejecutarConsulta_retornarID($sql);
 
-                        //buscamos los datos de sat para enviar a nota de credito
-                                 $sqlDatosVentasat="SELECT v2.*,date(v2.fechaCertificacion_ecoFactura) as fechaCertificacion_ecoFactur FROM venta v2 WHERE v2.idventa='$idventa'";
-                                $numdatosSat= ejecutarConsultaSimpleFila($sqlDatosVentasat);
-                                $resautorizacionEcoFactura=$numdatosSat["autorizacionEcoFactura"]; 
-                                $resserie_ecoFactura=$numdatosSat["serie_ecoFactura"]; 
-                                $resnumero_ecoFactura=$numdatosSat["numero_ecoFactura"]; 
-                                $resfechaCertificacion_ecoFactura=$numdatosSat["fechaCertificacion_ecoFactur"];    
-                        //FIN buscamos los datos de sat para enviar a nota de credito
+                $sqlnc = "UPDATE venta SET idnota_credito='$idventanew',notacredito='SI' WHERE idventa='$idventa' ";
+                ejecutarConsulta($sqlnc);
 
-                        ////DETALLE DE VENTA
-                                date_default_timezone_set("America/Guatemala");
-                                $nombreCliente = $Persona["nombre"]; // Suponiendo que este es tu nombre
+                ////FIN GUARDAR NC
 
-                                // Escapar las comillas dobles
-                                $nombreClienteEscapado = str_replace('"', '\"', $nombreCliente);
-                                    $tipoidentificadorNC="10";
-                                $JsonIntegracionEcoFactura='{
+                //buscamos los datos de sat para enviar a nota de credito
+                $sqlDatosVentasat = "SELECT v2.*,date(v2.fechaCertificacion_ecoFactura) as fechaCertificacion_ecoFactur FROM venta v2 WHERE v2.idventa='$idventa'";
+                $numdatosSat = ejecutarConsultaSimpleFila($sqlDatosVentasat);
+                $resautorizacionEcoFactura = $numdatosSat["autorizacionEcoFactura"];
+                $resserie_ecoFactura = $numdatosSat["serie_ecoFactura"];
+                $resnumero_ecoFactura = $numdatosSat["numero_ecoFactura"];
+                $resfechaCertificacion_ecoFactura = $numdatosSat["fechaCertificacion_ecoFactur"];
+                //FIN buscamos los datos de sat para enviar a nota de credito
+
+                ////DETALLE DE VENTA
+                date_default_timezone_set("America/Guatemala");
+                $nombreCliente = $Persona["nombre"]; // Suponiendo que este es tu nombre
+
+                // Escapar las comillas dobles
+                $nombreClienteEscapado = str_replace('"', '\"', $nombreCliente);
+                $tipoidentificadorNC = "10";
+                $JsonIntegracionEcoFactura = '{
                                         "tipoDocumento": "NCRE",
                                         "usuario":"' . _CLIENTE_ . '",
                                         "clave":"' . _PASS_ . '",   
@@ -1450,87 +1452,85 @@ Class Venta
                                         "nombreCliente": "' . $nombreClienteEscapado . '",
                                         "direccionCliente": "' . $Persona["direccion"] . '",
                                         "correoCliente": "' . $Persona["email"] . '",
-                                        "DASerieNC":"'.$resserie_ecoFactura.'",
-                                        "DAPreimpresoNC":"'.$resnumero_ecoFactura.'",
+                                        "DASerieNC":"' . $resserie_ecoFactura . '",
+                                        "DAPreimpresoNC":"' . $resnumero_ecoFactura . '",
                                     "detallesDocumento":[{DetalleFactura}]                      
                                 }';
 
-                                $num_elementos=0;  
-                                $sw=true;
-                                $JsonDetalleFacturaIntegracion="";
+                $num_elementos = 0;
+                $sw = true;
+                $JsonDetalleFacturaIntegracion = "";
 
-                                if($idventanew){
-                                    $articulos = $datosArticulos['articulos'];
-                                    $numArticulos = count($articulos['idarticulo']);
-                                    for ($i = 0; $i < $numArticulos; $i++){
-                                        $idarticulo = $articulos['idarticulo'][$i];
-                                        $descripcion_detalle = $articulos['descripcion_detalle'][$i];
-                                        $stockinven = $articulos['stockinven'][$i];
-                                        $cantidadpresentacion = $articulos['cantidadpresentacion'][$i];
-                                        $cantidad = $articulos['cantidad'][$i];
-                                        $totalcantidadpresentacion = $articulos['totalcantidadpresentacion'][$i];
-                                        $presentacion = $articulos['presentacion'][$i];
-                                        $presen = $articulos['presen'][$i];
-                                        $precio_ventaSistema = $articulos['precio_ventaSistema'][$i];
-                                        $precio_ventaSistema2 = $articulos['precio_ventaSistema2'][$i];
-                                        $q_ref = $articulos['q_ref'][$i];
-                                        $precio_venta = $articulos['precio_venta'][$i];
-                                        $precio_recargoPV = $articulos['precio_recargoPV'][$i];
-                                        $precio_recargoQRef = $articulos['precio_recargoQRef'][$i];
-                                        $descuento_porcentaje = $articulos['descuento_porcentaje'][$i];
-                                        $subtotal1 = $articulos['subtotal1'][$i];
-                                        $subtotaldes1 = $articulos['subtotaldes1'][$i];
+                if ($idventanew) {
+                    $articulos = $datosArticulos['articulos'];
+                    $numArticulos = count($articulos['idarticulo']);
+                    for ($i = 0; $i < $numArticulos; $i++) {
+                        $idarticulo = $articulos['idarticulo'][$i];
+                        $descripcion_detalle = $articulos['descripcion_detalle'][$i];
+                        $stockinven = $articulos['stockinven'][$i];
+                        $cantidadpresentacion = $articulos['cantidadpresentacion'][$i];
+                        $cantidad = $articulos['cantidad'][$i];
+                        $totalcantidadpresentacion = $articulos['totalcantidadpresentacion'][$i];
+                        $presentacion = $articulos['presentacion'][$i];
+                        $presen = $articulos['presen'][$i];
+                        $precio_ventaSistema = $articulos['precio_ventaSistema'][$i];
+                        $precio_ventaSistema2 = $articulos['precio_ventaSistema2'][$i];
+                        $q_ref = $articulos['q_ref'][$i];
+                        $precio_venta = $articulos['precio_venta'][$i];
+                        $precio_recargoPV = $articulos['precio_recargoPV'][$i];
+                        $precio_recargoQRef = $articulos['precio_recargoQRef'][$i];
+                        $descuento_porcentaje = $articulos['descuento_porcentaje'][$i];
+                        $subtotal1 = $articulos['subtotal1'][$i];
+                        $subtotaldes1 = $articulos['subtotaldes1'][$i];
 
-                                        $sqlPCcompra="SELECT 
+                        $sqlPCcompra = "SELECT 
                                                     asu.precio_compra as pc_compra, 
                                                     asu.stocksucursal,
                                                     a.tipo_producto
                                                 FROM articuloxsucursal asu
                                                 inner join articulo a on a.idarticulo=asu.idarticulo
-                                                WHERE asu.idarticulo='$idarticulo'  and asu.idsucursal='".$_SESSION["idsucursal"]."' ";
-                                            $respc= ejecutarConsultaSimpleFila($sqlPCcompra); 
-                                            $pc_compra=$respc["pc_compra"];
-                                            $tipoproducto=$respc["tipo_producto"];  
+                                                WHERE asu.idarticulo='$idarticulo'  and asu.idsucursal='" . $_SESSION["idsucursal"] . "' ";
+                        $respc = ejecutarConsultaSimpleFila($sqlPCcompra);
+                        $pc_compra = $respc["pc_compra"];
+                        $tipoproducto = $respc["tipo_producto"];
 
-                                        $sql_detalle = "INSERT INTO detalle_nota_credito(idnota_credito,idarticulo,cantidad,precio_venta,descuento,
+                        $sql_detalle = "INSERT INTO detalle_nota_credito(idnota_credito,idarticulo,cantidad,precio_venta,descuento,
                                         stockinven,subtotaldes1,precio_ventaSistema,precio_ventaSistema2,subtotal1,cantidadpresentacion,totalcantidadpresentacion,
                                         presen,precio_recargo,q_ref,precio_recargoPV,precio_recargoQRef) 
                                             VALUES ('$idventanew','$idarticulo','$cantidad','$precio_venta','$descuento_porcentaje','$stockinven','$subtotaldes1','$precio_ventaSistema',
                                             '$precio_ventaSistema2','$subtotal1','$cantidadpresentacion','$totalcantidadpresentacion','$presen','0',
                                             '$q_ref','$precio_recargoPV','$precio_recargoQRef')";
-                                            ejecutarConsulta($sql_detalle) or $sw = false;
+                        ejecutarConsulta($sql_detalle) or $sw = false;
 
-                                            $sqlArticulo="SELECT * FROM articulo WHERE idarticulo='$idarticulo'";
-                                            $Articulo= ejecutarConsultaSimpleFila($sqlArticulo);
+                        $sqlArticulo = "SELECT * FROM articulo WHERE idarticulo='$idarticulo'";
+                        $Articulo = ejecutarConsultaSimpleFila($sqlArticulo);
 
-                                            if ($tipoproducto=="Productos" ) 
-                                            {
-                                                $stock_anterior_k = $respc["stocksucursal"];
-                                                $stock_final_k = $stock_anterior_k + $totalcantidadpresentacion;
+                        if ($tipoproducto == "Productos") {
+                            $stock_anterior_k = $respc["stocksucursal"];
+                            $stock_final_k = $stock_anterior_k + $totalcantidadpresentacion;
 
-                                                $sqlArticuloStock="UPDATE articuloxsucursal SET stocksucursal = $stock_final_k 
-                                                WHERE idarticulo =$idarticulo  and idsucursal='".$_SESSION["idsucursal"]."' ";
-                                                ejecutarConsulta($sqlArticuloStock);
+                            $sqlArticuloStock = "UPDATE articuloxsucursal SET stocksucursal = $stock_final_k 
+                                                WHERE idarticulo =$idarticulo  and idsucursal='" . $_SESSION["idsucursal"] . "' ";
+                            ejecutarConsulta($sqlArticuloStock);
 
-                                                $sqlInsertKardex = "INSERT INTO kardex_movimientos 
+                            $sqlInsertKardex = "INSERT INTO kardex_movimientos 
                                                 (idarticulo, idsucursal, fecha_hora, concepto, num_documento, cantidad_existente, cantidad_modificacion, 
                                                 tipo_modificacion, cantidad_final, precio, responsable)
                                                 VALUES 
-                                                ('$idarticulo', '".$_SESSION["idsucursal"]."', '$fechaHora', 'Ingreso por Nota de Crédito (Devolución)', '$idventanew', 
+                                                ('$idarticulo', '" . $_SESSION["idsucursal"] . "', '$fechaHora', 'Ingreso por Nota de Crédito (Devolución)', '$idventanew', 
                                                 '$stock_anterior_k', '$totalcantidadpresentacion', 'Ingreso', '$stock_final_k', 
                                                 '$pc_compra', '$nombreUser')";
-                                                ejecutarConsulta($sqlInsertKardex);
-                                            }else
-                                            {
-                                                $stock_anterior_k = $respc["stocksucursal"];
-                                            }
+                            ejecutarConsulta($sqlInsertKardex);
+                        } else {
+                            $stock_anterior_k = $respc["stocksucursal"];
+                        }
 
 
-                                            $resvalidarimpuesto='true'; 
+                        $resvalidarimpuesto = 'true';
 
-                                                if ($i == 0){
-                                                    $JsonDetalleFacturaIntegracion.='{
-                                                    "numeroLinea": "'.($i+1).'",
+                        if ($i == 0) {
+                            $JsonDetalleFacturaIntegracion .= '{
+                                                    "numeroLinea": "' . ($i + 1) . '",
                                                     "codigoArticulo": "' . $Articulo["codigo"] . '",
                                                     "nombreArticulo": "' . $Articulo["nombre"] . ' ' . $descripcion_detalle . '",
                                                     "cantidadArticulo": "' . $cantidad . '",
@@ -1543,11 +1543,11 @@ Class Venta
                                                     "impExento": "0",
                                                     "impOtros": "0",
                                                     "impTotal": "' . $q_ref . '",
-                                                    "isExcepto": '.$resvalidarimpuesto.'
+                                                    "isExcepto": ' . $resvalidarimpuesto . '
                                                     }';
-                                                }else{
-                                                    $JsonDetalleFacturaIntegracion.=',{
-                                                    "numeroLinea": "'.($i+1).'",
+                        } else {
+                            $JsonDetalleFacturaIntegracion .= ',{
+                                                    "numeroLinea": "' . ($i + 1) . '",
                                                     "codigoArticulo": "' . $Articulo["codigo"] . '",
                                                     "nombreArticulo": "' . $Articulo["nombre"] . ' ' . $descripcion_detalle . '",
                                                     "cantidadArticulo": "' . $cantidad . '",
@@ -1560,125 +1560,118 @@ Class Venta
                                                     "impExento": "0",
                                                     "impOtros": "0",
                                                     "impTotal": "' . $q_ref . '" ,
-                                                    "isExcepto": '.$resvalidarimpuesto.'                          
+                                                    "isExcepto": ' . $resvalidarimpuesto . '                          
                                                     }';
-                                                }
+                        }
 
-                                                //INICIO
-                                                    $sql_detalleoperaciones = "INSERT INTO operaciones_compras_ventas(idingreso,idventa,idtraladosucursal,idtraladosucursal_entrada,iddevolucion,cantidad_compras,cantidad_ventas,cantidad_entrada,cantidad_devolucion,cantidad_salida,stock_inventario,fecha_horaCreacion,idarticulo,idusuario,idsucursal) 
+                        //INICIO
+                        $sql_detalleoperaciones = "INSERT INTO operaciones_compras_ventas(idingreso,idventa,idtraladosucursal,idtraladosucursal_entrada,iddevolucion,cantidad_compras,cantidad_ventas,cantidad_entrada,cantidad_devolucion,cantidad_salida,stock_inventario,fecha_horaCreacion,idarticulo,idusuario,idsucursal) 
                                                     VALUES ('0','0','0','0','$idventanew','0','0','0','$totalcantidadpresentacion','0','$stock_anterior_k','$fechaHora','$idarticulo','$idusuario',
-                                                    '".$_SESSION["idsucursal"]."')";
-                                                    ejecutarConsulta($sql_detalleoperaciones);  
-                                                ////FIN   
-                                                //valida el descuento de la materia prima
+                                                    '" . $_SESSION["idsucursal"] . "')";
+                        ejecutarConsulta($sql_detalleoperaciones);
+                        ////FIN   
+                        //valida el descuento de la materia prima
 
 
-                                            $sqlVerificacionExistencia="SELECT 
+                        $sqlVerificacionExistencia = "SELECT 
                                             p.idproducto,
                                             dp.cantidad as cantmateriaprima,
                                             dp.idarticulo as idarticulo_costo
                                             FROM produccion p 
                                             INNER JOIN detalle_produccion dp ON p.idproduccion=dp.idproduccion
                                             WHERE p.idproducto='$idarticulo' ";
-                                            $EXIS=ejecutarConsulta($sqlVerificacionExistencia);
+                        $EXIS = ejecutarConsulta($sqlVerificacionExistencia);
 
-                                            $numexis=0; 
+                        $numexis = 0;
 
-                                            while($reeeq=$EXIS->fetch_object())
-                                            {
-                                                $Tcan=$cantidad * $reeeq->cantmateriaprima;
+                        while ($reeeq = $EXIS->fetch_object()) {
+                            $Tcan = $cantidad * $reeeq->cantmateriaprima;
 
-                                                $sqlArticuloK = "SELECT stocksucursal FROM articuloxsucursal WHERE idarticulo='".$reeeq->idarticulo_costo."' AND idsucursal='".$_SESSION["idsucursal"]."'";
-                                                $ArticuloK = ejecutarConsultaSimpleFila($sqlArticuloK);
-                                                $stock_anterior_materia = $ArticuloK ? $ArticuloK["stocksucursal"] : 0;
-                                                $stock_final_materia = $stock_anterior_materia + $Tcan;
+                            $sqlArticuloK = "SELECT stocksucursal FROM articuloxsucursal WHERE idarticulo='" . $reeeq->idarticulo_costo . "' AND idsucursal='" . $_SESSION["idsucursal"] . "'";
+                            $ArticuloK = ejecutarConsultaSimpleFila($sqlArticuloK);
+                            $stock_anterior_materia = $ArticuloK ? $ArticuloK["stocksucursal"] : 0;
+                            $stock_final_materia = $stock_anterior_materia + $Tcan;
 
-                                                $updateArticuloDetalle="UPDATE articuloxsucursal SET stocksucursal=$stock_final_materia
-                                                WHERE idarticulo='".$reeeq->idarticulo_costo."'   and idsucursal='".$_SESSION["idsucursal"]."' ";
-                                                ejecutarConsulta($updateArticuloDetalle);
+                            $updateArticuloDetalle = "UPDATE articuloxsucursal SET stocksucursal=$stock_final_materia
+                                                WHERE idarticulo='" . $reeeq->idarticulo_costo . "'   and idsucursal='" . $_SESSION["idsucursal"] . "' ";
+                            ejecutarConsulta($updateArticuloDetalle);
 
-                                                $sqlInsertKardex = "INSERT INTO kardex_movimientos 
+                            $sqlInsertKardex = "INSERT INTO kardex_movimientos 
                                                 (idarticulo, idsucursal, fecha_hora, concepto, num_documento, cantidad_existente, cantidad_modificacion, 
                                                 tipo_modificacion, cantidad_final, precio, responsable)
                                                 VALUES 
-                                                ('".$reeeq->idarticulo_costo."', '".$_SESSION["idsucursal"]."', '$fechaHora', 'Ingreso por Nota de Crédito (Materia Prima)', '$idventanew', 
+                                                ('" . $reeeq->idarticulo_costo . "', '" . $_SESSION["idsucursal"] . "', '$fechaHora', 'Ingreso por Nota de Crédito (Materia Prima)', '$idventanew', 
                                                 '$stock_anterior_materia', '$Tcan', 'Ingreso', '$stock_final_materia', 
                                                 '0', '$nombreUser')";
-                                                ejecutarConsulta($sqlInsertKardex);
+                            ejecutarConsulta($sqlInsertKardex);
 
-                                                $sql_detalleoperaciones = "INSERT INTO operaciones_compras_ventas(idingreso,idventa,idtraladosucursal,idtraladosucursal_entrada,iddevolucion,cantidad_compras,cantidad_ventas,cantidad_entrada,cantidad_devolucion,cantidad_salida,stock_inventario,fecha_horaCreacion,idarticulo,idusuario,idsucursal) 
-                                                    VALUES ('0','0','0','0','$idventanew','0','0','0','$Tcan','0','$stock_anterior_materia','$fechaHora','".$reeeq->idarticulo_costo."','$idusuario','".$_SESSION["idsucursal"]."')";
-                                                    ejecutarConsulta($sql_detalleoperaciones);      
+                            $sql_detalleoperaciones = "INSERT INTO operaciones_compras_ventas(idingreso,idventa,idtraladosucursal,idtraladosucursal_entrada,iddevolucion,cantidad_compras,cantidad_ventas,cantidad_entrada,cantidad_devolucion,cantidad_salida,stock_inventario,fecha_horaCreacion,idarticulo,idusuario,idsucursal) 
+                                                    VALUES ('0','0','0','0','$idventanew','0','0','0','$Tcan','0','$stock_anterior_materia','$fechaHora','" . $reeeq->idarticulo_costo . "','$idusuario','" . $_SESSION["idsucursal"] . "')";
+                            ejecutarConsulta($sql_detalleoperaciones);
 
-                                                $numexis++;
-                                            }
-                                            if($numexis==0){
-                                            }
-                                    }
-                                }
-
-
-                                $JsonIntegracionEcoFactura=str_replace("{DetalleFactura}", $JsonDetalleFacturaIntegracion, $JsonIntegracionEcoFactura);    
-
-                        ///FIN DE DETALLE VENTA
-            }
-               
-           
-        }     
-
-
-
-            //API URL
-            if ($tipo_comprobante == "Factura" || $tipo_comprobante == "Cambiaria") 
-            {
-                //URLS de Desarrollo
-
-                if (CERTIFICADOR == "GUATEFACTURAS") 
-                {
-                    if (PRUEBA_PRODUCCION == "PRUEBAS") {
-                        $url = 'http://daocastro-001-site8.itempurl.com/api/GuateFactura/generarDocumento'; //url de pruebas
-                    } elseif (PRUEBA_PRODUCCION == "PRODUCCION") {
-
-                        $url = 'http://api.fel.olintech.com/api/GuateFactura/generarDocumento'; //url de produccion
+                            $numexis++;
+                        }
+                        if ($numexis == 0) {
+                        }
                     }
+                }
 
-               
-                    //////
-                    $resultado = $this->callAPI("POST", $url, $JsonIntegracionEcoFactura);
-                    $ArrayResultado = json_decode($resultado, true);
 
-                   /* print_r($JsonIntegracionEcoFactura);
+                $JsonIntegracionEcoFactura = str_replace("{DetalleFactura}", $JsonDetalleFacturaIntegracion, $JsonIntegracionEcoFactura);
+
+                ///FIN DE DETALLE VENTA
+            }
+        }
+
+
+
+        //API URL
+        if ($tipo_comprobante == "Factura" || $tipo_comprobante == "Cambiaria") {
+            //URLS de Desarrollo
+
+            if (CERTIFICADOR == "GUATEFACTURAS") {
+                if (PRUEBA_PRODUCCION == "PRUEBAS") {
+                    $url = 'http://daocastro-001-site8.itempurl.com/api/GuateFactura/generarDocumento'; //url de pruebas
+                } elseif (PRUEBA_PRODUCCION == "PRODUCCION") {
+
+                    $url = 'http://api.fel.olintech.com/api/GuateFactura/generarDocumento'; //url de produccion
+                }
+
+
+                //////
+                $resultado = $this->callAPI("POST", $url, $JsonIntegracionEcoFactura);
+                $ArrayResultado = json_decode($resultado, true);
+
+                /* print_r($JsonIntegracionEcoFactura);
                     print_r($resultado);
                     print_r($ArrayResultado);*/
 
 
-                    if (!isset($ArrayResultado['resultado']['serie'])) {
-                        $sqlUpdatenovalidado = "UPDATE nota_credito SET tipo_comprobante='Envio' WHERE idnota_credito='$idventanew'";
-                        ejecutarConsulta($sqlUpdatenovalidado);
-                        
-                        $sqlLgs = "INSERT INTO logs (idventa,idnota_credito,idusuario,idsucursal,JsonIntegracionEcoFactura,resultado,ArrayResultado)
+                if (!isset($ArrayResultado['resultado']['serie'])) {
+                    $sqlUpdatenovalidado = "UPDATE nota_credito SET tipo_comprobante='Envio' WHERE idnota_credito='$idventanew'";
+                    ejecutarConsulta($sqlUpdatenovalidado);
+
+                    $sqlLgs = "INSERT INTO logs (idventa,idnota_credito,idusuario,idsucursal,JsonIntegracionEcoFactura,resultado,ArrayResultado)
                             VALUES ('$idventa','$idventanew','$idusuario','" . $_SESSION["idsucursal"] . "',
                             '$JsonIntegracionEcoFactura','$resultado','" . json_encode($ArrayResultado) . "')";
-                        ejecutarConsulta($sqlLgs); 
-                    } 
-                        // Si existe 'resultado' con la estructura esperada, es una certificación exitosa
-                    else 
-                   {
-                          
-                        $sqlUpdate = "UPDATE nota_credito SET 
+                    ejecutarConsulta($sqlLgs);
+                }
+                // Si existe 'resultado' con la estructura esperada, es una certificación exitosa
+                else {
+
+                    $sqlUpdate = "UPDATE nota_credito SET 
                                                     autorizacionEcoFactura='" . $ArrayResultado["resultado"]["numeroAutorizacion"] . "',
                                 serie_ecoFactura='" . $ArrayResultado["resultado"]["serie"] . "',
                                 numero_ecoFactura='" . $ArrayResultado["resultado"]["preimpreso"] . "' WHERE idnota_credito='$idventanew'";
-                        ejecutarConsulta($sqlUpdate);
-                    }
-
+                    ejecutarConsulta($sqlUpdate);
                 }
             }
-        
+        }
+
         //return $idventanew;  
-                             $sqlValidoVentas="SELECT * FROM nota_credito WHERE  idnota_credito='$idventanew'"; 
-                            $resvalidoventass= ejecutarConsultaSimpleFila($sqlValidoVentas);
-                            $restipo_comprobante=$resvalidoventass["tipo_comprobante"];    
+        $sqlValidoVentas = "SELECT * FROM nota_credito WHERE  idnota_credito='$idventanew'";
+        $resvalidoventass = ejecutarConsultaSimpleFila($sqlValidoVentas);
+        $restipo_comprobante = $resvalidoventass["tipo_comprobante"];
 
         //return $idventanew;  
 
@@ -1686,74 +1679,99 @@ Class Venta
         return [
             'idventanew' => $idventanew,
             'tipo_comprobante' => $restipo_comprobante
-        ]; 
-    } 
+        ];
+    }
 
 
 
 
     //Implementamos un método para insertar registros
-    public function insertarCobro($idcliente,$codigo_cliente,$nit,$nombre_cliente,$telefono_cliente,$direccion_cliente,$correo_cliente,$tipo_documento_cliente,$idusuario,$idcotizacion,$fecha_hora,$forma_pago,$tipo_comprobante,$total_venta,$total_ventades,$cefectivo,$ccredito,$ctarjeta,$ctransferencia,$rescambio,$valor_tarjeta,$tipo_pagoBacVisaNet,$opcionesAdicionales,$observacion_credito,
-                $idarticulo,
-                $stockinven,
-                $cantidadpresentacion,
-                $cantidad,
-                $totalcantidadpresentacion,
-                $presen,
-                $precio_ventaSistema,
-                $precio_ventaSistema2,
-                $q_ref,
-                $precio_venta,
-                $precio_recargoPV,
-                $precio_recargoQRef,
-                $descuento_porcentaje,
-                $subtotal1,
-                $subtotaldes1,$id_add_orden,$propina,$descripcion_detalle)
-    { 
+    public function insertarCobro(
+        $idcliente,
+        $codigo_cliente,
+        $nit,
+        $nombre_cliente,
+        $telefono_cliente,
+        $direccion_cliente,
+        $correo_cliente,
+        $tipo_documento_cliente,
+        $idusuario,
+        $idcotizacion,
+        $fecha_hora,
+        $forma_pago,
+        $tipo_comprobante,
+        $total_venta,
+        $total_ventades,
+        $cefectivo,
+        $ccredito,
+        $ctarjeta,
+        $ctransferencia,
+        $rescambio,
+        $valor_tarjeta,
+        $tipo_pagoBacVisaNet,
+        $opcionesAdicionales,
+        $observacion_credito,
+        $idarticulo,
+        $stockinven,
+        $cantidadpresentacion,
+        $cantidad,
+        $totalcantidadpresentacion,
+        $presen,
+        $precio_ventaSistema,
+        $precio_ventaSistema2,
+        $q_ref,
+        $precio_venta,
+        $precio_recargoPV,
+        $precio_recargoQRef,
+        $descuento_porcentaje,
+        $subtotal1,
+        $subtotaldes1,
+        $id_add_orden,
+        $propina,
+        $descripcion_detalle
+    ) {
 
         date_default_timezone_set('America/Guatemala');
-        $fechaHora = date('Y-m-d H:i:s'); 
+        $fechaHora = date('Y-m-d H:i:s');
         /////CAPTURA DE CLIENTE NUEVO Y UPDATE
-            if ($idcliente == '0') 
-            { 
-                $sqlcorrelativo = "UPDATE add_correlativo SET codigo_cliente=codigo_cliente+1 WHERE idsucursal='".$_SESSION["idsucursal"]."' ";
-                ejecutarConsulta($sqlcorrelativo); 
+        if ($idcliente == '0') {
+            $sqlcorrelativo = "UPDATE add_correlativo SET codigo_cliente=codigo_cliente+1 WHERE idsucursal='" . $_SESSION["idsucursal"] . "' ";
+            ejecutarConsulta($sqlcorrelativo);
 
-                $sqlCorre = "SELECT * FROM add_correlativo WHERE idsucursal='".$_SESSION["idsucursal"]."' ";
-                $correlativo = ejecutarConsultaSimpleFila($sqlCorre);
-                $corre = $correlativo["codigo_cliente"]; 
-                $codigo_cliente = 'COD' . $corre;
+            $sqlCorre = "SELECT * FROM add_correlativo WHERE idsucursal='" . $_SESSION["idsucursal"] . "' ";
+            $correlativo = ejecutarConsultaSimpleFila($sqlCorre);
+            $corre = $correlativo["codigo_cliente"];
+            $codigo_cliente = 'COD' . $corre;
 
-                $sqlcliente = "INSERT INTO persona (tipo_persona,nombre,tipo_documento,num_documento,direccion,telefono,email,tipo_cliente,codigo_cliente,fechaCreacion)
+            $sqlcliente = "INSERT INTO persona (tipo_persona,nombre,tipo_documento,num_documento,direccion,telefono,email,tipo_cliente,codigo_cliente,fechaCreacion)
                 VALUES ('Cliente','$nombre_cliente','$tipo_documento_cliente','$nit','$direccion_cliente','$telefono_cliente','$correo_cliente','PUBLICO','$codigo_cliente','$fechaHora')";
-                $residcliente = ejecutarConsulta_retornarID($sqlcliente); 
+            $residcliente = ejecutarConsulta_retornarID($sqlcliente);
 
-                if (!$residcliente) {
-                    throw new Exception("Error al insertar nuevo cliente.");
-                }
-            } else   
-            {
-                $sqlCorre = "SELECT * FROM persona WHERE idpersona='$idcliente'";
-                $correlativo = ejecutarConsultaSimpleFila($sqlCorre);
-                $corre = $correlativo["codigo_cliente"]; 
+            if (!$residcliente) {
+                throw new Exception("Error al insertar nuevo cliente.");
+            }
+        } else {
+            $sqlCorre = "SELECT * FROM persona WHERE idpersona='$idcliente'";
+            $correlativo = ejecutarConsultaSimpleFila($sqlCorre);
+            $corre = $correlativo["codigo_cliente"];
 
-                                   // Verificamos si $corre es '0', está vacío o es null
-                if (empty($corre) || $corre == '0') {
-                        // Si está vacío, null, o es '0', ejecutamos la lógica de actualización del código cliente
+            // Verificamos si $corre es '0', está vacío o es null
+            if (empty($corre) || $corre == '0') {
+                // Si está vacío, null, o es '0', ejecutamos la lógica de actualización del código cliente
 
-                    $sqlcorrelativo = "UPDATE add_correlativo SET codigo_cliente=codigo_cliente+1 WHERE idsucursal='".$_SESSION["idsucursal"]."' ";
-                    ejecutarConsulta($sqlcorrelativo); 
+                $sqlcorrelativo = "UPDATE add_correlativo SET codigo_cliente=codigo_cliente+1 WHERE idsucursal='" . $_SESSION["idsucursal"] . "' ";
+                ejecutarConsulta($sqlcorrelativo);
 
-                    $sqlCorrelativo = "SELECT * FROM add_correlativo WHERE idsucursal='".$_SESSION["idsucursal"]."' ";
-                    $correlativos = ejecutarConsultaSimpleFila($sqlCorrelativo);
-                    $corress = $correlativos["codigo_cliente"]; 
-                    $codigo_clientes = 'COD' . $corress;    
+                $sqlCorrelativo = "SELECT * FROM add_correlativo WHERE idsucursal='" . $_SESSION["idsucursal"] . "' ";
+                $correlativos = ejecutarConsultaSimpleFila($sqlCorrelativo);
+                $corress = $correlativos["codigo_cliente"];
+                $codigo_clientes = 'COD' . $corress;
 
-                    $sqlupdadtepersona = "UPDATE persona SET codigo_cliente='$codigo_clientes' WHERE idpersona='$idcliente'";
-                    ejecutarConsulta($sqlupdadtepersona);                         
+                $sqlupdadtepersona = "UPDATE persona SET codigo_cliente='$codigo_clientes' WHERE idpersona='$idcliente'";
+                ejecutarConsulta($sqlupdadtepersona);
             }
 
-                $sqlcorrelativo = "UPDATE persona SET 
+            $sqlcorrelativo = "UPDATE persona SET 
                 direccion='$direccion_cliente',
                 telefono='$telefono_cliente',
                 email='$correo_cliente',
@@ -1761,117 +1779,98 @@ Class Venta
                 nombre='$nombre_cliente'
                 WHERE idpersona='$idcliente'";
 
-                ejecutarConsulta($sqlcorrelativo);  
-                $residcliente = $idcliente;
-            }  
+            ejecutarConsulta($sqlcorrelativo);
+            $residcliente = $idcliente;
+        }
         ///////   
 
         ////datos establecimiento y persona
-            $sqlPersona="SELECT * FROM persona WHERE idpersona='$residcliente'";
-            $Persona= ejecutarConsultaSimpleFila($sqlPersona);
-            #echo json_encode($Persona);
-            $nit="CF";
-            $tipoidentificador="1";
-            if($Persona["num_documento"]=="C/F")
-            {
-
+        $sqlPersona = "SELECT * FROM persona WHERE idpersona='$residcliente'";
+        $Persona = ejecutarConsultaSimpleFila($sqlPersona);
+        #echo json_encode($Persona);
+        $nit = "CF";
+        $tipoidentificador = "1";
+        if ($Persona["num_documento"] == "C/F") {
+        } else {
+            if ($Persona["tipo_documento"] == "NIT") {
+                $flagNit = str_replace("-", "", $Persona["num_documento"]);
+                if (strlen($flagNit) <= 15) {
+                    $nit = $Persona["num_documento"];
+                    $tipoidentificador = "1";
+                } else {
+                    $nit = "CF";
+                    $tipoidentificador = "1";
+                }
+            } elseif ($Persona["tipo_documento"] == "DPI") {
+                $nit = $Persona["num_documento"];
+                $tipoidentificador = "2";
+            } elseif ($Persona["tipo_documento"] == "PASAPORTE") {
+                $nit = $Persona["num_documento"];
+                $tipoidentificador = "3";
             }
-            else
-            {
-                if ($Persona["tipo_documento"]=="NIT") 
-                {
-                    $flagNit=str_replace("-", "", $Persona["num_documento"]);
-                    if(strlen($flagNit)<= 15)
-                    {
-                        $nit=$Persona["num_documento"];
-                        $tipoidentificador="1";
-                    }
-                    else
-                    {
-                        $nit="CF";
-                        $tipoidentificador="1";
-         
-                    }                
-                }
-                elseif($Persona["tipo_documento"]=="DPI")
-                {
-                    $nit=$Persona["num_documento"]; 
-                    $tipoidentificador="2";
-                }
-                elseif($Persona["tipo_documento"]=="PASAPORTE")
-                {
-                    $nit=$Persona["num_documento"];
-                    $tipoidentificador="3";
-                }
-
-            }
+        }
 
         ////fin datos establecimiento y persona        
 
-        if($tipo_comprobante=="Envio" )
-        {
+        if ($tipo_comprobante == "Envio") {
             ///GURADO ENVIO
-                $sqlcorrelativo="UPDATE add_correlativo SET num_envio=num_envio+1 WHERE idsucursal='".$_SESSION["idsucursal"]."' ";
-                ejecutarConsulta($sqlcorrelativo); 
+            $sqlcorrelativo = "UPDATE add_correlativo SET num_envio=num_envio+1 WHERE idsucursal='" . $_SESSION["idsucursal"] . "' ";
+            ejecutarConsulta($sqlcorrelativo);
 
-                $sqlCorre="SELECT * FROM add_correlativo WHERE idsucursal='".$_SESSION["idsucursal"]."'";
-                $correlativo= ejecutarConsultaSimpleFila($sqlCorre);
-                $corre=$correlativo["num_envio"];        
+            $sqlCorre = "SELECT * FROM add_correlativo WHERE idsucursal='" . $_SESSION["idsucursal"] . "'";
+            $correlativo = ejecutarConsultaSimpleFila($sqlCorre);
+            $corre = $correlativo["num_envio"];
 
-                $sql="INSERT INTO venta (idcliente,idusuario,idsucursal,tipo_comprobante,num_comprobante,fecha_hora,total_venta,estado,cefectivo,rescambio,forma_pago,total_ventades,
+            $sql = "INSERT INTO venta (idcliente,idusuario,idsucursal,tipo_comprobante,num_comprobante,fecha_hora,total_venta,estado,cefectivo,rescambio,forma_pago,total_ventades,
                 tipo_pagoBacVisaNet,opcionesAdicionales,valor_tarjeta,ccredito,observacion_credito,ctarjeta,ctransferencia,fecha_creacion,propina,estado_venta)
-                VALUES ('$residcliente','$idusuario','".$_SESSION["idsucursal"]."','$tipo_comprobante','$corre','$fecha_hora','$total_venta','Aceptado','$cefectivo','$rescambio','$forma_pago','$total_ventades',
-                '$tipo_pagoBacVisaNet','$opcionesAdicionales','$valor_tarjeta','$ccredito','$observacion_credito','$ctarjeta','$ctransferencia','$fechaHora','$propina','COMPLETO')";   
-                $idventanew=ejecutarConsulta_retornarID($sql); 
+                VALUES ('$residcliente','$idusuario','" . $_SESSION["idsucursal"] . "','$tipo_comprobante','$corre','$fecha_hora','$total_venta','Aceptado','$cefectivo','$rescambio','$forma_pago','$total_ventades',
+                '$tipo_pagoBacVisaNet','$opcionesAdicionales','$valor_tarjeta','$ccredito','$observacion_credito','$ctarjeta','$ctransferencia','$fechaHora','$propina','COMPLETO')";
+            $idventanew = ejecutarConsulta_retornarID($sql);
 
-                if($id_add_orden==""){
-                } 
-                else{
-                    $sqlcorrelativo="UPDATE add_orden SET cobradosino='SI',idventa='$idventanew', estado='COBRADO' WHERE id_add_orden ='$id_add_orden'";
-                    ejecutarConsulta($sqlcorrelativo);  
+            if ($id_add_orden == "") {
+            } else {
+                $sqlcorrelativo = "UPDATE add_orden SET cobradosino='SI',idventa='$idventanew', estado='COBRADO' WHERE id_add_orden ='$id_add_orden'";
+                ejecutarConsulta($sqlcorrelativo);
 
-                    $sqlObtenermesa="SELECT * FROM add_orden WHERE id_add_orden='$id_add_orden'";
-                    $numestable= ejecutarConsultaSimpleFila($sqlObtenermesa);
-                    $idmesa=$numestable["idmesa"]; 
+                $sqlObtenermesa = "SELECT * FROM add_orden WHERE id_add_orden='$id_add_orden'";
+                $numestable = ejecutarConsultaSimpleFila($sqlObtenermesa);
+                $idmesa = $numestable["idmesa"];
 
-                    $sqlMesa="UPDATE mesa SET condicion='1'  WHERE idmesa ='$idmesa'";
-                    ejecutarConsulta($sqlMesa);                       
-                }               
-     
-                if($forma_pago=="Credito" )
-                {
-                    $sqlCredito="UPDATE venta SET saldo_venta='$ccredito' WHERE idventa='$idventanew' ";
-                    ejecutarConsulta($sqlCredito); 
-                } 
+                $sqlMesa = "UPDATE mesa SET condicion='1'  WHERE idmesa ='$idmesa'";
+                ejecutarConsulta($sqlMesa);
+            }
 
-                if($idcotizacion==""){
-                    $residcotizacion=0;
-                } 
-                else{
-                    $residcotizacion=$idcotizacion;
-                    $sqlcorrelativo="UPDATE cotizacion SET idventa='$idventanew', cobradosino='SI' WHERE idcotizacion ='$idcotizacion'";
-                    ejecutarConsulta($sqlcorrelativo);  
-                }                    
-         
+            if ($forma_pago == "Credito") {
+                $sqlCredito = "UPDATE venta SET saldo_venta='$ccredito' WHERE idventa='$idventanew' ";
+                ejecutarConsulta($sqlCredito);
+            }
+
+            if ($idcotizacion == "") {
+                $residcotizacion = 0;
+            } else {
+                $residcotizacion = $idcotizacion;
+                $sqlcorrelativo = "UPDATE cotizacion SET idventa='$idventanew', cobradosino='SI' WHERE idcotizacion ='$idcotizacion'";
+                ejecutarConsulta($sqlcorrelativo);
+            }
+
             ////FIN GUARDO EL ENVIO
 
-            $num_elementos=0; 
-            $sw=true;   
+            $num_elementos = 0;
+            $sw = true;
 
 
-            while ($num_elementos < count($idarticulo))
-            {
+            while ($num_elementos < count($idarticulo)) {
                 ////PRECIO COMPRA PROMEDIO
-                            $sqlPCcompra="SELECT 
+                $sqlPCcompra = "SELECT 
                                     asu.precio_compra as pc_compra, 
                                     asu.stocksucursal,
                                     a.tipo_producto
                                 FROM articuloxsucursal asu
                                 inner join articulo a on a.idarticulo=asu.idarticulo
-                                WHERE asu.idarticulo='$idarticulo[$num_elementos]'  and asu.idsucursal='".$_SESSION["idsucursal"]."' ";
-                    $respc= ejecutarConsultaSimpleFila($sqlPCcompra); 
-                    $pc_compra=$respc["pc_compra"];
-                    $tipoproducto=$respc["tipo_producto"];
+                                WHERE asu.idarticulo='$idarticulo[$num_elementos]'  and asu.idsucursal='" . $_SESSION["idsucursal"] . "' ";
+                $respc = ejecutarConsultaSimpleFila($sqlPCcompra);
+                $pc_compra = $respc["pc_compra"];
+                $tipoproducto = $respc["tipo_producto"];
                 ////FIN PRECIO COMPRA PROMEDIO                    
 
                 $sql_detalle = "INSERT INTO detalle_venta(idventa,idarticulo,cantidad,precio_venta,descuento,stockinven,subtotaldes1,precio_ventaSistema,precio_ventaSistema2,subtotal1,cantidadpresentacion,totalcantidadpresentacion,presen,precio_recargo,q_ref,precio_recargoPV,precio_recargoQRef,precio_compra) 
@@ -1881,14 +1880,14 @@ Class Venta
                 ejecutarConsulta($sql_detalle) or $sw = false;
 
 
-                if ($tipoproducto=="Productos" ) {
+                if ($tipoproducto == "Productos") {
                     # code...
-                    $sqlArticuloStock="UPDATE articuloxsucursal SET stocksucursal = stocksucursal - ".$totalcantidadpresentacion[$num_elementos]." WHERE idarticulo =$idarticulo[$num_elementos]  and idsucursal='".$_SESSION["idsucursal"]."' ";
-                    ejecutarConsulta($sqlArticuloStock);                  
+                    $sqlArticuloStock = "UPDATE articuloxsucursal SET stocksucursal = stocksucursal - " . $totalcantidadpresentacion[$num_elementos] . " WHERE idarticulo =$idarticulo[$num_elementos]  and idsucursal='" . $_SESSION["idsucursal"] . "' ";
+                    ejecutarConsulta($sqlArticuloStock);
                 } else {
                     # code...
 
-                } 
+                }
 
 
                 $sql_detalleoperaciones = "INSERT INTO operaciones_compras_ventas(idingreso,idventa,idtraladosucursal,idtraladosucursal_entrada,iddevolucion,cantidad_compras,cantidad_ventas,
@@ -1897,308 +1896,283 @@ Class Venta
                 VALUES ('0',
                 '$idventanew','0','0','0','0','$totalcantidadpresentacion[$num_elementos]','0','0','0','$stockinven[$num_elementos]','$fechaHora',
                 '$idarticulo[$num_elementos]','$idusuario',
-                '".$_SESSION["idsucursal"]."')";
-                ejecutarConsulta($sql_detalleoperaciones);    
+                '" . $_SESSION["idsucursal"] . "')";
+                ejecutarConsulta($sql_detalleoperaciones);
 
-                    //valida el descuento de la materia prima
-                $sqlVerificacionExistencia="SELECT 
+                //valida el descuento de la materia prima
+                $sqlVerificacionExistencia = "SELECT 
                 p.idproducto,
                 dp.cantidad as cantmateriaprima,
                 dp.idarticulo as idarticulo_costo
                 FROM produccion p 
                 INNER JOIN detalle_produccion dp ON p.idproduccion=dp.idproduccion
                 WHERE p.idproducto='$idarticulo[$num_elementos]' ";
-                $EXIS=ejecutarConsulta($sqlVerificacionExistencia);
+                $EXIS = ejecutarConsulta($sqlVerificacionExistencia);
 
-                $numexis=0; 
+                $numexis = 0;
 
-                while($reeeq=$EXIS->fetch_object())
-                {
-                    $Tcan=$cantidad[$num_elementos] * $reeeq->cantmateriaprima;
+                while ($reeeq = $EXIS->fetch_object()) {
+                    $Tcan = $cantidad[$num_elementos] * $reeeq->cantmateriaprima;
 
-                    $updateArticuloDetalle="UPDATE articuloxsucursal SET stocksucursal=stocksucursal-$Tcan
-                    WHERE idarticulo='".$reeeq->idarticulo_costo."'   and idsucursal='".$_SESSION["idsucursal"]."' ";
+                    $updateArticuloDetalle = "UPDATE articuloxsucursal SET stocksucursal=stocksucursal-$Tcan
+                    WHERE idarticulo='" . $reeeq->idarticulo_costo . "'   and idsucursal='" . $_SESSION["idsucursal"] . "' ";
                     //print_r($updateArticuloDetalle);
                     ejecutarConsulta($updateArticuloDetalle);
 
                     $sql_detalleoperaciones = "INSERT INTO operaciones_compras_ventas(idingreso,idventa,idtraladosucursal,idtraladosucursal_entrada,iddevolucion,cantidad_compras,cantidad_ventas,cantidad_entrada,cantidad_devolucion,cantidad_salida,stock_inventario,fecha_horaCreacion,idarticulo,idusuario,idsucursal) 
-                    VALUES ('0','$idventanew','0','0','0','0','$Tcan','0','0','0','$stockinven[$num_elementos]','$fechaHora','$idarticulo[$num_elementos]','$idusuario','".$_SESSION["idsucursal"]."')";
-                    ejecutarConsulta($sql_detalleoperaciones);   
+                    VALUES ('0','$idventanew','0','0','0','0','$Tcan','0','0','0','$stockinven[$num_elementos]','$fechaHora','$idarticulo[$num_elementos]','$idusuario','" . $_SESSION["idsucursal"] . "')";
+                    ejecutarConsulta($sql_detalleoperaciones);
                     $numexis++;
                 }
-                if($numexis==0){
+                if ($numexis == 0) {
                 }
-                    //fin de validacion del descuento de la materia prima                                                                                                  
+                //fin de validacion del descuento de la materia prima                                                                                                  
 
 
-                $num_elementos=$num_elementos + 1;
-            }                       
+                $num_elementos = $num_elementos + 1;
+            }
+        } else {
+            if (CERTIFICADOR == "ECOFACTURAS") {
+                ////GUARDA VENTA
+                $sqlcorrelativo = "UPDATE add_correlativo SET num_factura=num_factura+1 WHERE idsucursal='" . $_SESSION["idsucursal"] . "'";
+                ejecutarConsulta($sqlcorrelativo);
 
-        }
-        else
-        {
-            if (CERTIFICADOR=="ECOFACTURAS") 
-            {
-                        ////GUARDA VENTA
-                            $sqlcorrelativo="UPDATE add_correlativo SET num_factura=num_factura+1 WHERE idsucursal='".$_SESSION["idsucursal"]."'";
-                            ejecutarConsulta($sqlcorrelativo); 
+                $sqlCorre = "SELECT * FROM add_correlativo WHERE idsucursal='" . $_SESSION["idsucursal"] . "'";
+                $correlativo = ejecutarConsultaSimpleFila($sqlCorre);
+                $corre = $correlativo["num_factura"];
 
-                            $sqlCorre="SELECT * FROM add_correlativo WHERE idsucursal='".$_SESSION["idsucursal"]."'";
-                            $correlativo= ejecutarConsultaSimpleFila($sqlCorre);
-                            $corre=$correlativo["num_factura"];        
 
-                        
-                            $sql="INSERT INTO venta (idcliente,idusuario,idsucursal,tipo_comprobante,num_comprobante,fecha_hora,total_venta,estado,cefectivo,rescambio,forma_pago,total_ventades,
+                $sql = "INSERT INTO venta (idcliente,idusuario,idsucursal,tipo_comprobante,num_comprobante,fecha_hora,total_venta,estado,cefectivo,rescambio,forma_pago,total_ventades,
                             tipo_pagoBacVisaNet,opcionesAdicionales,valor_tarjeta,ccredito,observacion_credito,ctarjeta,ctransferencia,fecha_creacion,numero_pagos,fecha_hora_pago,fecha_hora_vencimiento_factura,monto_abono,propina,estado_venta)
-                            VALUES ('$residcliente','$idusuario','".$_SESSION["idsucursal"]."','$tipo_comprobante','$corre','$fecha_hora','$total_venta','Aceptado','$cefectivo','$rescambio','$forma_pago','$total_ventades',
-                            '$tipo_pagoBacVisaNet','$opcionesAdicionales','$valor_tarjeta','$ccredito','$observacion_credito','$ctarjeta','$ctransferencia','$fechaHora','0','0','0','0','$propina','COMPLETO')";        
-                            $idventanew=ejecutarConsulta_retornarID($sql); 
-                        ////FIN GUARDA VENTA
+                            VALUES ('$residcliente','$idusuario','" . $_SESSION["idsucursal"] . "','$tipo_comprobante','$corre','$fecha_hora','$total_venta','Aceptado','$cefectivo','$rescambio','$forma_pago','$total_ventades',
+                            '$tipo_pagoBacVisaNet','$opcionesAdicionales','$valor_tarjeta','$ccredito','$observacion_credito','$ctarjeta','$ctransferencia','$fechaHora','0','0','0','0','$propina','COMPLETO')";
+                $idventanew = ejecutarConsulta_retornarID($sql);
+                ////FIN GUARDA VENTA
 
-                        ////TIPO ENTREGA
-                            if($id_add_orden==""){
-                            } 
-                            else{
-                                $sqlcorrelativo="UPDATE add_orden SET cobradosino='SI',idventa='$idventanew', estado='COBRADO' WHERE id_add_orden ='$id_add_orden'";
-                                ejecutarConsulta($sqlcorrelativo);  
+                ////TIPO ENTREGA
+                if ($id_add_orden == "") {
+                } else {
+                    $sqlcorrelativo = "UPDATE add_orden SET cobradosino='SI',idventa='$idventanew', estado='COBRADO' WHERE id_add_orden ='$id_add_orden'";
+                    ejecutarConsulta($sqlcorrelativo);
 
-                                $sqlObtenermesa="SELECT * FROM add_orden WHERE id_add_orden='$id_add_orden'";
-                                $numestable= ejecutarConsultaSimpleFila($sqlObtenermesa);
-                                $idmesa=$numestable["idmesa"]; 
+                    $sqlObtenermesa = "SELECT * FROM add_orden WHERE id_add_orden='$id_add_orden'";
+                    $numestable = ejecutarConsultaSimpleFila($sqlObtenermesa);
+                    $idmesa = $numestable["idmesa"];
 
-                                $sqlMesa="UPDATE mesa SET condicion='1'  WHERE idmesa ='$idmesa'";
-                                ejecutarConsulta($sqlMesa);                       
-                            }                              
+                    $sqlMesa = "UPDATE mesa SET condicion='1'  WHERE idmesa ='$idmesa'";
+                    ejecutarConsulta($sqlMesa);
+                }
 
-                            if($forma_pago=="Credito" )
-                            {
-                                $sqlCredito="UPDATE venta SET saldo_venta='$ccredito' WHERE idventa='$idventanew' ";
-                                ejecutarConsulta($sqlCredito); 
-                            } 
+                if ($forma_pago == "Credito") {
+                    $sqlCredito = "UPDATE venta SET saldo_venta='$ccredito' WHERE idventa='$idventanew' ";
+                    ejecutarConsulta($sqlCredito);
+                }
 
-                            if($idcotizacion==""){
-                                $residcotizacion=0;
-                            } 
-                            else{
-                                $residcotizacion=$idcotizacion;
-                                $sqlcorrelativo="UPDATE cotizacion SET idventa='$idventanew', cobradosino='SI' WHERE idcotizacion ='$idcotizacion'";
-                                ejecutarConsulta($sqlcorrelativo);  
-                            }                                 
-                        ////FIN TIPO ENTREGA
+                if ($idcotizacion == "") {
+                    $residcotizacion = 0;
+                } else {
+                    $residcotizacion = $idcotizacion;
+                    $sqlcorrelativo = "UPDATE cotizacion SET idventa='$idventanew', cobradosino='SI' WHERE idcotizacion ='$idcotizacion'";
+                    ejecutarConsulta($sqlcorrelativo);
+                }
+                ////FIN TIPO ENTREGA
 
-                        ////DETALLE DE VENTA
-                                date_default_timezone_set("America/Guatemala");
-                                $nombreCliente = $Persona["nombre"]; // Suponiendo que este es tu nombre
+                ////DETALLE DE VENTA
+                date_default_timezone_set("America/Guatemala");
+                $nombreCliente = $Persona["nombre"]; // Suponiendo que este es tu nombre
 
-                                if ($tipo_comprobante=="Factura") 
-                                {
-                                    # code...
-                                    $tipoDocumento='FACT';
+                if ($tipo_comprobante == "Factura") {
+                    # code...
+                    $tipoDocumento = 'FACT';
+                } elseif ($tipo_comprobante == "Cambiaria") {
+                    # code...
+                    $tipoDocumento = 'FCAM';
+                }
 
-                                }
-                                elseif ($tipo_comprobante=="Cambiaria") 
-                                {
-                                    # code...
-                                    $tipoDocumento='FCAM';
-                                }
+                // Escapar las comillas dobles
+                $nombreClienteEscapado = str_replace('"', '\"', $nombreCliente);
 
-                                // Escapar las comillas dobles
-                                $nombreClienteEscapado = str_replace('"', '\"', $nombreCliente);
-
-                                $JsonIntegracionEcoFactura='{
-                                    "tipoDocumento": "'.$tipoDocumento.'",
-                                    "numeroTransaccion": "'.$idventanew.'",
-                                    "fechaTransaccion": "'.$fecha_hora.'",
+                $JsonIntegracionEcoFactura = '{
+                                    "tipoDocumento": "' . $tipoDocumento . '",
+                                    "numeroTransaccion": "' . $idventanew . '",
+                                    "fechaTransaccion": "' . $fecha_hora . '",
                                     "tipoMoneda": "GTQ",
-                                    "nitCliente": "'.$nit.'",
-                                    "TipoIdentificacion": "'.$tipoidentificador.'",
-                                    "codigoCliente": "'.$Persona["idpersona"].'",
-                                    "nombreCliente": "'.$nombreClienteEscapado.'",
-                                    "direccionCliente": "'.$Persona["direccion"].'",
-                                    "observacion": "'.$observacion_credito.'",
-                                    "correoCliente": "'.$Persona["email"].'",
+                                    "nitCliente": "' . $nit . '",
+                                    "TipoIdentificacion": "' . $tipoidentificador . '",
+                                    "codigoCliente": "' . $Persona["idpersona"] . '",
+                                    "nombreCliente": "' . $nombreClienteEscapado . '",
+                                    "direccionCliente": "' . $Persona["direccion"] . '",
+                                    "observacion": "' . $observacion_credito . '",
+                                    "correoCliente": "' . $Persona["email"] . '",
                                     "detallesDocumento":[{DetalleFactura}],
-                                    "cliente":"'._CLIENTE_.'",
-                                    "usuario":"'._USUARIO_.'",
-                                    "clave":"'._PASS_.'",
-                                    "nit":"'._NIT_.'",
+                                    "cliente":"' . _CLIENTE_ . '",
+                                    "usuario":"' . _USUARIO_ . '",
+                                    "clave":"' . _PASS_ . '",
+                                    "nit":"' . _NIT_ . '",
                                     "TrnExp":"0",
                                     "TrnExento":"0",
                                     "TrnFraseTipo":"0",
                                     "TrnEscCod":"0",
-                                    "TrnEstNum":"'.NUM_ESTABLECIMIENTO.'",
+                                    "TrnEstNum":"' . NUM_ESTABLECIMIENTO . '",
                                     "TrnAbonoNum":"0",
                                     "TrnAbonoFecVen":  "0",            
                                     "TrnAbonoMonto":  "0"                                
                                 }';
 
-                                $num_elementos=0;  
-                                $sw=true;
-                                $JsonDetalleFacturaIntegracion="";
-                                while ($num_elementos < count($idarticulo))
-                                {
+                $num_elementos = 0;
+                $sw = true;
+                $JsonDetalleFacturaIntegracion = "";
+                while ($num_elementos < count($idarticulo)) {
 
-                                    $sqlPCcompra="SELECT 
+                    $sqlPCcompra = "SELECT 
                                                     asu.precio_compra as pc_compra, 
                                                     asu.stocksucursal,
                                                     a.tipo_producto
                                                 FROM articuloxsucursal asu
                                                 inner join articulo a on a.idarticulo=asu.idarticulo
-                                                WHERE asu.idarticulo='$idarticulo[$num_elementos]'  and asu.idsucursal='".$_SESSION["idsucursal"]."' ";
-                                    $respc= ejecutarConsultaSimpleFila($sqlPCcompra); 
-                                    $pc_compra=$respc["pc_compra"];
-                                    $tipoproducto=$respc["tipo_producto"];
+                                                WHERE asu.idarticulo='$idarticulo[$num_elementos]'  and asu.idsucursal='" . $_SESSION["idsucursal"] . "' ";
+                    $respc = ejecutarConsultaSimpleFila($sqlPCcompra);
+                    $pc_compra = $respc["pc_compra"];
+                    $tipoproducto = $respc["tipo_producto"];
 
-                                    $sql_detalle = "INSERT INTO detalle_venta(idventa,idarticulo,cantidad,precio_venta,descuento,stockinven,subtotaldes1,precio_ventaSistema,precio_ventaSistema2,subtotal1,cantidadpresentacion,totalcantidadpresentacion,presen,precio_recargo,q_ref,precio_recargoPV,precio_recargoQRef,descripcion_detalle) 
+                    $sql_detalle = "INSERT INTO detalle_venta(idventa,idarticulo,cantidad,precio_venta,descuento,stockinven,subtotaldes1,precio_ventaSistema,precio_ventaSistema2,subtotal1,cantidadpresentacion,totalcantidadpresentacion,presen,precio_recargo,q_ref,precio_recargoPV,precio_recargoQRef,descripcion_detalle) 
                                     VALUES ('$idventanew','$idarticulo[$num_elementos]','$cantidad[$num_elementos]','$precio_venta[$num_elementos]','$descuento_porcentaje[$num_elementos]','$stockinven[$num_elementos]','$subtotaldes1[$num_elementos]','$precio_ventaSistema[$num_elementos]','$precio_ventaSistema2[$num_elementos]','$subtotal1[$num_elementos]','$cantidadpresentacion[$num_elementos]','$totalcantidadpresentacion[$num_elementos]','$presen[$num_elementos]','0','$q_ref[$num_elementos]','$precio_recargoPV[$num_elementos]','$precio_recargoQRef[$num_elementos]','$descripcion_detalle[$num_elementos]')";
-                                    ejecutarConsulta($sql_detalle) or $sw = false;
+                    ejecutarConsulta($sql_detalle) or $sw = false;
 
-                                    $sqlArticulo="SELECT * FROM articulo WHERE idarticulo='$idarticulo[$num_elementos]'";
-                                    $Articulo= ejecutarConsultaSimpleFila($sqlArticulo);
+                    $sqlArticulo = "SELECT * FROM articulo WHERE idarticulo='$idarticulo[$num_elementos]'";
+                    $Articulo = ejecutarConsultaSimpleFila($sqlArticulo);
 
-                                    if ($tipoproducto=="Productos" ) {
-                                        # code...
-                                            $sqlArticuloStock="UPDATE articuloxsucursal SET stocksucursal = stocksucursal - ".$totalcantidadpresentacion[$num_elementos]." WHERE idarticulo =$idarticulo[$num_elementos]  and idsucursal='".$_SESSION["idsucursal"]."' ";
-                                            ejecutarConsulta($sqlArticuloStock);                    
-                                    } else {
-                                        # code...
+                    if ($tipoproducto == "Productos") {
+                        # code...
+                        $sqlArticuloStock = "UPDATE articuloxsucursal SET stocksucursal = stocksucursal - " . $totalcantidadpresentacion[$num_elementos] . " WHERE idarticulo =$idarticulo[$num_elementos]  and idsucursal='" . $_SESSION["idsucursal"] . "' ";
+                        ejecutarConsulta($sqlArticuloStock);
+                    } else {
+                        # code...
 
-                                    } 
+                    }
 
-                                    $resvalidarimpuesto='false'; 
+                    $resvalidarimpuesto = 'false';
 
-                                        if($num_elementos==0){
-                                            $JsonDetalleFacturaIntegracion.='{
-                                                "numeroLinea": "'.($num_elementos+1).'",
-                                                "codigoArticulo": "'.$Articulo["codigo"].'",
-                                                "nombreArticulo": "'.$Articulo["nombre"].' '.$descripcion_detalle[$num_elementos].' ",
-                                                "cantidadArticulo": "'.$cantidad[$num_elementos].'",
-                                                "valorUnitario": "'.$q_ref[$num_elementos].'",
+                    if ($num_elementos == 0) {
+                        $JsonDetalleFacturaIntegracion .= '{
+                                                "numeroLinea": "' . ($num_elementos + 1) . '",
+                                                "codigoArticulo": "' . $Articulo["codigo"] . '",
+                                                "nombreArticulo": "' . $Articulo["nombre"] . ' ' . $descripcion_detalle[$num_elementos] . ' ",
+                                                "cantidadArticulo": "' . $cantidad[$num_elementos] . '",
+                                                "valorUnitario": "' . $q_ref[$num_elementos] . '",
                                                 "unidadMedida": "Unidad",
-                                                "valorDescuento": "'.$subtotaldes1[$num_elementos].'",
+                                                "valorDescuento": "' . $subtotaldes1[$num_elementos] . '",
                                                 "tipoItem": "B",
                                                 "impuestoAdicional": "0",
                                                 "adicionalGrabable": "0",
                                                 "impuestoMontoAdicional": "0"
                                             }';
-                                        }else{
-                                            $JsonDetalleFacturaIntegracion.=',{
-                                                "numeroLinea": "'.($num_elementos+1).'",
-                                                "codigoArticulo": "'.$Articulo["codigo"].'",
-                                                "nombreArticulo": "'.$Articulo["nombre"].' '.$descripcion_detalle[$num_elementos].' ",
-                                                "cantidadArticulo": "'.$cantidad[$num_elementos].'",
-                                                "valorUnitario": "'.$q_ref[$num_elementos].'",
+                    } else {
+                        $JsonDetalleFacturaIntegracion .= ',{
+                                                "numeroLinea": "' . ($num_elementos + 1) . '",
+                                                "codigoArticulo": "' . $Articulo["codigo"] . '",
+                                                "nombreArticulo": "' . $Articulo["nombre"] . ' ' . $descripcion_detalle[$num_elementos] . ' ",
+                                                "cantidadArticulo": "' . $cantidad[$num_elementos] . '",
+                                                "valorUnitario": "' . $q_ref[$num_elementos] . '",
                                                 "unidadMedida": "Unidad",
-                                                "valorDescuento": "'.$subtotaldes1[$num_elementos].'",
+                                                "valorDescuento": "' . $subtotaldes1[$num_elementos] . '",
                                                 "tipoItem": "B",
                                                 "impuestoAdicional": "0",
                                                 "adicionalGrabable": "0",
                                                 "impuestoMontoAdicional": "0"                           
                                             }';
-                                        }
+                    }
 
-                                    $sql_detalleoperaciones = "INSERT INTO operaciones_compras_ventas(idingreso,idventa,idtraladosucursal,idtraladosucursal_entrada,iddevolucion,cantidad_compras,cantidad_ventas,cantidad_entrada,cantidad_devolucion,cantidad_salida,stock_inventario,fecha_horaCreacion,idarticulo,idusuario,idsucursal) 
-                                    VALUES ('0','$idventanew','0','0','0','0','$totalcantidadpresentacion[$num_elementos]','0','0','0','$stockinven[$num_elementos]','$fechaHora','$idarticulo[$num_elementos]','$idusuario','".$_SESSION["idsucursal"]."')";
-                                    ejecutarConsulta($sql_detalleoperaciones);   
-                                        //valida el descuento de la materia prima
-                                    $sqlVerificacionExistencia="SELECT 
+                    $sql_detalleoperaciones = "INSERT INTO operaciones_compras_ventas(idingreso,idventa,idtraladosucursal,idtraladosucursal_entrada,iddevolucion,cantidad_compras,cantidad_ventas,cantidad_entrada,cantidad_devolucion,cantidad_salida,stock_inventario,fecha_horaCreacion,idarticulo,idusuario,idsucursal) 
+                                    VALUES ('0','$idventanew','0','0','0','0','$totalcantidadpresentacion[$num_elementos]','0','0','0','$stockinven[$num_elementos]','$fechaHora','$idarticulo[$num_elementos]','$idusuario','" . $_SESSION["idsucursal"] . "')";
+                    ejecutarConsulta($sql_detalleoperaciones);
+                    //valida el descuento de la materia prima
+                    $sqlVerificacionExistencia = "SELECT 
                                     p.idproducto,
                                     dp.cantidad as cantmateriaprima,
                                     dp.idarticulo as idarticulo_costo
                                     FROM produccion p 
                                     INNER JOIN detalle_produccion dp ON p.idproduccion=dp.idproduccion
                                     WHERE p.idproducto='$idarticulo[$num_elementos]' ";
-                                    $EXIS=ejecutarConsulta($sqlVerificacionExistencia);
+                    $EXIS = ejecutarConsulta($sqlVerificacionExistencia);
 
-                                    $numexis=0; 
+                    $numexis = 0;
 
-                                    while($reeeq=$EXIS->fetch_object())
-                                    {
-                                        $Tcan=$cantidad[$num_elementos] * $reeeq->cantmateriaprima;
+                    while ($reeeq = $EXIS->fetch_object()) {
+                        $Tcan = $cantidad[$num_elementos] * $reeeq->cantmateriaprima;
 
-                                        $updateArticuloDetalle="UPDATE articuloxsucursal SET stocksucursal=stocksucursal-$Tcan
-                                        WHERE idarticulo='".$reeeq->idarticulo_costo."'   and idsucursal='".$_SESSION["idsucursal"]."' ";
-                                        ejecutarConsulta($updateArticuloDetalle);
+                        $updateArticuloDetalle = "UPDATE articuloxsucursal SET stocksucursal=stocksucursal-$Tcan
+                                        WHERE idarticulo='" . $reeeq->idarticulo_costo . "'   and idsucursal='" . $_SESSION["idsucursal"] . "' ";
+                        ejecutarConsulta($updateArticuloDetalle);
 
-                                        $sql_detalleoperaciones = "INSERT INTO operaciones_compras_ventas(idingreso,idventa,idtraladosucursal,idtraladosucursal_entrada,iddevolucion,cantidad_compras,cantidad_ventas,cantidad_entrada,cantidad_devolucion,cantidad_salida,stock_inventario,fecha_horaCreacion,idarticulo,idusuario,idsucursal) 
-                                        VALUES ('0','$idventanew','0','0','0','0','$Tcan','0','0','0','$stockinven[$num_elementos]','$fechaHora','$idarticulo[$num_elementos]','$idusuario','".$_SESSION["idsucursal"]."')";
-                                        ejecutarConsulta($sql_detalleoperaciones);  
+                        $sql_detalleoperaciones = "INSERT INTO operaciones_compras_ventas(idingreso,idventa,idtraladosucursal,idtraladosucursal_entrada,iddevolucion,cantidad_compras,cantidad_ventas,cantidad_entrada,cantidad_devolucion,cantidad_salida,stock_inventario,fecha_horaCreacion,idarticulo,idusuario,idsucursal) 
+                                        VALUES ('0','$idventanew','0','0','0','0','$Tcan','0','0','0','$stockinven[$num_elementos]','$fechaHora','$idarticulo[$num_elementos]','$idusuario','" . $_SESSION["idsucursal"] . "')";
+                        ejecutarConsulta($sql_detalleoperaciones);
 
-                                        $numexis++;
-                                    }
-                                    if($numexis==0){
-                                    }
-                                        //fin de validacion del descuento de la materia prima                                                                                                 
+                        $numexis++;
+                    }
+                    if ($numexis == 0) {
+                    }
+                    //fin de validacion del descuento de la materia prima                                                                                                 
 
-                                    $num_elementos=$num_elementos + 1;
-                                }
+                    $num_elementos = $num_elementos + 1;
+                }
 
 
-                                $JsonIntegracionEcoFactura=str_replace("{DetalleFactura}", $JsonDetalleFacturaIntegracion, $JsonIntegracionEcoFactura);    
+                $JsonIntegracionEcoFactura = str_replace("{DetalleFactura}", $JsonDetalleFacturaIntegracion, $JsonIntegracionEcoFactura);
 
-                        ///FIN DE DETALLE VENTA
+                ///FIN DE DETALLE VENTA
             }
-                 
-           
-        }     
+        }
 
 
 
 
-       //API URL
-        if($tipo_comprobante=="Factura" || $tipo_comprobante=="Cambiaria" ){
+        //API URL
+        if ($tipo_comprobante == "Factura" || $tipo_comprobante == "Cambiaria") {
             //URLS de Desarrollo
 
 
-            
-            if (CERTIFICADOR=="ECOFACTURAS")
-            { 
-                 if(PRUEBA_PRODUCCION=="PRUEBAS")
-                 {
-                    $url = 'http://daocastro-001-site8.itempurl.com/api/EcoFactura/generarDocumento'; //url de pruebas
-                 }elseif(PRUEBA_PRODUCCION=="PRODUCCION")
-                 {
 
-                    $url='http://api.fel.olintech.com/api/EcoFactura/generarDocumento';//url de produccion
-                 }
+            if (CERTIFICADOR == "ECOFACTURAS") {
+                if (PRUEBA_PRODUCCION == "PRUEBAS") {
+                    $url = 'http://daocastro-001-site8.itempurl.com/api/EcoFactura/generarDocumento'; //url de pruebas
+                } elseif (PRUEBA_PRODUCCION == "PRODUCCION") {
+
+                    $url = 'http://api.fel.olintech.com/api/EcoFactura/generarDocumento'; //url de produccion
+                }
 
                 //////
-                    $resultado=$this->callAPI("POST", $url, $JsonIntegracionEcoFactura);
-                    $ArrayResultado=json_decode($resultado, true);
+                $resultado = $this->callAPI("POST", $url, $JsonIntegracionEcoFactura);
+                $ArrayResultado = json_decode($resultado, true);
 
-                    print_r($JsonIntegracionEcoFactura); 
-                    print_r($resultado);
-                    print_r($ArrayResultado);               
-                    try {
-                        $sqlUpdate="UPDATE nota_credito SET autorizacionEcoFactura='".$ArrayResultado["dte"]["numeroAutorizacion"]."',serie_ecoFactura='".$ArrayResultado["dte"]["serie"]."',numero_ecoFactura='".$ArrayResultado["dte"]["numero"]."',fechaCertificacion_ecoFactura='".$ArrayResultado["dte"]["fechaCertificacion"]."' WHERE idnota_credito='$idventanew'";
-                        ejecutarConsulta($sqlUpdate); 
+                print_r($JsonIntegracionEcoFactura);
+                print_r($resultado);
+                print_r($ArrayResultado);
+                try {
+                    $sqlUpdate = "UPDATE nota_credito SET autorizacionEcoFactura='" . $ArrayResultado["dte"]["numeroAutorizacion"] . "',serie_ecoFactura='" . $ArrayResultado["dte"]["serie"] . "',numero_ecoFactura='" . $ArrayResultado["dte"]["numero"] . "',fechaCertificacion_ecoFactura='" . $ArrayResultado["dte"]["fechaCertificacion"] . "' WHERE idnota_credito='$idventanew'";
+                    ejecutarConsulta($sqlUpdate);
 
-                            $sqlCorre="SELECT * FROM nota_credito WHERE  idnota_credito='$idventanew'"; 
-                            $correlativo= ejecutarConsultaSimpleFila($sqlCorre);
-                            $fechaCertificacion_ecoFactura=$correlativo["fechaCertificacion_ecoFactura"];        
+                    $sqlCorre = "SELECT * FROM nota_credito WHERE  idnota_credito='$idventanew'";
+                    $correlativo = ejecutarConsultaSimpleFila($sqlCorre);
+                    $fechaCertificacion_ecoFactura = $correlativo["fechaCertificacion_ecoFactura"];
 
-                           if ($fechaCertificacion_ecoFactura=="" || $fechaCertificacion_ecoFactura=="0000-00-00 00:00:00" ) 
-                            {
-                                # code...
-                                $sqlUpdatenovalidado="UPDATE nota_credito SET tipo_comprobante='Envio' WHERE idnota_credito='$idventanew'";
-                                ejecutarConsulta($sqlUpdatenovalidado); 
+                    if ($fechaCertificacion_ecoFactura == "" || $fechaCertificacion_ecoFactura == "0000-00-00 00:00:00") {
+                        # code...
+                        $sqlUpdatenovalidado = "UPDATE nota_credito SET tipo_comprobante='Envio' WHERE idnota_credito='$idventanew'";
+                        ejecutarConsulta($sqlUpdatenovalidado);
 
-                                 $sqlLgs="INSERT INTO logs (idnota_credito,idusuario,idsucursal,JsonIntegracionEcoFactura,resultado,ArrayResultado)
-                                    VALUES ('$idventanew','$idusuario','".$_SESSION["idsucursal"]."' ,'$JsonIntegracionEcoFactura','0','0')";
-                                    ejecutarConsulta($sqlLgs);
-
-                            }            
-
-
-                    } catch (\Throwable $th) {
-
+                        $sqlLgs = "INSERT INTO logs (idnota_credito,idusuario,idsucursal,JsonIntegracionEcoFactura,resultado,ArrayResultado)
+                                    VALUES ('$idventanew','$idusuario','" . $_SESSION["idsucursal"] . "' ,'$JsonIntegracionEcoFactura','0','0')";
+                        ejecutarConsulta($sqlLgs);
                     }
+                } catch (\Throwable $th) {
+                }
                 //////
 
 
 
             }
-
         }
 
 
@@ -2208,8 +2182,8 @@ Class Venta
         return [
             'idventanew' => $idventanew,
             'tipo_comprobante' => $tipo_comprobante
-        ]; 
-    } 
+        ];
+    }
 
 
 
@@ -2217,81 +2191,82 @@ Class Venta
     function callAPI($method, $url, $data)
     {
         $curl = curl_init();
-        switch ($method){
-         case "POST":
-         curl_setopt($curl, CURLOPT_POST, 1);
-         curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
-         break;
-         case "PUT":
-         curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT");
-         if ($data)
-           curl_setopt($curl, CURLOPT_POSTFIELDS, $data);                             
-       break;
-       default:
-       if ($data)
-           $url = sprintf("%s?%s", $url, http_build_query($data));
-   }
+        switch ($method) {
+            case "POST":
+                curl_setopt($curl, CURLOPT_POST, 1);
+                curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+                break;
+            case "PUT":
+                curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT");
+                if ($data)
+                    curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+                break;
+            default:
+                if ($data)
+                    $url = sprintf("%s?%s", $url, http_build_query($data));
+        }
         // OPTIONS:
-   curl_setopt($curl, CURLOPT_URL, $url);
-   curl_setopt($curl, CURLOPT_TIMEOUT, 30000);
-   curl_setopt($curl, CURLOPT_HTTPHEADER, array(
-     'Content-type: application/json',
-     'Accept: application/json'
- ));
-   curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-   curl_setopt($curl, CURLOPT_FOLLOWLOCATION, false);
-   curl_setopt($curl, CURLOPT_HEADER, false); 
-   curl_setopt( $curl, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_TIMEOUT, 30000);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, array(
+            'Content-type: application/json',
+            'Accept: application/json'
+        ));
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, false);
+        curl_setopt($curl, CURLOPT_HEADER, false);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
         //curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
         // EXECUTE:
-   $result = curl_exec($curl);
-   $http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $result = curl_exec($curl);
+        $http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         #echo "Status Code: ".$http_status;
-   if(!$result){
-    die("Status Code".$http_status." Error:".curl_error($curl)." Connection Failure");
-}
-curl_close($curl);
-return $result;
-}
+        if (!$result) {
+            die("Status Code" . $http_status . " Error:" . curl_error($curl) . " Connection Failure");
+        }
+        curl_close($curl);
+        return $result;
+    }
     //Implementamos un método para anular la venta 
-public function anular($idventa)
-{
-    $sql="UPDATE venta SET estado='Anulado' WHERE idventa='$idventa'";
-    ejecutarConsulta($sql); 
+    public function anular($idventa)
+    {
+        $sql = "UPDATE venta SET estado='Anulado' WHERE idventa='$idventa'";
+        ejecutarConsulta($sql);
 
 
-    @session_start();
-    $idusuario_session = $_SESSION["idusuario"];
-    $sqlUsuarioK = "SELECT nombre FROM usuario WHERE idusuario='" . $idusuario_session . "'";
-    $resUser = ejecutarConsultaSimpleFila($sqlUsuarioK);
-    $nombreUser = $resUser ? $resUser["nombre"] : 'Sistema';
-    
-    date_default_timezone_set('America/Guatemala');
-    $fechaHora = date('Y-m-d H:i:s');
+        @session_start();
+        $idusuario_session = $_SESSION["idusuario"];
+        $sqlUsuarioK = "SELECT nombre FROM usuario WHERE idusuario='" . $idusuario_session . "'";
+        $resUser = ejecutarConsultaSimpleFila($sqlUsuarioK);
+        $nombreUser = $resUser ? $resUser["nombre"] : 'Sistema';
 
-    $sqlDetalleventa="SELECT * FROM detalle_venta WHERE idventa='$idventa'";
-    $Detalle=ejecutarConsulta($sqlDetalleventa);
+        date_default_timezone_set('America/Guatemala');
+        $fechaHora = date('Y-m-d H:i:s');
+
+        $sqlDetalleventa = "SELECT dv.*,v.idsucursal FROM detalle_venta dv
+        inner join venta v on v.idventa=dv.idventa
+    WHERE dv.idventa='$idventa'";
+        $Detalle = ejecutarConsulta($sqlDetalleventa);
 
 
-        while ($reg = $Detalle->fetch_object())
-        {
-                    $sqlPCcompra="SELECT 
+        while ($reg = $Detalle->fetch_object()) {
+            $sqlPCcompra = "SELECT 
                                     asu.precio_compra as pc_compra, 
                                     asu.stocksucursal,
                                     a.tipo_producto
                                 FROM articuloxsucursal asu
                                 inner join articulo a on a.idarticulo=asu.idarticulo
-                                WHERE asu.idarticulo=".$reg->idarticulo."   and asu.idsucursal='".$_SESSION["idsucursal"]."' ";
-                    $respc= ejecutarConsultaSimpleFila($sqlPCcompra); 
-                    $pc_compra=$respc["pc_compra"];
-                    $tipoproducto=$respc["tipo_producto"];   
-                             
-            if ($tipoproducto=="Productos" ) 
-            {
+                                WHERE asu.idarticulo=" . $reg->idarticulo . "   and asu.idsucursal='" . $reg->idsucursal . "'";
+            $respc = ejecutarConsultaSimpleFila($sqlPCcompra);
+            $pc_compra = $respc["pc_compra"];
+            $tipoproducto = $respc["tipo_producto"];
+
+            if ($tipoproducto == "Productos") {
                 $stock_anterior = $respc["stocksucursal"];
                 $stock_final = $stock_anterior + $reg->totalcantidadpresentacion;
 
-                $updateArticuloDetalle="UPDATE articuloxsucursal SET stocksucursal=$stock_final WHERE idarticulo=".$reg->idarticulo." and  idsucursal='".$_SESSION["idsucursal"]."' ";
+                $updateArticuloDetalle = "UPDATE articuloxsucursal SET stocksucursal=$stock_final WHERE 
+                idarticulo=" . $reg->idarticulo . " and  idsucursal='" . $reg->idsucursal . "'";
                 ejecutarConsulta($updateArticuloDetalle);
 
                 $concepto = "Ingreso por Anulación de Venta";
@@ -2305,129 +2280,135 @@ public function anular($idventa)
                 (idarticulo, idsucursal, fecha_hora, concepto, num_documento, cantidad_existente, cantidad_modificacion, 
                 tipo_modificacion, cantidad_final, precio, responsable)
                 VALUES 
-                ('".$reg->idarticulo."', '".$_SESSION["idsucursal"]."', '$fechaHora', '$concepto', '$idventa', 
-                '$stock_anterior', '".$reg->totalcantidadpresentacion."', 'Ingreso', '$stock_final', 
-                '".$reg->precio_compra."', '$nombreUser')";
+                ('" . $reg->idarticulo . "', '" . $reg->idsucursal . "', '$fechaHora', '$concepto', '$idventa', 
+                '$stock_anterior', '" . $reg->totalcantidadpresentacion . "', 'Ingreso', '$stock_final', 
+                '" . $reg->precio_compra . "', '$nombreUser')";
                 ejecutarConsulta($sqlInsertKardex);
-            }else
-            {
-
+            } else {
             }
 
- 
-            $sqlVerificacionExistencia="SELECT 
+
+            $sqlVerificacionExistencia = "SELECT 
             p.idproducto,
             dp.cantidad as cantmateriaprima, 
             dp.idarticulo as idarticulo_costo
             FROM produccion p 
             INNER JOIN detalle_produccion dp ON p.idproduccion=dp.idproduccion
-            WHERE p.idproducto=".$reg->idarticulo." ";
-            $EXIS=ejecutarConsulta($sqlVerificacionExistencia);
+            WHERE p.idproducto=" . $reg->idarticulo . " ";
+            $EXIS = ejecutarConsulta($sqlVerificacionExistencia);
 
-            $numexis=0; 
+            $numexis = 0;
 
-            while($reeeq=$EXIS->fetch_object())
-            {
+            while ($reeeq = $EXIS->fetch_object()) {
 
-                    $Tcan=$reg->totalcantidadpresentacion * $reeeq->cantmateriaprima;
+                $Tcan = $reg->totalcantidadpresentacion * $reeeq->cantmateriaprima;
 
-                    $sqlArticuloK = "SELECT stocksucursal FROM articuloxsucursal WHERE idarticulo='".$reeeq->idarticulo_costo."' AND idsucursal='".$_SESSION["idsucursal"]."'";
-                    $ArticuloK = ejecutarConsultaSimpleFila($sqlArticuloK);
-                    $stock_anterior = $ArticuloK ? $ArticuloK["stocksucursal"] : 0;
-                    $stock_final = $stock_anterior + $Tcan;
+                $sqlArticuloK = "SELECT stocksucursal FROM articuloxsucursal WHERE idarticulo='" . $reeeq->idarticulo_costo . "' 
+                AND idsucursal='" . $reg->idsucursal . "'";
+                $ArticuloK = ejecutarConsultaSimpleFila($sqlArticuloK);
+                $stock_anterior = $ArticuloK ? $ArticuloK["stocksucursal"] : 0;
+                $stock_final = $stock_anterior + $Tcan;
 
-                    $updateArticuloDetalle="UPDATE articuloxsucursal SET stocksucursal=$stock_final
-                    WHERE idarticulo='".$reeeq->idarticulo_costo."'   and idsucursal='".$_SESSION["idsucursal"]."' ";
-                    ejecutarConsulta($updateArticuloDetalle);  
+                $updateArticuloDetalle = "UPDATE articuloxsucursal SET stocksucursal=$stock_final
+                    WHERE idarticulo='" . $reeeq->idarticulo_costo . "'   and idsucursal='" . $reg->idsucursal . "'";
+                ejecutarConsulta($updateArticuloDetalle);
 
-                    $sqlInsertKardex = "INSERT INTO kardex_movimientos 
+                $sqlInsertKardex = "INSERT INTO kardex_movimientos 
                     (idarticulo, idsucursal, fecha_hora, concepto, num_documento, cantidad_existente, cantidad_modificacion, 
                     tipo_modificacion, cantidad_final, precio, responsable)
                     VALUES 
-                    ('".$reeeq->idarticulo_costo."', '".$_SESSION["idsucursal"]."', '$fechaHora', 'Ingreso por Anulación (Materia Prima)', '$idventa', 
+                    ('" . $reeeq->idarticulo_costo . "', '" . $_SESSION["idsucursal"] . "', '$fechaHora', 'Ingreso por Anulación (Materia Prima)', '$idventa', 
                     '$stock_anterior', '$Tcan', 'Ingreso', '$stock_final', 
                     '0', '$nombreUser')";
-                    ejecutarConsulta($sqlInsertKardex);
+                ejecutarConsulta($sqlInsertKardex);
 
-                    $numexis++;
+                $numexis++;
             }
-            if($numexis==0){
-            }      
+            if ($numexis == 0) {
+            }
         }
-        
+
         $sql_proc = "CALL restaurar_saldos_por_venta($idventa);";
-        ejecutarConsulta($sql_proc);      
-        
-        $sqlArticulo="SELECT v.*,p.num_documento FROM venta v
+        ejecutarConsulta($sql_proc);
+
+        $sqlArticulo = "SELECT v.*,p.num_documento FROM venta v
         inner join persona p on p.idpersona=v.idcliente
         WHERE idventa='$idventa'";
-        $Venta= ejecutarConsultaSimpleFila($sqlArticulo);
+        $Venta = ejecutarConsultaSimpleFila($sqlArticulo);
 
 
-    if ($Venta["serie_ecoFactura"]<>" ") {
-        try {
-        if($Venta["tipo_comprobante"]=="Factura"){
-            $JsonAnulacionFactrua='{
+        if ($Venta["serie_ecoFactura"] <> " ") {
+            try {
+                if ($Venta["tipo_comprobante"] == "Factura") {
+                    $JsonAnulacionFactrua = '{
 
-                "cliente":"'._CLIENTE_.'",
-                "usuario":"'._USUARIO_.'",
-                "clave":"'._PASS_.'",
-                "nit":"'._NIT_.'", 
-                "serie": "'.$Venta["serie_ecoFactura"].'",
-                "preImpreso": "'.$Venta["numero_ecoFactura"].'",  
-                "nitComprador":"'.$Venta["num_documento"].'",   
-                "fechaAnulacion": "'.date("Ymd",strtotime($Venta["fecha_hora"])).'",     
+                "cliente":"' . _CLIENTE_ . '",
+                "usuario":"' . _USUARIO_ . '",
+                "clave":"' . _PASS_ . '",
+                "nit":"' . _NIT_ . '", 
+                "serie": "' . $Venta["serie_ecoFactura"] . '",
+                "preImpreso": "' . $Venta["numero_ecoFactura"] . '",  
+                "nitComprador":"' . $Venta["num_documento"] . '",   
+                "fechaAnulacion": "' . date("Ymd", strtotime($Venta["fecha_hora"])) . '",     
                 "motivoAnulacion":"ANULACION DE DOCUMENTO"                   
             }';
-            //URL de desarrollo
-            //$url = 'http://daocastro-001-site8.itempurl.com/api/GuateFactura/anularDocumento';
-            $url="http://api.fel.olintech.com/api/GuateFactura/anularDocumento";
-            $resultado=$this->callAPI("POST", $url, $JsonAnulacionFactrua);
-            //echo $resultado;
-            $ArrayResultado=json_decode($resultado, true);
-            /*print_r($JsonAnulacionFactrua);
+                    //URL de desarrollo
+                    //$url = 'http://daocastro-001-site8.itempurl.com/api/GuateFactura/anularDocumento';
+                    $url = "http://api.fel.olintech.com/api/GuateFactura/anularDocumento";
+                    $resultado = $this->callAPI("POST", $url, $JsonAnulacionFactrua);
+                    //echo $resultado;
+                    $ArrayResultado = json_decode($resultado, true);
+                    /*print_r($JsonAnulacionFactrua);
             print_r($resultado);
             print_r($ArrayResultado);*/
+                }
+            } catch (\Throwable $th) {
+                #echo $th;
+            }
+            # code...
         }
-    } catch (\Throwable $th) {
-        #echo $th;
-    } 
-# code...
-}                      
 
-    return ($sql);             
-}
+        return ($sql);
+    }
 
 
-     //Implementamos un método para anular la venta 
-public function guardarGastoaVenta($TotalEfectivoDisponible_GastoaVenta,$totalAcumuladoGasots_GastoaVenta,$disponibleparaGastos_GastoaVenta,$serie_no_GastoaVenta,$factura_no_GastoaVenta,$tipo_factura_GastoaVenta,$tipo_comprobante_GastoaVenta,$idcliente_GastoaVenta,$nit_no_GastoaVenta,$tipo_documento_cliente_GastoaVenta,$nombreproveedor_GastoaVenta,$direccion__GastoaVenta,$concepto_fac_GastoaVenta,$fecha_hora_GastoaVenta,$valor_q_GastoaVenta,$tipo_compra_GastoaVenta,$tipo_combustible_GastoaVenta,$num_galonaje_GastoaVenta)
-{
-    // Extraer día, mes y año
-    $fecha_dia = date("d", strtotime($fecha_hora_GastoaVenta));
-    $fecha_mes = date("m", strtotime($fecha_hora_GastoaVenta));
-    $fecha_year = date("Y", strtotime($fecha_hora_GastoaVenta));
-
-    // Arreglo de meses en español
-    $meses = [
-        '1' => 'Enero', '2' => 'Febrero', '3' => 'Marzo', '4' => 'Abril',
-        '5' => 'Mayo', '6' => 'Junio', '7' => 'Julio', '8' => 'Agosto',
-        '9' => 'Septiembre', '10' => 'Octubre', '11' => 'Noviembre', '12' => 'Diciembre'
-    ];
-
-    date_default_timezone_set('America/Guatemala');
-    $fechaHora = date('Y-m-d H:i:s'); 
-        /////CAPTURA DE CLIENTE NUEVO Y UPDATE
-    if ($idcliente_GastoaVenta == '0') 
+    //Implementamos un método para anular la venta 
+    public function guardarGastoaVenta($TotalEfectivoDisponible_GastoaVenta, $totalAcumuladoGasots_GastoaVenta, $disponibleparaGastos_GastoaVenta, $serie_no_GastoaVenta, $factura_no_GastoaVenta, $tipo_factura_GastoaVenta, $tipo_comprobante_GastoaVenta, $idcliente_GastoaVenta, $nit_no_GastoaVenta, $tipo_documento_cliente_GastoaVenta, $nombreproveedor_GastoaVenta, $direccion__GastoaVenta, $concepto_fac_GastoaVenta, $fecha_hora_GastoaVenta, $valor_q_GastoaVenta, $tipo_compra_GastoaVenta, $tipo_combustible_GastoaVenta, $num_galonaje_GastoaVenta)
     {
-        $sqlcorrelativo = "UPDATE add_correlativo SET codigo_cliente=codigo_cliente+1 WHERE idsucursal='".$_SESSION["idsucursal"]."' ";
-        ejecutarConsulta($sqlcorrelativo); 
+        // Extraer día, mes y año
+        $fecha_dia = date("d", strtotime($fecha_hora_GastoaVenta));
+        $fecha_mes = date("m", strtotime($fecha_hora_GastoaVenta));
+        $fecha_year = date("Y", strtotime($fecha_hora_GastoaVenta));
 
-        $sqlCorre = "SELECT * FROM add_correlativo WHERE idsucursal='".$_SESSION["idsucursal"]."' ";
-        $correlativo = ejecutarConsultaSimpleFila($sqlCorre);
-        $corre = $correlativo["codigo_cliente"]; 
-        $codigo_cliente = 'COD' . $corre;
+        // Arreglo de meses en español
+        $meses = [
+            '1' => 'Enero',
+            '2' => 'Febrero',
+            '3' => 'Marzo',
+            '4' => 'Abril',
+            '5' => 'Mayo',
+            '6' => 'Junio',
+            '7' => 'Julio',
+            '8' => 'Agosto',
+            '9' => 'Septiembre',
+            '10' => 'Octubre',
+            '11' => 'Noviembre',
+            '12' => 'Diciembre'
+        ];
 
-        $sqlcliente = "INSERT INTO persona (tipo_persona,
+        date_default_timezone_set('America/Guatemala');
+        $fechaHora = date('Y-m-d H:i:s');
+        /////CAPTURA DE CLIENTE NUEVO Y UPDATE
+        if ($idcliente_GastoaVenta == '0') {
+            $sqlcorrelativo = "UPDATE add_correlativo SET codigo_cliente=codigo_cliente+1 WHERE idsucursal='" . $_SESSION["idsucursal"] . "' ";
+            ejecutarConsulta($sqlcorrelativo);
+
+            $sqlCorre = "SELECT * FROM add_correlativo WHERE idsucursal='" . $_SESSION["idsucursal"] . "' ";
+            $correlativo = ejecutarConsultaSimpleFila($sqlCorre);
+            $corre = $correlativo["codigo_cliente"];
+            $codigo_cliente = 'COD' . $corre;
+
+            $sqlcliente = "INSERT INTO persona (tipo_persona,
         nombre,
         tipo_documento,
         num_documento,
@@ -2445,34 +2426,33 @@ public function guardarGastoaVenta($TotalEfectivoDisponible_GastoaVenta,$totalAc
         'sincorreo@correo.com',
         'PUBLICO',
         '$codigo_cliente','$fechaHora')";
-        $residcliente = ejecutarConsulta_retornarID($sqlcliente); 
+            $residcliente = ejecutarConsulta_retornarID($sqlcliente);
 
-        if (!$residcliente) {
-            throw new Exception("Error al insertar nuevo cliente.");
-        }
-    } else  
-    {
-        $sqlCorre = "SELECT * FROM persona WHERE idpersona='$idcliente_GastoaVenta'";
-        $correlativo = ejecutarConsultaSimpleFila($sqlCorre);
-        $corre = $correlativo["codigo_cliente"]; 
+            if (!$residcliente) {
+                throw new Exception("Error al insertar nuevo cliente.");
+            }
+        } else {
+            $sqlCorre = "SELECT * FROM persona WHERE idpersona='$idcliente_GastoaVenta'";
+            $correlativo = ejecutarConsultaSimpleFila($sqlCorre);
+            $corre = $correlativo["codigo_cliente"];
 
-                               // Verificamos si $corre es '0', está vacío o es null
-        if (empty($corre) || $corre == '0') {
-                    // Si está vacío, null, o es '0', ejecutamos la lógica de actualización del código cliente
+            // Verificamos si $corre es '0', está vacío o es null
+            if (empty($corre) || $corre == '0') {
+                // Si está vacío, null, o es '0', ejecutamos la lógica de actualización del código cliente
 
-            $sqlcorrelativo = "UPDATE add_correlativo SET codigo_cliente=codigo_cliente+1 WHERE idsucursal='".$_SESSION["idsucursal"]."' ";
-            ejecutarConsulta($sqlcorrelativo); 
+                $sqlcorrelativo = "UPDATE add_correlativo SET codigo_cliente=codigo_cliente+1 WHERE idsucursal='" . $_SESSION["idsucursal"] . "' ";
+                ejecutarConsulta($sqlcorrelativo);
 
-            $sqlCorrelativo = "SELECT * FROM add_correlativo WHERE idsucursal='".$_SESSION["idsucursal"]."' ";
-            $correlativos = ejecutarConsultaSimpleFila($sqlCorrelativo);
-            $corress = $correlativos["codigo_cliente"]; 
-            $codigo_clientes = 'COD' . $corress;    
+                $sqlCorrelativo = "SELECT * FROM add_correlativo WHERE idsucursal='" . $_SESSION["idsucursal"] . "' ";
+                $correlativos = ejecutarConsultaSimpleFila($sqlCorrelativo);
+                $corress = $correlativos["codigo_cliente"];
+                $codigo_clientes = 'COD' . $corress;
 
-            $sqlupdadtepersona = "UPDATE persona SET codigo_cliente='$codigo_clientes' WHERE idpersona='$idcliente_GastoaVenta'";
-            ejecutarConsulta($sqlupdadtepersona);                         
-        }
+                $sqlupdadtepersona = "UPDATE persona SET codigo_cliente='$codigo_clientes' WHERE idpersona='$idcliente_GastoaVenta'";
+                ejecutarConsulta($sqlupdadtepersona);
+            }
 
-        $sqlcorrelativo = "UPDATE persona SET 
+            $sqlcorrelativo = "UPDATE persona SET 
         direccion='$direccion__GastoaVenta',
         telefono='0',
         email='sincorreo@gmail.com',
@@ -2480,15 +2460,15 @@ public function guardarGastoaVenta($TotalEfectivoDisponible_GastoaVenta,$totalAc
         nombre='$nombreproveedor_GastoaVenta'
         WHERE idpersona='$idcliente_GastoaVenta'";
 
-        ejecutarConsulta($sqlcorrelativo);  
-        $residcliente = $idcliente_GastoaVenta;
-    }  
+            ejecutarConsulta($sqlcorrelativo);
+            $residcliente = $idcliente_GastoaVenta;
+        }
         ///////       
 
-    // Obtener mes en letras
-    $mes = $meses[intval($fecha_mes)];
+        // Obtener mes en letras
+        $mes = $meses[intval($fecha_mes)];
 
-    $sql="INSERT INTO compras (idusuario,
+        $sql = "INSERT INTO compras (idusuario,
     idsucursal,
     serie_no,
     factura_no,
@@ -2508,8 +2488,8 @@ public function guardarGastoaVenta($TotalEfectivoDisponible_GastoaVenta,$totalAc
     fecha_creacion,
     TotalEfectivoDisponible_GastoaVenta,
     totalAcumuladoGasots_GastoaVenta,disponibleparaGastos_GastoaVenta)
-    VALUES ('".$_SESSION["idusuario"]."',
-    '".$_SESSION["idsucursal"]."',
+    VALUES ('" . $_SESSION["idusuario"] . "',
+    '" . $_SESSION["idsucursal"] . "',
     '$serie_no_GastoaVenta',
     '$factura_no_GastoaVenta',
     '$mes',
@@ -2525,17 +2505,17 @@ public function guardarGastoaVenta($TotalEfectivoDisponible_GastoaVenta,$totalAc
     '$tipo_combustible_GastoaVenta',
     '$num_galonaje_GastoaVenta',
     '$concepto_fac_GastoaVenta',
-    '$fechaHora','$TotalEfectivoDisponible_GastoaVenta','$totalAcumuladoGasots_GastoaVenta','$disponibleparaGastos_GastoaVenta')"; 
-    ejecutarConsulta($sql); 
+    '$fechaHora','$TotalEfectivoDisponible_GastoaVenta','$totalAcumuladoGasots_GastoaVenta','$disponibleparaGastos_GastoaVenta')";
+        ejecutarConsulta($sql);
 
-    return ($sql);             
-}
+        return ($sql);
+    }
 
 
     //Implementar un método para mostrar los datos de un registro a modificar
-public function mostrar($idventa)
-{
-    $sql="SELECT
+    public function mostrar($idventa)
+    {
+        $sql = "SELECT
     v.idventa,
     DATE(v.fecha_hora) as fecha,
     v.idcliente,
@@ -2552,21 +2532,21 @@ public function mostrar($idventa)
     DATE(v.fecha_hora_siguiente_pago) as fechahorasiguientepago,
     v.observacion_credito
     FROM venta v INNER JOIN persona p ON v.idcliente=p.idpersona INNER JOIN usuario u ON v.idusuario=u.idusuario WHERE v.idventa='$idventa'";
-    return ejecutarConsultaSimpleFila($sql);
-}
+        return ejecutarConsultaSimpleFila($sql);
+    }
 
-public function listarDetalle($idventa)
-{
-    $sql="SELECT dv.idventa,dv.idarticulo,a.nombre,dv.cantidad,dv.precio_venta,
+    public function listarDetalle($idventa)
+    {
+        $sql = "SELECT dv.idventa,dv.idarticulo,a.nombre,dv.cantidad,dv.precio_venta,
     dv.descuento,
     ROUND((dv.cantidad*(dv.precio_venta-((dv.precio_venta*dv.descuento)/100))),2) as subtotal FROM detalle_venta dv inner join articulo a on dv.idarticulo=a.idarticulo where dv.idventa='$idventa'";
-    return ejecutarConsulta($sql);
-}
+        return ejecutarConsulta($sql);
+    }
 
     //Implementar un método para listar los registros
-public function listar($fecha_inicio_reporte,$fecha_fin_reporte)
-{
-            $sql="SELECT 
+    public function listar($fecha_inicio_reporte, $fecha_fin_reporte)
+    {
+        $sql = "SELECT 
             v.idventa,
             DATE(v.fecha_hora) as fecha,
             v.idcliente,
@@ -2602,17 +2582,17 @@ public function listar($fecha_inicio_reporte,$fecha_fin_reporte)
                 INNER JOIN usuario u ON v.idusuario=u.idusuario
                 LEFT JOIN vendedor vv ON vv.idvendedor=v.idvendedor
                 LEFT JOIN cotizacion c ON c.idventa=v.idventa
-            where u.idusuario='".$_SESSION["idusuario"]."' 
+            where u.idusuario='" . $_SESSION["idusuario"] . "' 
             and  DATE(v.fecha_hora)>='$fecha_inicio_reporte' 
             AND DATE(v.fecha_hora)<='$fecha_fin_reporte'
             AND v.tipo_venta_operacion = 'VENTA NORMAL'
-            order by  v.idventa DESC   "; 
-            return ejecutarConsulta($sql);      
-} 
+            order by  v.idventa DESC   ";
+        return ejecutarConsulta($sql);
+    }
 
-public function listarRestaurante($fecha_inicio_reporte,$fecha_fin_reporte)
-{
-            $sql="SELECT 
+    public function listarRestaurante($fecha_inicio_reporte, $fecha_fin_reporte)
+    {
+        $sql = "SELECT 
             v.idventa,
             DATE(v.fecha_hora) as fecha,
             v.idcliente,
@@ -2652,16 +2632,16 @@ public function listarRestaurante($fecha_inicio_reporte,$fecha_fin_reporte)
                 LEFT JOIN vendedor vv ON vv.idvendedor=v.idvendedor
                 LEFT JOIN cotizacion c ON c.idventa=v.idventa
                 LEFT JOIN add_orden ad ON ad.idventa=v.idventa
-            where u.idusuario='".$_SESSION["idusuario"]."' and  DATE(v.fecha_hora)>='$fecha_inicio_reporte' AND DATE(v.fecha_hora)<='$fecha_fin_reporte'
-            order by  v.idventa DESC   "; 
-            return ejecutarConsulta($sql);      
-} 
+            where u.idusuario='" . $_SESSION["idusuario"] . "' and  DATE(v.fecha_hora)>='$fecha_inicio_reporte' AND DATE(v.fecha_hora)<='$fecha_fin_reporte'
+            order by  v.idventa DESC   ";
+        return ejecutarConsulta($sql);
+    }
 
 
 
-            public function listarNC($fecha_inicio_reporte,$fecha_fin_reporte)
-            {
-                $sql="SELECT 
+    public function listarNC($fecha_inicio_reporte, $fecha_fin_reporte)
+    {
+        $sql = "SELECT 
                 v.idnota_credito,
                 p.nombre as cliente,
                 u.nombre AS usuarioNc,
@@ -2689,18 +2669,18 @@ public function listarRestaurante($fecha_inicio_reporte,$fecha_fin_reporte)
                 INNER JOIN venta vv ON v.idnota_credito=vv.idnota_credito
                 INNER JOIN persona p ON v.idcliente=p.idpersona 
                 INNER JOIN usuario u ON v.idusuario=u.idusuario
-                where u.idusuario='".$_SESSION["idusuario"]."' and  
+                where u.idusuario='" . $_SESSION["idusuario"] . "' and  
                 DATE(v.fecha_hora_nc)>='$fecha_inicio_reporte' 
                 AND DATE(v.fecha_hora_nc)<='$fecha_fin_reporte'
-                order by  v.idnota_credito DESC    "; 
-                return ejecutarConsulta($sql);      
-            } 
+                order by  v.idnota_credito DESC    ";
+        return ejecutarConsulta($sql);
+    }
 
 
-            public function listarVentasCierre($idcuadre_caja)
-            {
-                date_default_timezone_set('America/Guatemala');
-                $sql="SELECT 
+    public function listarVentasCierre($idcuadre_caja)
+    {
+        date_default_timezone_set('America/Guatemala');
+        $sql = "SELECT 
                 v.idventa,
                 DATE(v.fecha_hora) AS fecha,
                 v.idcliente,
@@ -2726,14 +2706,14 @@ public function listarRestaurante($fecha_inicio_reporte,$fecha_fin_reporte)
                 INNER JOIN persona p ON v.idcliente = p.idpersona 
                 INNER JOIN usuario u ON v.idusuario = u.idusuario
                 WHERE v.idcuadre_caja = '$idcuadre_caja'
-                AND v.tipo_operacion = 'CIERRE'  "; 
-                return ejecutarConsulta($sql);      
-            }     
+                AND v.tipo_operacion = 'CIERRE'  ";
+        return ejecutarConsulta($sql);
+    }
 
 
-            public function ventacabecera($idventa)
-            {
-                $sql="SELECT 
+    public function ventacabecera($idventa)
+    {
+        $sql = "SELECT 
                 v.idventa,
                 v.idcliente,
                 p.nombre as cliente,
@@ -2741,11 +2721,12 @@ public function listarRestaurante($fecha_inicio_reporte,$fecha_fin_reporte)
                 p.tipo_documento,
                 p.num_documento,
                 p.email,p.telefono,v.idusuario,u.nombre as usuario,v.tipo_comprobante,v.serie_comprobante,v.num_comprobante,date(v.fecha_hora) as fecha,v.impuesto,v.total_venta, v.total_ventades FROM venta v INNER JOIN persona p ON v.idcliente=p.idpersona INNER JOIN usuario u ON v.idusuario=U.idusuario WHERE v.idventa='$idventa'";
-                return ejecutarConsulta($sql);
-            }
+        return ejecutarConsulta($sql);
+    }
 
-            public function ventadetalle($idventa){
-                $sql="SELECT 
+    public function ventadetalle($idventa)
+    {
+        $sql = "SELECT 
                 a.nombre as articulo,
                 a.codigo,
                 d.cantidad,
@@ -2754,18 +2735,18 @@ public function listarRestaurante($fecha_inicio_reporte,$fecha_fin_reporte)
                 d.descripcion_detalle,
                 ROUND((d.cantidad*(d.precio_venta-((d.precio_venta*d.descuento)/100))),2) as subtotal,
                 ((d.precio_venta*d.descuento)/100) as total_descuento FROM detalle_venta d INNER JOIN articulo a ON d.idarticulo=a.idarticulo  WHERE d.idventa='$idventa'";
-                return ejecutarConsulta($sql);
-            }
+        return ejecutarConsulta($sql);
+    }
 
-            public function ventadetalletotalpeso($idventa)
-            {
-                $sql="SELECT SUM(d.cantidad*a.peso_producto) as peso FROM detalle_venta d INNER JOIN articulo a ON d.idarticulo=a.idarticulo WHERE d.idventa='$idventa'";
-                return ejecutarConsulta($sql);
-            }       
+    public function ventadetalletotalpeso($idventa)
+    {
+        $sql = "SELECT SUM(d.cantidad*a.peso_producto) as peso FROM detalle_venta d INNER JOIN articulo a ON d.idarticulo=a.idarticulo WHERE d.idventa='$idventa'";
+        return ejecutarConsulta($sql);
+    }
 
-            public function listar_despacho($fecha_inicio_reporte,$fecha_fin_reporte,$tipo_entrega)
-            {
-                $sql="SELECT 
+    public function listar_despacho($fecha_inicio_reporte, $fecha_fin_reporte, $tipo_entrega)
+    {
+        $sql = "SELECT 
                 v.idventa,
                 DATE(v.fecha_hora) as fecha,
                 v.idcliente,
@@ -2812,19 +2793,19 @@ public function listarRestaurante($fecha_inicio_reporte,$fecha_fin_reporte)
                         AND DATE(v.fecha_hora)<='$fecha_fin_reporte' 
                         and v.estado='Aceptado'
                         and ('*' = '$tipo_entrega' OR v.tipo_entrega = '$tipo_entrega')
-                order by  v.idventa DESC   "; 
-                return ejecutarConsulta($sql);      
-            }
+                order by  v.idventa DESC   ";
+        return ejecutarConsulta($sql);
+    }
 
-            public function cambiarestadodespachoVenta($idventa)
-            {
-                $sql="UPDATE venta SET estado_venta='COMPLETO' WHERE idventa='$idventa'";
-                return ejecutarConsulta($sql);
-            }
+    public function cambiarestadodespachoVenta($idventa)
+    {
+        $sql = "UPDATE venta SET estado_venta='COMPLETO' WHERE idventa='$idventa'";
+        return ejecutarConsulta($sql);
+    }
 
-            public function listarDasboardVentasMensajeroApp($idusuario)
-            {
-                $sql="SELECT 
+    public function listarDasboardVentasMensajeroApp($idusuario)
+    {
+        $sql = "SELECT 
                     v.estadoventamensajero AS estado,
                     COUNT(*) AS total
                     FROM venta v
@@ -2833,19 +2814,20 @@ public function listarRestaurante($fecha_inicio_reporte,$fecha_fin_reporte)
                         AND v.tipo_entrega = 'Mensajero'
                         AND u.idusuario ='$idusuario'
                         GROUP BY v.estadoventamensajero ";
-                return ejecutarConsulta($sql);
-            } 
-                     
+        return ejecutarConsulta($sql);
+    }
 
 
-            public function cambiarestadodespacho($idventa)
-            {
-                $sql="UPDATE venta SET despachosino='SI',estadoventamensajero='PENDIENTE' WHERE idventa='$idventa'";
-                return ejecutarConsulta($sql);
-            }            
 
-            public function ventacabecera2($idventa){
-                $sql="SELECT 
+    public function cambiarestadodespacho($idventa)
+    {
+        $sql = "UPDATE venta SET despachosino='SI',estadoventamensajero='PENDIENTE' WHERE idventa='$idventa'";
+        return ejecutarConsulta($sql);
+    }
+
+    public function ventacabecera2($idventa)
+    {
+        $sql = "SELECT 
                 v.idventa,
                 v.idcliente,
                 p.nombre as cliente,
@@ -2875,11 +2857,12 @@ public function listarRestaurante($fecha_inicio_reporte,$fecha_fin_reporte)
                 INNER JOIN sucursal s ON s.idsucursal=v.idsucursal
                 INNER JOIN usuario u ON v.idusuario=u.idusuario
                 WHERE v.idventa='$idventa'";
-                return ejecutarConsulta($sql);
-            }
+        return ejecutarConsulta($sql);
+    }
 
-            public function solicitudproductosCabecera($idsolicitud_productos){
-                $sql="SELECT 	
+    public function solicitudproductosCabecera($idsolicitud_productos)
+    {
+        $sql = "SELECT 	
                             s.*,
                             u.nombre AS usuario,
                             ss.idsucursal,
@@ -2899,11 +2882,12 @@ public function listarRestaurante($fecha_inicio_reporte,$fecha_fin_reporte)
                                 INNER JOIN sucursal ss ON ss.idsucursal=s.idsucursal
                                 inner join certificador c on c.idsucursal=s.idsucursal
                                 WHERE s.idsolicitud_productos='$idsolicitud_productos'";
-                return ejecutarConsulta($sql);
-            }
-            
-            public function solicitudproductosCabeceraDetalle($idsolicitud_productos){
-                $sql="SELECT 
+        return ejecutarConsulta($sql);
+    }
+
+    public function solicitudproductosCabeceraDetalle($idsolicitud_productos)
+    {
+        $sql = "SELECT 
                             d.idarticulo,
                             d.precio_compra,
                             d.stockinven,
@@ -2915,13 +2899,13 @@ public function listarRestaurante($fecha_inicio_reporte,$fecha_fin_reporte)
                         FROM detalle_solicitud_productos d
                         INNER JOIN articulo a ON a.idarticulo=d.idarticulo
                         WHERE d.idsolicitud_productos='$idsolicitud_productos'";
-                return ejecutarConsulta($sql);
-            }    
-            
-            
-            public function listarCabeceraspantalla($fecha_inicio, $fecha_fin, $tipo_envioPedidos)
-            {
-                $sql="SELECT 
+        return ejecutarConsulta($sql);
+    }
+
+
+    public function listarCabeceraspantalla($fecha_inicio, $fecha_fin, $tipo_envioPedidos)
+    {
+        $sql = "SELECT 
                 v.idventa,
                 v.idcliente,
                 p.nombre as cliente,
@@ -2994,11 +2978,12 @@ public function listarRestaurante($fecha_inicio_reporte,$fecha_fin_reporte)
                 left join add_orden aa ON aa.idventa=v.idventa
                 WHERE  c.condicion=1 AND DATE(v.fecha_hora)>='$fecha_inicio' 
                 AND DATE(v.fecha_hora)<='$fecha_fin'  and v.destino='PANTALLA' and v.tipo_envioPedidos='$tipo_envioPedidos' ";
-                return ejecutarConsulta($sql);
-            }
+        return ejecutarConsulta($sql);
+    }
 
-            public function ventadetallepantalla($idventa){
-                $sql="SELECT 
+    public function ventadetallepantalla($idventa)
+    {
+        $sql = "SELECT 
                         dv.iddetalle_venta,
                         dv.idventa,
                         dv.idarticulo,
@@ -3019,19 +3004,19 @@ public function listarRestaurante($fecha_inicio_reporte,$fecha_fin_reporte)
                         from detalle_venta dv
                         INNER JOIN articulo a ON dv.idarticulo=a.idarticulo 
                         WHERE dv.idventa='$idventa'";
-                return ejecutarConsulta($sql);
-            }   
-            
-            public function listo($idventa)
-            {
-                $sql="UPDATE venta SET tipo_envioPedidos='Listo' WHERE idventa='$idventa' ";
-                ejecutarConsulta($sql); 
-                return ($sql);             
-            }  
+        return ejecutarConsulta($sql);
+    }
 
-            public function cambiarformapago($idventa)
-            {
-                $sql="SELECT 
+    public function listo($idventa)
+    {
+        $sql = "UPDATE venta SET tipo_envioPedidos='Listo' WHERE idventa='$idventa' ";
+        ejecutarConsulta($sql);
+        return ($sql);
+    }
+
+    public function cambiarformapago($idventa)
+    {
+        $sql = "SELECT 
                         v.idventa,
                         v.idcliente,
                         p.codigo_cliente,
@@ -3058,15 +3043,15 @@ public function listarRestaurante($fecha_inicio_reporte,$fecha_fin_reporte)
                     FROM venta v 
                     INNER JOIN persona p ON p.idpersona=v.idcliente
                 WHERE v.tipo_operacion='APERTURA' 
-                AND v.estado='Aceptado' and  date(v.fecha_hora)= date(now()) and v.idventa='$idventa' and v.idsucursal='".$_SESSION["idsucursal"]."'
-                and v.idusuario='".$_SESSION["idusuario"]."' limit 1";
-                return ejecutarConsultaSimpleFila($sql);             
-            }  
+                AND v.estado='Aceptado' and  date(v.fecha_hora)= date(now()) and v.idventa='$idventa' and v.idsucursal='" . $_SESSION["idsucursal"] . "'
+                and v.idusuario='" . $_SESSION["idusuario"] . "' limit 1";
+        return ejecutarConsultaSimpleFila($sql);
+    }
 
-            public function obtenerdetalleventarefacturado($idventa)
-            {
-        
-                $sqldetalle="SELECT 
+    public function obtenerdetalleventarefacturado($idventa)
+    {
+
+        $sqldetalle = "SELECT 
                 dc.iddetalle_venta,
                 dc.idventa,
                 dc.idarticulo,
@@ -3136,27 +3121,42 @@ public function listarRestaurante($fecha_inicio_reporte,$fecha_fin_reporte)
                 from detalle_venta dc 
                 INNER JOIN articulo a on dc.idarticulo=a.idarticulo 
                 INNER JOIN articuloxsucursal asu ON asu.idarticulo=a.idarticulo
-                where asu.idsucursal='".$_SESSION["idsucursal"]."'  
+                where asu.idsucursal='" . $_SESSION["idsucursal"] . "'  
                 and dc.idventa='$idventa' 
                 order by dc.iddetalle_venta desc ";
 
-                $rspta=ejecutarConsulta($sqldetalle);
-                $rows = array();
-                while ($reg=$rspta->fetch_object()){
-                    $rows[] = $reg;
-                }
-                return $rows;
-            }            
+        $rspta = ejecutarConsulta($sqldetalle);
+        $rows = array();
+        while ($reg = $rspta->fetch_object()) {
+            $rows[] = $reg;
+        }
+        return $rows;
+    }
 
-            
-            public function guardaryeditar_formapago($idventa_formapago,$forma_pago_formapago,
-            $destino_formapago,$tipo_entrega_formapago,$idvendedor_formapago,$tipo_pagoBacVisaNet_formapago,
-            $opcionesAdicionales_formapago,$total_venta_formapago,$total_ventades_formapago,$cefectivo_formapago,
-            $ccredito_formapago,$ctransferencia_formapago,$observacion_credito_formapago,$ctarjeta_formapago,
-            $valor_tarjeta_formapago,$numero_pagos_formapago,$fecha_hora_pago_formapago,
-            $fecha_hora_vencimiento_factura_formapago,$monto_abono_formapago,$rescambio_formapago)
-            {
-                $sql="UPDATE venta SET 
+
+    public function guardaryeditar_formapago(
+        $idventa_formapago,
+        $forma_pago_formapago,
+        $destino_formapago,
+        $tipo_entrega_formapago,
+        $idvendedor_formapago,
+        $tipo_pagoBacVisaNet_formapago,
+        $opcionesAdicionales_formapago,
+        $total_venta_formapago,
+        $total_ventades_formapago,
+        $cefectivo_formapago,
+        $ccredito_formapago,
+        $ctransferencia_formapago,
+        $observacion_credito_formapago,
+        $ctarjeta_formapago,
+        $valor_tarjeta_formapago,
+        $numero_pagos_formapago,
+        $fecha_hora_pago_formapago,
+        $fecha_hora_vencimiento_factura_formapago,
+        $monto_abono_formapago,
+        $rescambio_formapago
+    ) {
+        $sql = "UPDATE venta SET 
                 forma_pago='$forma_pago_formapago',
                 destino='$destino_formapago',
                 tipo_entrega='$tipo_entrega_formapago',
@@ -3177,11 +3177,12 @@ public function listarRestaurante($fecha_inicio_reporte,$fecha_fin_reporte)
                 monto_abono='$monto_abono_formapago',
                 rescambio='$rescambio_formapago'
                 WHERE idventa='$idventa_formapago'";
-                return ejecutarConsulta($sql);
-            }
-         
-    public function listar_ventas_servicios($fecha_inicio_reporte,$fecha_fin_reporte){
-                $sql="SELECT 
+        return ejecutarConsulta($sql);
+    }
+
+    public function listar_ventas_servicios($fecha_inicio_reporte, $fecha_fin_reporte)
+    {
+        $sql = "SELECT 
                 v.idventa,
                 DATE(v.fecha_hora) as fecha,
                 v.idcliente,
@@ -3217,24 +3218,27 @@ public function listarRestaurante($fecha_inicio_reporte,$fecha_fin_reporte)
                     INNER JOIN usuario u ON v.idusuario=u.idusuario
                     LEFT JOIN vendedor vv ON vv.idvendedor=v.idvendedor
                     LEFT JOIN cotizacion c ON c.idventa=v.idventa
-                where u.idusuario='".$_SESSION["idusuario"]."' and  DATE(v.fecha_hora)>='$fecha_inicio_reporte' AND DATE(v.fecha_hora)<='$fecha_fin_reporte'
+                where u.idusuario='" . $_SESSION["idusuario"] . "' and  DATE(v.fecha_hora)>='$fecha_inicio_reporte' AND DATE(v.fecha_hora)<='$fecha_fin_reporte'
                 AND v.tipo_venta_operacion = 'VENTA SERVICIOS'
-                order by  v.idventa DESC"; 
-                return ejecutarConsulta($sql);      
+                order by  v.idventa DESC";
+        return ejecutarConsulta($sql);
     }
 
-    public function selectCobradores(){
+    public function selectCobradores()
+    {
         $sql = "SELECT * FROM cobradores WHERE condicion = 1";
         return ejecutarConsulta($sql);
     }
 
-    public function selectTecnicos(){
+    public function selectTecnicos()
+    {
         $sql = "SELECT * FROM tecnico WHERE condicion = 1";
         return ejecutarConsulta($sql);
     }
 
-    public function listar_ventas_servicios_usuario($fecha_inicio_reporte,$fecha_fin_reporte){
-                $sql="SELECT 
+    public function listar_ventas_servicios_usuario($fecha_inicio_reporte, $fecha_fin_reporte)
+    {
+        $sql = "SELECT 
                 v.idventa,
                 v.estado_venta_servicio,
                 DATE(v.fecha_hora) as fecha,
@@ -3271,31 +3275,33 @@ public function listarRestaurante($fecha_inicio_reporte,$fecha_fin_reporte)
                     INNER JOIN usuario u ON v.idusuario=u.idusuario
                     LEFT JOIN vendedor vv ON vv.idvendedor=v.idvendedor
                     LEFT JOIN cotizacion c ON c.idventa=v.idventa
-                where u.idusuario='".$_SESSION["idusuario"]."' and  DATE(v.fecha_hora)>='$fecha_inicio_reporte' AND DATE(v.fecha_hora)<='$fecha_fin_reporte'
+                where u.idusuario='" . $_SESSION["idusuario"] . "' and  DATE(v.fecha_hora)>='$fecha_inicio_reporte' AND DATE(v.fecha_hora)<='$fecha_fin_reporte'
                 AND v.tipo_venta_operacion = 'VENTA SERVICIOS'
-                order by  v.idventa DESC"; 
-                return ejecutarConsulta($sql);      
+                order by  v.idventa DESC";
+        return ejecutarConsulta($sql);
     }
 
-    public function registrar_venta_servicio($idventa_servicio,$descripcion_comentario,$ip_instalacion,$estado_servicio_venta,$ubicacioncliente,$idusuario,$idsucursal){
+    public function registrar_venta_servicio($idventa_servicio, $descripcion_comentario, $ip_instalacion, $estado_servicio_venta, $ubicacioncliente, $idusuario, $idsucursal)
+    {
         $sql = "INSERT INTO `ventas_servicios` (`idventa`, `idusuario`, `idsucursal`, `descripcion_comentario`, `fecha_hora`, `ubicacion`, 
             `ip_instalacion`, `estado_servicio_venta`)
             VALUES ('$idventa_servicio', '$idusuario', '$idsucursal', '$descripcion_comentario', NOW(), '$ubicacioncliente', '$ip_instalacion', '$estado_servicio_venta');";
-        
+
         $sql_venta = "UPDATE venta SET estado_venta_servicio='$estado_servicio_venta' WHERE idventa='$idventa_servicio'";
         ejecutarConsulta($sql_venta);
 
         return ejecutarConsulta($sql);
     }
 
-    public function procesarVentaIndividual($idcotizacion, $venta_lote_recibido = ""){
+    public function procesarVentaIndividual($idcotizacion, $venta_lote_recibido = "")
+    {
         $sqlCoti = "SELECT c.*, p.nombre as nombre_cliente, p.num_documento as nit, p.telefono as telefono_cliente, 
                             p.direccion as direccion_cliente, p.email as correo_cliente, p.tipo_documento as tipo_documento_cliente,
                             p.codigo_cliente, p.tipo_cliente
                     FROM cotizacion c
                     INNER JOIN persona p ON c.idcliente = p.idpersona
                     WHERE c.idcotizacion = '$idcotizacion' AND c.cobradosino = 'NO' AND c.estado = 'Aceptado'";
-            
+
         $coti = ejecutarConsultaSimpleFila($sqlCoti);
 
         if (!$coti) {
@@ -3316,7 +3322,7 @@ public function listarRestaurante($fecha_inicio_reporte,$fecha_fin_reporte)
                     INNER JOIN articulo a ON dc.idarticulo = a.idarticulo
                     WHERE dc.idcotizacion = '$idcotizacion' AND dc.tipo = '0' 
                     ORDER BY dc.iddetalle_cotizacion ASC";
-            
+
         $rsptaDetalle = ejecutarConsulta($sqlDetalle);
 
         if (!$rsptaDetalle || $rsptaDetalle->num_rows == 0) {
@@ -3329,7 +3335,7 @@ public function listarRestaurante($fecha_inicio_reporte,$fecha_fin_reporte)
             'stockinven'               => array(),
             'cantidadpresentacion'     => array(),
             'cantidad'                 => array(),
-            'totalcantidadpresentacion'=> array(),
+            'totalcantidadpresentacion' => array(),
             'presentacion'             => array(),
             'presen'                   => array(),
             'precio_ventaSistema'      => array(),
@@ -3415,32 +3421,70 @@ public function listarRestaurante($fecha_inicio_reporte,$fecha_fin_reporte)
 
         try {
             $resInsertar = $this->insertar(
-                $idcliente, $codigo_cliente, $nit, $nombre_cliente, $telefono_cliente,
-                $direccion_cliente, $correo_cliente, $tipo_documento_cliente, $idusuario, $idcotizacion, $fecha_hora, $forma_pago,
-                $tipo_comprobante, $total_venta, $total_ventades, $cefectivo, $ccredito, $ctarjeta, $ctransferencia,
-                $rescambio, $valor_tarjeta, $tipo_pagoBacVisaNet, $opcionesAdicionales, $observacion_credito,
-                $datosArticulos, $total_venta_r, $total_ventades_r, $tipo_entrega,
-                $numero_pagos, $fecha_hora_pago, $fecha_hora_vencimiento_factura, $monto_abono,
-                $idtransporte, $idmensajero, $idvendedor, $descuento_general, $valor_descuentoGeneral, $tipo_cliente,
-                $detalles_credito, $idtaller, $destino, $forma_productos, $comentario_venta, $tipo_venta_operacion,
-                $idcobradores, $idtecnico, $venta_lote
+                $idcliente,
+                $codigo_cliente,
+                $nit,
+                $nombre_cliente,
+                $telefono_cliente,
+                $direccion_cliente,
+                $correo_cliente,
+                $tipo_documento_cliente,
+                $idusuario,
+                $idcotizacion,
+                $fecha_hora,
+                $forma_pago,
+                $tipo_comprobante,
+                $total_venta,
+                $total_ventades,
+                $cefectivo,
+                $ccredito,
+                $ctarjeta,
+                $ctransferencia,
+                $rescambio,
+                $valor_tarjeta,
+                $tipo_pagoBacVisaNet,
+                $opcionesAdicionales,
+                $observacion_credito,
+                $datosArticulos,
+                $total_venta_r,
+                $total_ventades_r,
+                $tipo_entrega,
+                $numero_pagos,
+                $fecha_hora_pago,
+                $fecha_hora_vencimiento_factura,
+                $monto_abono,
+                $idtransporte,
+                $idmensajero,
+                $idvendedor,
+                $descuento_general,
+                $valor_descuentoGeneral,
+                $tipo_cliente,
+                $detalles_credito,
+                $idtaller,
+                $destino,
+                $forma_productos,
+                $comentario_venta,
+                $tipo_venta_operacion,
+                $idcobradores,
+                $idtecnico,
+                $venta_lote
             );
 
             $idventareal = is_array($resInsertar) ? (isset($resInsertar['idventanew']) ? $resInsertar['idventanew'] : 0) : $resInsertar;
 
             return array(
-                "status" => "ok", 
-                "msg" => "Cotización #$idcotizacion convertida en Venta #$idventareal exitosamente.", 
+                "status" => "ok",
+                "msg" => "Cotización #$idcotizacion convertida en Venta #$idventareal exitosamente.",
                 "idventa" => $idventareal,
                 "venta_lote" => $venta_lote
             );
-
         } catch (Exception $e) {
             return array("status" => "error", "msg" => "Error al procesar la cotización #$idcotizacion: " . $e->getMessage());
         }
     }
-     
-    public function listarVentasPorLote($venta_lote){
+
+    public function listarVentasPorLote($venta_lote)
+    {
         $sql = "SELECT v.idventa, v.venta_lote, v.tipo_comprobante, v.serie_comprobante, v.num_comprobante, 
                     v.fecha_hora, v.total_venta, v.impuesto, v.forma_pago,
                     p.nombre AS nombre_cliente, p.tipo_documento, p.num_documento, p.direccion, p.telefono
@@ -3451,7 +3495,8 @@ public function listarRestaurante($fecha_inicio_reporte,$fecha_fin_reporte)
         return ejecutarConsulta($sql);
     }
 
-    public function listarDetalleVenta($idventa){
+    public function listarDetalleVenta($idventa)
+    {
         $sql = "SELECT dv.iddetalle_venta, dv.idarticulo, a.nombre AS articulo, dv.cantidad, 
                     dv.precio_venta, dv.descuento, dv.descripcion_detalle,
                     (dv.cantidad * CAST(dv.precio_venta AS DECIMAL(20,6)) - dv.descuento) AS subtotal
@@ -3460,8 +3505,4 @@ public function listarRestaurante($fecha_inicio_reporte,$fecha_fin_reporte)
                 WHERE dv.idventa = '$idventa'";
         return ejecutarConsulta($sql);
     }
-
-            
-
 }
-?>

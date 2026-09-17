@@ -174,8 +174,6 @@ class Salidaprosucursal
                 '$stock_anterior_destino', '$totalcantidadpresentacion', 'Ingreso', '$kardex_stock_final_destino', 
                 '$precio_compra', '$nombreUser')";
                 ejecutarConsulta($sqlInsertKardexDestino);
-
-
             }
         }
 
@@ -195,7 +193,7 @@ class Salidaprosucursal
     ) {
         date_default_timezone_set('America/Guatemala');
         $fechaHora = date('Y-m-d H:i:s');
-        
+
         $sqlUsuarioK = "SELECT nombre FROM usuario WHERE idusuario='" . $idusuario . "'";
         $resUser = ejecutarConsultaSimpleFila($sqlUsuarioK);
         $nombreUser = $resUser ? $resUser["nombre"] : 'Sistema';
@@ -433,7 +431,7 @@ class Salidaprosucursal
     {
         date_default_timezone_set('America/Guatemala');
         $fechaHora = date('Y-m-d H:i:s');
-        
+
         @session_start();
         $idusuario_auditoria = $_SESSION["idusuario"];
         $sqlUsuarioK = "SELECT nombre FROM usuario WHERE idusuario='" . $idusuario_auditoria . "'";
@@ -508,8 +506,13 @@ class Salidaprosucursal
 
 
     //Implementar un método para listar los registros
-    public function listar($fecha_inicio, $fecha_fin)
+    public function listar($fecha_inicio, $fecha_fin, $idsucursal)
     {
+        $where_sucursal = "";
+        if (!empty($idsucursal)) {
+            $where_sucursal = " AND ts.idsucursalorigen = '$idsucursal'";
+        }
+
         $sql = "SELECT 
                 ts.idtraladosucursal,
                 ts.idsucursaldestino,
@@ -526,9 +529,8 @@ class Salidaprosucursal
                 ts.total_venta
                 FROM traslado_sucursal ts 
                 INNER JOIN usuario u on u.idusuario=ts.idusuario 
-                where  ts.idsucursalorigen='" . $_SESSION["idsucursal"] . "' 
-                and  u.idusuario='" . $_SESSION["idusuario"] . "'
-                and  DATE(ts.fecha_hora)>='$fecha_inicio' AND DATE(ts.fecha_hora)<='$fecha_fin'
+                where  DATE(ts.fecha_hora)>='$fecha_inicio' AND DATE(ts.fecha_hora)<='$fecha_fin'
+                 $where_sucursal
                 ORDER by ts.idtraladosucursal desc ";
         return ejecutarConsulta($sql);
     }

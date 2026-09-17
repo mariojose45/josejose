@@ -15,6 +15,10 @@ function init() {
 
         $("#idsucursalOrigen").html(options);
         $('#idsucursalOrigen').selectpicker('refresh');
+
+        var optionsFiltro = '<option value="">TODOS</option>' + r;
+        $("#idsucursal_filtro").html(optionsFiltro);
+        $('#idsucursal_filtro').selectpicker('refresh');
     });
 
     // Bloquear seleccionar la misma sucursal en ambos selects
@@ -104,6 +108,8 @@ function cancelarform() {
 function listar() {
     var fecha_inicio = $('#fecha_inicio').val();
     var fecha_fin = $('#fecha_fin').val();
+    var idsucursal = $('#idsucursal_filtro').val();
+
     tabla = $('#tbllistado').dataTable(
         {
             "aProcessing": true,//Activamos el procesamiento del datatables
@@ -143,7 +149,8 @@ function listar() {
                 type: "get",
                 data: {
                     fecha_inicio: fecha_inicio,
-                    fecha_fin: fecha_fin
+                    fecha_fin: fecha_fin,
+                    idsucursal: idsucursal
                 },
                 dataType: "json",
                 error: function (e) {

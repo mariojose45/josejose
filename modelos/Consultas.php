@@ -1141,13 +1141,20 @@ GROUP by MONTH(fecha_hora)";
 
     public function ventasxfecha($fecha_inicio, $fecha_fin, $idsucursal)
     {
-        $sql = "SELECT 
+        // Si seleccionó TODOS, no filtramos por sucursal
+        $filtroSucursal = "";
+
+        if ($idsucursal != "TODOS") {
+            $filtroSucursal = "  v.idsucursal='$idsucursal' ";
+        }
+
+        $sql = "SELECT  
                 v.idventa,
-                DATE(v.fecha_hora) as fecha,
+                DATE(v.fecha_hora) AS fecha,
                 v.idcliente,
-                p.nombre as cliente,
+                p.nombre AS cliente,
                 u.idusuario,
-                u.nombre as usuario,
+                u.nombre AS usuario,
                 v.tipo_comprobante,
                 v.serie_comprobante,
                 v.num_comprobante,
@@ -1160,23 +1167,27 @@ GROUP by MONTH(fecha_hora)";
                 v.forma_pago,
                 v.tipo_pagoBacVisaNet,
                 v.opcionesAdicionales,
-                ROUND(v.valor_tarjeta, 2) AS valor_tarjeta,  -- Redondeamos valor_tarjeta a 2 decimales
+                ROUND(v.valor_tarjeta, 2) AS valor_tarjeta,
                 v.ctarjeta,
                 v.ccredito,
                 v.nombre_vendedor,
-                v.autorizacionEcoFactura, 
+                v.autorizacionEcoFactura,
                 v.serie_ecoFactura,
-                v.numero_ecoFactura, 
+                v.numero_ecoFactura,
                 v.fechaCertificacion_ecoFactura
-            FROM venta v 
-            INNER JOIN persona p ON v.idcliente=p.idpersona 
-            INNER JOIN usuario u ON v.idusuario=u.idusuario
-            where v.idsucursal='$idsucursal' and v.estado='Aceptado'
-            and  DATE(v.fecha_hora)>='$fecha_inicio' AND DATE(v.fecha_hora)<='$fecha_fin'
-            order by  v.idventa DESC ";
+            FROM venta v
+            INNER JOIN persona p 
+                ON v.idcliente = p.idpersona
+            INNER JOIN usuario u 
+                ON v.idusuario = u.idusuario
+            WHERE 
+                $filtroSucursal
+                AND DATE(v.fecha_hora) >= '$fecha_inicio'
+                AND DATE(v.fecha_hora) <= '$fecha_fin'
+            ORDER BY v.idventa DESC";
+
         return ejecutarConsulta($sql);
     }
-
 
 
     public function ventasxfechaRestaurante($fecha_inicio, $fecha_fin, $idsucursal)

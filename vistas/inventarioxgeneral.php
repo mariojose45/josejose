@@ -51,6 +51,7 @@ if (!isset($_SESSION["nombre"])) {
                       <option value="no_negativos">Quitar Negativos (Stock >= 0)</option>
                       <option value="solo_ceros">Solo ceros (Stock = 0)</option>
                       <option value="solo_negativos">Solo Negativos (Stock < 0)</option>
+                      <option value="diferente_cero">Todos menos el 0 (Stock != 0)</option>
                     </select>
                   </div>
                   <div class="col-lg-2 col-md-2 col-sm-4 col-xs-12">

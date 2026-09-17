@@ -34,6 +34,35 @@ function listar() {
                 text: '<i class="fa fa-file-excel-o"></i> <strong> Exportar a Excel</strong>',
                 titleAttr: 'Exportar a Excel',
                 className: 'btn btn-success btn-sm'
+            },
+            {
+                extend: 'pdfHtml5',
+                text: '<i class="fa fa-file-pdf-o"></i> <strong> Exportar a PDF</strong>',
+                titleAttr: 'Exportar a PDF',
+                className: 'btn btn-danger btn-sm',
+                orientation: 'landscape',
+                title: function () {
+                    var sucursal = $("#idsucursal option:selected").text();
+                    var filtro = $("#filtro_stock option:selected").text();
+                    return 'SOL | Sistema de Operaciones en Linea\nSucursal: ' + sucursal + ' | Filtro de Stock: ' + filtro;
+                },
+                exportOptions: {
+                    columns: [0, 1, 2, 3, 4, 6, 7, 11]
+                },
+                customize: function(doc) {
+                    // Asignamos anchos específicos a las 8 columnas que estamos exportando
+                    // 'auto' ajusta al contenido, '*' reparte el espacio restante equitativamente
+                    doc.content[1].table.widths = [
+                        '5%',   // Dias Venci
+                        '*',    // Nombre
+                        '*',    // Descrip
+                        '*',    // Descrip2
+                        '13%',  // Categoría
+                        '10%',  // Código
+                        '10%',  // Stock
+                        '14%'   // Sucursal
+                    ];
+                }
             }
         ],
         "ajax": {

@@ -42,14 +42,19 @@ if (!isset($_SESSION["nombre"])) {
               <!-- /.box-header -->
               <!-- centro -->
               <div class="panel-body table-responsive" id="listadoregistros">
-                <div class="form-group col-lg-6 col-md-12 col-sm-12 col-xs-12">
+                <div class="form-group col-lg-4 col-md-12 col-sm-12 col-xs-12">
                   <label>Fecha Inicio</label>
                   <input type="date" class="form-control" name="fecha_inicio" id="fecha_inicio" value="<?php echo date("Y-m-d"); ?>">
                 </div>
-                <div class="form-group col-lg-6 col-md-12 col-sm-12 col-xs-12">
+                <div class="form-group col-lg-4 col-md-12 col-sm-12 col-xs-12">
                   <label>Fecha Fin</label>
                   <input type="date" class="form-control" name="fecha_fin" id="fecha_fin" value="<?php echo date("Y-m-d"); ?>">
-                  <button class="btn btn-info btn-block" onclick="listar()">Listar x fecha</button>
+                </div>
+                <div class="form-group col-lg-4 col-md-12 col-sm-12 col-xs-12">
+                  <label>Sucursal</label>
+                  <select id="idsucursal_filtro" name="idsucursal_filtro" class="form-control selectpicker" data-live-search="true" data-container="body">
+                  </select>
+                  <button class="btn btn-info btn-block" onclick="listar()">Listar</button>
                 </div>
                 <table id="tbllistado" class="table table-striped table-bordered table-condensed table-hover">
                   <thead>

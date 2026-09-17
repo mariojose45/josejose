@@ -1038,6 +1038,8 @@ class Articulo
             $sql .= " AND asu.stocksucursal = 0 ";
         } else if ($filtro_stock == "solo_negativos") {
             $sql .= " AND asu.stocksucursal < 0 ";
+        } else if ($filtro_stock == "diferente_cero") {
+            $sql .= " AND asu.stocksucursal != 0 ";
         }
 
         return ejecutarConsulta($sql);

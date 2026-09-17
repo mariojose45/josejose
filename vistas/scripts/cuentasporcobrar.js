@@ -221,12 +221,12 @@ function agregarDetalle(idventa, idcliente, nombre_cliente, tipo_comprobante, nu
 function agregarDetalle(idventa, idcliente, nombre_cliente, tipo_comprobante, numero_ecoFactura, fecha, total_venta, total_abono, saldo_venta) {
     // Validar si la factura ya fue agregada
     let yaExiste = false;
-    $('input[name="idventa_lote[]"]').each(function() {
+    $('input[name="idventa_lote[]"]').each(function () {
         if ($(this).val() == idventa) {
             yaExiste = true;
         }
     });
-    
+
     if (yaExiste) {
         Swal.fire({
             title: 'Atención',
@@ -270,6 +270,7 @@ function agregarDetalle(idventa, idcliente, nombre_cliente, tipo_comprobante, nu
                         <option value="EFECTIVO">EFECTIVO</option>
                         <option value="CHEQUE">CHEQUE</option>
                         <option value="TRANSFERENCIA">TRANSFERENCIA</option>
+                        <option value="BOLETA">BOLETA</option>
                     </select>
                 </td>
                 <td><input type="date" style="width:100px" class="form-control" name="fechapago_lote[]" id="${fechaPagoId}" value="${todayInGuatemala}"></td>
@@ -642,18 +643,18 @@ function load() {
 
 
 function validarBoleta(boleta, inputId) {
-    if(boleta.trim() === "") return;
-    
-    $.post("../ajax/cuentasporcobrar.php?op=validarBoleta", { numero_boleta: boleta }, function(data, status) {
+    if (boleta.trim() === "") return;
+
+    $.post("../ajax/cuentasporcobrar.php?op=validarBoleta", { numero_boleta: boleta }, function (data, status) {
         data = JSON.parse(data);
-        if(data && data.idcta_cobrar) {
+        if (data && data.idcta_cobrar) {
             Swal.fire({
                 title: 'Atención',
                 text: 'El número de boleta ' + boleta + ' ya se encuentra registrado en el sistema.',
                 icon: 'warning'
             });
             $('#' + inputId).val(""); // Limpiar el input
-            setTimeout(function() {
+            setTimeout(function () {
                 $('#' + inputId).focus(); // Regresar el foco al input
             }, 100);
         }
