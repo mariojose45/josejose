@@ -31,24 +31,30 @@ class CuadreInicio
         //  print_r($sql);
         $idnew = ejecutarConsulta_retornarID($sql);
 
-        $sqloperacion = "SELECT IFNULL(SUM(total_efectivo),0) as totalefectivo,idcuadre_caja FROM cuadre_cajas WHERE DATE(fecha_hora_inicio)=curdate() AND tipo_operacion='APERTURA' and idusuario='" . $_SESSION["idusuario"] . "' ";
+        $sqloperacion = "SELECT IFNULL(SUM(total_efectivo),0) as totalefectivo,idcuadre_caja 
+        FROM cuadre_cajas WHERE DATE(fecha_hora_inicio)<=curdate() AND tipo_operacion='APERTURA' and idsucursal='" . $_SESSION["idsucursal"] . "' ";
         $residcajas = ejecutarConsultaSimpleFila($sqloperacion);
         $update_idcuadre_caja = $residcajas["idcuadre_caja"];
 
-        $sqlupdate = "UPDATE cuadre_cajas SET tipo_operacion='CIERRE',idcuadre_caja_cierre='$idnew' WHERE idcuadre_caja='$update_idcuadre_caja'";
+        $sqlupdate = "UPDATE cuadre_cajas SET tipo_operacion='CIERRE',idcuadre_caja_cierre='$idnew' 
+        WHERE idcuadre_caja='$update_idcuadre_caja'";
         ejecutarConsulta($sqlupdate);
 
-        $sqlupdateventa = "UPDATE venta SET tipo_operacion='CIERRE', idcuadre_caja='$idnew' WHERE DATE(fecha_hora)=curdate() and idusuario='" . $_SESSION["idusuario"] . "' ";
+        $sqlupdateventa = "UPDATE venta SET tipo_operacion='CIERRE', idcuadre_caja='$idnew' 
+        WHERE DATE(fecha_hora)<=curdate() and idsucursal='" . $_SESSION["idsucursal"] . "' AND tipo_operacion='APERTURA' ";
         ejecutarConsulta($sqlupdateventa);
 
-        $sqlupdateCompras = "UPDATE compras SET tipo_operacion='CIERRE', idcuadre_caja='$idnew' WHERE DATE(fecha_creacion)=curdate() and idusuario='" . $_SESSION["idusuario"] . "' and idsucursal='" . $_SESSION["idsucursal"] . "' ";
+        $sqlupdateCompras = "UPDATE compras SET tipo_operacion='CIERRE', idcuadre_caja='$idnew' 
+        WHERE DATE(fecha_creacion)<=curdate() and idsucursal='" . $_SESSION["idsucursal"] . "' AND tipo_operacion='APERTURA' ";
         ejecutarConsulta($sqlupdateCompras);
 
 
-        $sqlupdateCtacobrar = "UPDATE cta_cobrar SET tipo_operacion='CIERRE', idcuadre_caja='$idnew' WHERE DATE(fecha_creacion)=curdate() and idusuario='" . $_SESSION["idusuario"] . "' and idsucursal='" . $_SESSION["idsucursal"] . "' ";
+        $sqlupdateCtacobrar = "UPDATE cta_cobrar SET tipo_operacion='CIERRE', idcuadre_caja='$idnew' 
+        WHERE DATE(fecha_creacion)<=curdate() and idsucursal='" . $_SESSION["idsucursal"] . "' AND tipo_operacion='APERTURA' ";
         ejecutarConsulta($sqlupdateCtacobrar);
 
-        $sqlupdateNC = "UPDATE nota_credito SET tipo_operacion='CIERRE', idcuadre_caja='$idnew' WHERE DATE(fecha_creacion)=curdate() and idusuario='" . $_SESSION["idusuario"] . "' and idsucursal='" . $_SESSION["idsucursal"] . "' ";
+        $sqlupdateNC = "UPDATE nota_credito SET tipo_operacion='CIERRE', idcuadre_caja='$idnew' 
+        WHERE DATE(fecha_creacion)<=curdate() and idsucursal='" . $_SESSION["idsucursal"] . "' AND tipo_operacion='APERTURA' ";
         ejecutarConsulta($sqlupdateNC);
 
         return ($idnew);

@@ -167,9 +167,9 @@ class Consultas
     {
 
         $sql = "SELECT IFNULL(SUM(total_efectivo),0) as totalefectivo,tipo_operacion
-        FROM cuadre_cajas WHERE DATE(fecha_hora_inicio)=curdate() 
+        FROM cuadre_cajas WHERE DATE(fecha_hora_inicio)<=curdate() 
         and tipo_operacion='APERTURA'  
-        and idusuario='" . $_SESSION["idusuario"] . "' and idsucursal='" . $_SESSION["idsucursal"] . "' ";
+        and idsucursal='" . $_SESSION["idsucursal"] . "' ";
         return ejecutarConsulta($sql);
     }
 
@@ -593,8 +593,8 @@ GROUP by MONTH(fecha_hora)";
         }
 
         $sql = "SELECT IFNULL(SUM(total_venta),0) as total_venta 
-        FROM venta WHERE DATE(fecha_hora)=curdate() 
-        AND estado='Aceptado'  and tipo_operacion<>'CIERRE' and idusuario='" . $_SESSION["idusuario"] . "' " . $filtro;
+        FROM venta WHERE DATE(fecha_hora)<=curdate() 
+        AND estado='Aceptado'  and tipo_operacion<>'CIERRE' and idsucursal='" . $_SESSION["idsucursal"] . "' " . $filtro;
         return ejecutarConsulta($sql);
     }
 
@@ -615,9 +615,9 @@ GROUP by MONTH(fecha_hora)";
 
         $sql = "SELECT IFNULL(SUM(cefectivo-rescambio),0) as total_venta 
         FROM venta 
-        WHERE DATE(fecha_hora)=curdate() AND estado='Aceptado'  
+        WHERE DATE(fecha_hora)<=curdate() AND estado='Aceptado'  
         and tipo_operacion<>'CIERRE'  
-        and idusuario='" . $_SESSION["idusuario"] . "'  ";
+        and idsucursal='" . $_SESSION["idsucursal"] . "'  ";
         return ejecutarConsulta($sql);
     }
 
@@ -625,9 +625,9 @@ GROUP by MONTH(fecha_hora)";
     {
         $sql = "SELECT IFNULL(SUM(ccredito),0) as total_venta 
         FROM venta 
-        WHERE DATE(fecha_hora)=curdate() AND estado='Aceptado'  
+        WHERE DATE(fecha_hora)<=curdate() AND estado='Aceptado'  
         and tipo_operacion<>'CIERRE'  AND forma_pago IN ('Credito') 
-        and idusuario='" . $_SESSION["idusuario"] . "' ";
+        and idsucursal='" . $_SESSION["idsucursal"] . "' ";
         return ejecutarConsulta($sql);
     }
 
@@ -635,11 +635,11 @@ GROUP by MONTH(fecha_hora)";
     {
         $sql = "SELECT IFNULL(SUM(ctarjeta),0) as total_venta 
         FROM venta 
-        WHERE DATE(fecha_hora)=curdate() 
+        WHERE DATE(fecha_hora)<=curdate() 
         AND estado='Aceptado'  
         and tipo_operacion<>'CIERRE'  
         AND forma_pago IN ('Tarjeta','Efectivo/Tarjeta') 
-        and idusuario='" . $_SESSION["idusuario"] . "' ";
+        and idsucursal='" . $_SESSION["idsucursal"] . "' ";
         return ejecutarConsulta($sql);
     }
 
@@ -648,10 +648,10 @@ GROUP by MONTH(fecha_hora)";
     {
         $sql = "SELECT IFNULL(SUM(c.valor_q),0) as total_venta 
         FROM compras c  
-        WHERE DATE(c.fecha_creacion)=curdate() 
+        WHERE DATE(c.fecha_creacion)<=curdate() 
         AND condicion='1'  
         and tipo_operacion='APERTURA' 
-        and idusuario='" . $_SESSION["idusuario"] . "' ";
+        and idsucursal='" . $_SESSION["idsucursal"] . "' ";
         return ejecutarConsulta($sql);
     }
 
@@ -660,10 +660,10 @@ GROUP by MONTH(fecha_hora)";
     {
         $sql = "SELECT IFNULL(SUM(nc.total_venta),0) as total_venta 
         FROM nota_credito nc 
-        WHERE DATE(nc.fecha_creacion)=curdate() 
+        WHERE DATE(nc.fecha_creacion)<=curdate() 
         AND estado='Aceptado'  
         and tipo_operacion='APERTURA' 
-        and idusuario='" . $_SESSION["idusuario"] . "' ";
+        and idsucursal='" . $_SESSION["idsucursal"] . "' ";
         return ejecutarConsulta($sql);
     }
 
@@ -671,10 +671,10 @@ GROUP by MONTH(fecha_hora)";
     {
         $sql = "SELECT IFNULL(SUM(c.total_abono),0) as total_venta 
         FROM cta_cobrar c  
-        WHERE DATE(c.fecha_creacion)=curdate()        
+        WHERE DATE(c.fecha_creacion)<=curdate()        
         AND condicion='1'  
         and tipo_operacion='APERTURA' 
-        and idusuario='" . $_SESSION["idusuario"] . "' ";
+        and idsucursal='" . $_SESSION["idsucursal"] . "' ";
         return ejecutarConsulta($sql);
     }
 
@@ -682,11 +682,11 @@ GROUP by MONTH(fecha_hora)";
     {
         $sql = "SELECT IFNULL(SUM(ctransferencia),0) as total_venta 
         FROM venta 
-        WHERE DATE(fecha_hora)=curdate() 
+        WHERE DATE(fecha_hora)<=curdate() 
         AND estado='Aceptado'  
         and tipo_operacion<>'CIERRE'  
         AND forma_pago IN ('Transferencia') 
-        and idusuario='" . $_SESSION["idusuario"] . "'  ";
+        and idsucursal='" . $_SESSION["idsucursal"] . "'  ";
         return ejecutarConsulta($sql);
     }
 

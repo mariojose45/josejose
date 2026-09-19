@@ -3013,6 +3013,7 @@ function agregarDetalleCantidadRapida(idarticulo, nombre, precio_venta, stock, d
     idarticulo = idarticulo.toString().trim();
     var subtotaldes = 0;
     if (idarticulo != "") {
+        /*
         var exist = false;
         $('#detalles').children("tbody").children("tr").each(function (index) {
             var idart = $(this).attr("data-id")
@@ -3022,13 +3023,14 @@ function agregarDetalleCantidadRapida(idarticulo, nombre, precio_venta, stock, d
         })
 
         if (!exist) {
-            var subtotal = cantidad * precio_venta;
-            var fila = '<tr class="filas" data-id="' + idarticulo + '" id="fila' + cont + '">' +
-                '<td><button type="button" class="btn btn-danger" onclick="eliminarDetalle(' + cont + ')">X</button></td>' +
-                '<td><input type="hidden" name="idarticulo[]" value="' + idarticulo + '">' + nombre + '</td>' +
-                '<td><input type="hidden" name="precio_compra[]" value="' + precio_compra + '"><input type="hidden" name="stockinven[]" value="' + stockinven + '">' + stockinven + '</td>' +
-                '<td><input style="width:60px" type="hidden" id="cantidadpresentacion' + cont + '" name="cantidadpresentacion[]" value="' + cantidadpresentacion + '" onchange="modificarSubototales()"><input style="width:60px" class="form-control"  onchange="modificarSubototalesxrango(' + cont + ',' + precio_rango1 + ',' + precio_rango2 + ',' + precio_rango3 + ',' + precio_rango1_Dos + ',' + precio_rango2_Dos + ',' + precio_rango3_Dos + ',' + precio_rango1_Mecanico + ',' + precio_rango2_MecanicoDos + ',' + precio_rango3_MecanicoTres + ',' + precio_rango1_Distribuidor + ',' + precio_rango2_DistribuidorDos + ',' + precio_rango3_DistribuidorTres + ',' + precio_rango1_Mayorista + ',' + precio_rango2_MayoristaDos + ',' + precio_rango3_MayoristaTres + ',this)"  type="number" step="any"   id="cxcantidad' + idarticulo + '" name="cantidad[]" id="cantidad' + cont + '" value="' + cantidad + '"><input style="width:60px"  type="hidden" id="totalcantidadpresentacion' + cont + '" name="totalcantidadpresentacion[]" value="' + totalcantidadpresentacion + '" onchange="modificarSubototales()"></td>' +
-                `<td>
+        */
+        var subtotal = cantidad * precio_venta;
+        var fila = '<tr class="filas" data-id="' + idarticulo + '" id="fila' + cont + '">' +
+            '<td><button type="button" class="btn btn-danger" onclick="eliminarDetalle(' + cont + ')">X</button></td>' +
+            '<td><input type="hidden" name="idarticulo[]" value="' + idarticulo + '">' + nombre + '</td>' +
+            '<td><input type="hidden" name="precio_compra[]" value="' + precio_compra + '"><input type="hidden" name="stockinven[]" value="' + stockinven + '">' + stockinven + '</td>' +
+            '<td><input style="width:60px" type="hidden" id="cantidadpresentacion' + cont + '" name="cantidadpresentacion[]" value="' + cantidadpresentacion + '" onchange="modificarSubototales()"><input style="width:100px" class="form-control"  onchange="modificarSubototalesxrango(' + cont + ',' + precio_rango1 + ',' + precio_rango2 + ',' + precio_rango3 + ',' + precio_rango1_Dos + ',' + precio_rango2_Dos + ',' + precio_rango3_Dos + ',' + precio_rango1_Mecanico + ',' + precio_rango2_MecanicoDos + ',' + precio_rango3_MecanicoTres + ',' + precio_rango1_Distribuidor + ',' + precio_rango2_DistribuidorDos + ',' + precio_rango3_DistribuidorTres + ',' + precio_rango1_Mayorista + ',' + precio_rango2_MayoristaDos + ',' + precio_rango3_MayoristaTres + ',this)"  type="number" step="any"   id="cantidad' + cont + '" name="cantidad[]" value="' + cantidad + '"><input style="width:60px"  type="hidden" id="totalcantidadpresentacion' + cont + '" name="totalcantidadpresentacion[]" value="' + totalcantidadpresentacion + '" onchange="modificarSubototales()"></td>' +
+            `<td>
                 <select class="form-control" style="width:125px" name="presentacion[]" id="presentacionselect`+ cont + `" 
                 onchange="presentacionoculatardatos(`+ cont + `,` + precio_venta + `,
                                 '` + nombre_01 + `',` + stock_unidad + `,` + precio_unidad + `,
@@ -3074,28 +3076,29 @@ function agregarDetalleCantidadRapida(idarticulo, nombre, precio_venta, stock, d
 
                 </select>
             </td>`+
-                `<td><input  type="hidden"  name="presen[]" id="presen` + cont + `"value="` + presen + `" ">
+            `<td><input  type="hidden"  name="presen[]" id="presen` + cont + `"value="` + presen + `" ">
                 <input type="hidden" name="precio_ventaSistema[]" id="precio_ventaSistema`+ cont + `" value="` + precio_venta + `">
                 <input type="hidden" name="precio_ventaSistema2[]" id="precio_ventaSistema2`+ cont + `" value="` + precio_venta + `">
                 <input class="form-control" style="width:100px" type="number" step="any" name="q_ref[]" id="q_ref`+ cont + `"   onchange="modificarSubototalespreciopresentacion()" value="` + precio_venta + `" ${precio_activado.trim().toUpperCase() === "SI" ? 'readonly' : ''}> 
                     <input type="hidden" step="any" name="precio_venta[]" style="width:100px"  id="precio_venta`+ cont + `" value="` + precio_venta + `" >
                     <input type="hidden" step="any" name="precio_recargoPV[]"  id="precio_recargoPV`+ cont + `" value="0" >
                     <input type="hidden" name="precio_recargoQRef[]"   id="precio_recargoQRef`+ cont + `" value="0" ></td>` +
-                '<td><input type="hidden" name="descuento_permitido[]"  id="descuento_permitido' + cont + '" value="' + descuento_porcentaje + '"><input onchange="modificarSubototales()" class="form-control" type="number" style="width:100px"  step="any"  name="descuento_porcentaje[]" id="descuento_porcentaje[]" value="0"></td>' +
-                '<td><input type="hidden" name="subtotal1[]" ><span name="subtotal" id="subtotal' + cont + '">' + subtotal + '</span></td>' +
-                '<td><input type="hidden" name="subtotaldes1[]" ><span name="subtotaldes" id="subtotaldes' + cont + '">' + subtotaldes + '</span></td>' +
-                '<td><input style="width:100px" class="form-control"  type="text"   name="descripcion_detalle[]" id="descripcion_detalle' + cont + '" value="."></td>' +
-                '<td><button type="button" onclick="modificarSubototales()" class="btn btn-info"><i class="fa fa-refresh"></i></button></td>' +
-                '<td><button type="button" onclick="mostrarextras(' + cont + ', \'' + idarticulo + '\')" class="btn btn-info"><i class="fa fa-plus"></i></button></td>' +
-                '</tr>' +
-                '<tr id="extras-row-' + cont + '" class="extras-row" style="display:none">' +
-                '<td colspan="10">' + // Ajustado a 10 columnas según tu tabla
-                '<div class="extras-container" id="extras-container-' + cont + '"></div>' +
-                '</td>' +
-                '</tr>';
-            cont++;
-            detalles = detalles + 1;
-            $(fila).prependTo('#detalles');
+            '<td><input type="hidden" name="descuento_permitido[]"  id="descuento_permitido' + cont + '" value="' + descuento_porcentaje + '"><input onchange="modificarSubototales()" class="form-control" type="number" style="width:100px"  step="any"  name="descuento_porcentaje[]" id="descuento_porcentaje[]" value="0"></td>' +
+            '<td><input type="hidden" name="subtotal1[]" ><span name="subtotal" id="subtotal' + cont + '">' + subtotal + '</span></td>' +
+            '<td><input type="hidden" name="subtotaldes1[]" ><span name="subtotaldes" id="subtotaldes' + cont + '">' + subtotaldes + '</span></td>' +
+            '<td><input style="width:100px" class="form-control"  type="text"   name="descripcion_detalle[]" id="descripcion_detalle' + cont + '" value="."></td>' +
+            '<td><button type="button" onclick="modificarSubototales()" class="btn btn-info"><i class="fa fa-refresh"></i></button></td>' +
+            '<td><button type="button" onclick="mostrarextras(' + cont + ', \'' + idarticulo + '\')" class="btn btn-info"><i class="fa fa-plus"></i></button></td>' +
+            '</tr>' +
+            '<tr id="extras-row-' + cont + '" class="extras-row" style="display:none">' +
+            '<td colspan="10">' + // Ajustado a 10 columnas según tu tabla
+            '<div class="extras-container" id="extras-container-' + cont + '"></div>' +
+            '</td>' +
+            '</tr>';
+        cont++;
+        detalles = detalles + 1;
+        $(fila).prependTo('#detalles');
+        /*
         } else {
             var cxcantidad = parseInt($("#cxcantidad" + idarticulo).val()) + 1
             $("#cxcantidad" + idarticulo).val(cxcantidad)
@@ -3106,6 +3109,7 @@ function agregarDetalleCantidadRapida(idarticulo, nombre, precio_venta, stock, d
                 precio_rango2_DistribuidorDos, precio_rango3_DistribuidorTres, precio_rango1_Mayorista,
                 precio_rango2_MayoristaDos, precio_rango3_MayoristaTres, $("#cxcantidad" + idarticulo)[0]);
         }
+        */
 
         modificarSubototales();
     }
@@ -3168,100 +3172,81 @@ function agregarDetalleCantidad(idarticulo, nombre, precio_venta, stock, descuen
     idarticulo = idarticulo.toString().trim();
     var subtotaldes = 0;
     if (idarticulo != "") {
-        var exist = false;
-        $('#detalles').children("tbody").children("tr").each(function (index) {
-            var idart = $(this).attr("data-id")
-            if (idart == idarticulo) {
-                exist = true;
-            }
-        })
+        // Quitamos la validación 'exist' para que siempre agregue una nueva fila (separado)
+        var subtotal = cantidad * precio_venta;
+        var fila = '<tr class="filas" data-id="' + idarticulo + '" id="fila' + cont + '">' +
+            '<td><button type="button" class="btn btn-danger" onclick="eliminarDetalle(' + cont + ')">X</button></td>' +
+            '<td><input type="hidden" name="idarticulo[]" value="' + idarticulo + '">' + nombre + '</td>' +
+            '<td><input type="hidden" name="precio_compra[]" value="' + precio_compra + '"><input type="hidden" name="stockinven[]" value="' + stockinven + '">' + stockinven + '</td>' +
+            '<td><input style="width:60px" type="hidden" id="cantidadpresentacion' + cont + '" name="cantidadpresentacion[]" value="' + cantidadpresentacion + '" onchange="modificarSubototales()"><input style="width:100px" class="form-control"  onchange="modificarSubototalesxrango(' + cont + ',' + precio_rango1 + ',' + precio_rango2 + ',' + precio_rango3 + ',' + precio_rango1_Dos + ',' + precio_rango2_Dos + ',' + precio_rango3_Dos + ',' + precio_rango1_Mecanico + ',' + precio_rango2_MecanicoDos + ',' + precio_rango3_MecanicoTres + ',' + precio_rango1_Distribuidor + ',' + precio_rango2_DistribuidorDos + ',' + precio_rango3_DistribuidorTres + ',' + precio_rango1_Mayorista + ',' + precio_rango2_MayoristaDos + ',' + precio_rango3_MayoristaTres + ',this)"  type="number" step="any"   id="cantidad' + cont + '"  name="cantidad[]" value="' + cantidad + '"><input style="width:100px"  type="hidden" id="totalcantidadpresentacion' + cont + '" name="totalcantidadpresentacion[]" value="' + totalcantidadpresentacion + '" onchange="modificarSubototales()"></td>' +
+            `<td>
+            <select class="form-control" style="width:125px" name="presentacion[]" id="presentacionselect`+ cont + `" 
+            onchange="presentacionoculatardatos(`+ cont + `,` + precio_venta + `,
+                            '` + nombre_01 + `',` + stock_unidad + `,` + precio_unidad + `,
+                            '` + nombre_02 + `',` + stock_blister + `,` + precio_blister + `,
+                            '` + nombre_03 + `',` + stock_caja + `,` + precio_caja + `,
+                            '` + nombre_04 + `',` + stock_fardo + `,` + precio_fardo + `,
+                            '` + nombre_05 + `',` + stock_sacos + `,` + precio_sacos + `,
+                            '` + nombre_06 + `',` + stock_paquete + `,` + precio_paquete + `,
+                            '` + nombre_07 + `',` + stock_07 + `,` + precio_07 + `,
+                            '` + nombre_08 + `',` + stock_08 + `,` + precio_08 + `,
+                            '` + nombre_09 + `',` + stock_09 + `,` + precio_09 + `,
+                            '` + nombre_10 + `',` + stock_10 + `,` + precio_10 + `,
+                            '` + nombre_11 + `',` + stock_11 + `,` + precio_11 + `,
+                            '` + nombre_12 + `',` + stock_12 + `,` + precio_12 + `,
+                            '` + nombre_13 + `',` + stock_13 + `,` + precio_13 + `,
+                            '` + nombre_14 + `',` + stock_14 + `,` + precio_14 + `,
+                            '` + nombre_15 + `',` + stock_15 + `,` + precio_15 + `,
+                            '` + nombre_16 + `',` + stock_16 + `,` + precio_16 + `,
+                            '` + nombre_17 + `',` + stock_17 + `,` + precio_17 + `,
+                            '` + nombre_18 + `',` + stock_18 + `,` + precio_18 + `,
+                            '` + nombre_19 + `',` + stock_19 + `,` + precio_19 + `,
+                            '` + nombre_20 + `',` + stock_20 + `,` + precio_20 + `)"  >
+                            `+ (parseFloat(stock_unidad) > 0 ? `<option value="${nombre_01}">${nombre_01}</option>` : ``) + ` 
+                            `+ (parseFloat(stock_blister) > 0 ? `<option value="${nombre_02}">${nombre_02}</option>` : ``) + ` 
+                            `+ (parseFloat(stock_caja) > 0 ? `<option value="${nombre_03}">${nombre_03}</option>` : ``) + ` 
+                            `+ (parseFloat(stock_fardo) > 0 ? `<option value="${nombre_04}">${nombre_04}</option>` : ``) + ` 
+                            `+ (parseFloat(stock_sacos) > 0 ? `<option value="${nombre_05}">${nombre_05}</option>` : ``) + ` 
+                            `+ (parseFloat(stock_paquete) > 0 ? `<option value="${nombre_06}">${nombre_06}</option>` : ``) + ` 
+                            `+ (parseFloat(stock_07) > 0 ? `<option value="${nombre_07}">${nombre_07}</option>` : ``) + ` 
+                            `+ (parseFloat(stock_08) > 0 ? `<option value="${nombre_08}">${nombre_08}</option>` : ``) + ` 
+                            `+ (parseFloat(stock_09) > 0 ? `<option value="${nombre_09}">${nombre_09}</option>` : ``) + ` 
+                            `+ (parseFloat(stock_10) > 0 ? `<option value="${nombre_10}">${nombre_10}</option>` : ``) + ` 
+                            `+ (parseFloat(stock_11) > 0 ? `<option value="${nombre_11}">${nombre_11}</option>` : ``) + ` 
+                            `+ (parseFloat(stock_12) > 0 ? `<option value="${nombre_12}">${nombre_12}</option>` : ``) + ` 
+                            `+ (parseFloat(stock_13) > 0 ? `<option value="${nombre_13}">${nombre_13}</option>` : ``) + ` 
+                            `+ (parseFloat(stock_14) > 0 ? `<option value="${nombre_14}">${nombre_14}</option>` : ``) + ` 
+                            `+ (parseFloat(stock_15) > 0 ? `<option value="${nombre_15}">${nombre_15}</option>` : ``) + ` 
+                            `+ (parseFloat(stock_16) > 0 ? `<option value="${nombre_16}">${nombre_16}</option>` : ``) + ` 
+                            `+ (parseFloat(stock_17) > 0 ? `<option value="${nombre_17}">${nombre_17}</option>` : ``) + ` 
+                            `+ (parseFloat(stock_18) > 0 ? `<option value="${nombre_18}">${nombre_18}</option>` : ``) + ` 
+                            `+ (parseFloat(stock_19) > 0 ? `<option value="${nombre_19}">${nombre_19}</option>` : ``) + ` 
+                            `+ (parseFloat(stock_20) > 0 ? `<option value="${nombre_20}">${nombre_20}</option>` : ``) + ` 
 
-        if (!exist) {
-            var subtotal = cantidad * precio_venta;
-            var fila = '<tr class="filas" data-id="' + idarticulo + '" id="fila' + cont + '">' +
-                '<td><button type="button" class="btn btn-danger" onclick="eliminarDetalle(' + cont + ')">X</button></td>' +
-                '<td><input type="hidden" name="idarticulo[]" value="' + idarticulo + '">' + nombre + '</td>' +
-                '<td><input type="hidden" name="precio_compra[]" value="' + precio_compra + '"><input type="hidden" name="stockinven[]" value="' + stockinven + '">' + stockinven + '</td>' +
-                '<td><input style="width:60px" type="hidden" id="cantidadpresentacion' + cont + '" name="cantidadpresentacion[]" value="' + cantidadpresentacion + '" onchange="modificarSubototales()"><input style="width:60px" class="form-control"  onchange="modificarSubototalesxrango(' + cont + ',' + precio_rango1 + ',' + precio_rango2 + ',' + precio_rango3 + ',' + precio_rango1_Dos + ',' + precio_rango2_Dos + ',' + precio_rango3_Dos + ',' + precio_rango1_Mecanico + ',' + precio_rango2_MecanicoDos + ',' + precio_rango3_MecanicoTres + ',' + precio_rango1_Distribuidor + ',' + precio_rango2_DistribuidorDos + ',' + precio_rango3_DistribuidorTres + ',' + precio_rango1_Mayorista + ',' + precio_rango2_MayoristaDos + ',' + precio_rango3_MayoristaTres + ',this)"  type="number" step="any"   id="cxcantidad' + idarticulo + '" name="cantidad[]" id="cantidad' + cont + '" value="' + cantidad + '"><input style="width:60px"  type="hidden" id="totalcantidadpresentacion' + cont + '" name="totalcantidadpresentacion[]" value="' + totalcantidadpresentacion + '" onchange="modificarSubototales()"></td>' +
-                `<td>
-                <select class="form-control" style="width:125px" name="presentacion[]" id="presentacionselect`+ cont + `" 
-                onchange="presentacionoculatardatos(`+ cont + `,` + precio_venta + `,
-                                '` + nombre_01 + `',` + stock_unidad + `,` + precio_unidad + `,
-                                '` + nombre_02 + `',` + stock_blister + `,` + precio_blister + `,
-                                '` + nombre_03 + `',` + stock_caja + `,` + precio_caja + `,
-                                '` + nombre_04 + `',` + stock_fardo + `,` + precio_fardo + `,
-                                '` + nombre_05 + `',` + stock_sacos + `,` + precio_sacos + `,
-                                '` + nombre_06 + `',` + stock_paquete + `,` + precio_paquete + `,
-                                '` + nombre_07 + `',` + stock_07 + `,` + precio_07 + `,
-                                '` + nombre_08 + `',` + stock_08 + `,` + precio_08 + `,
-                                '` + nombre_09 + `',` + stock_09 + `,` + precio_09 + `,
-                                '` + nombre_10 + `',` + stock_10 + `,` + precio_10 + `,
-                                '` + nombre_11 + `',` + stock_11 + `,` + precio_11 + `,
-                                '` + nombre_12 + `',` + stock_12 + `,` + precio_12 + `,
-                                '` + nombre_13 + `',` + stock_13 + `,` + precio_13 + `,
-                                '` + nombre_14 + `',` + stock_14 + `,` + precio_14 + `,
-                                '` + nombre_15 + `',` + stock_15 + `,` + precio_15 + `,
-                                '` + nombre_16 + `',` + stock_16 + `,` + precio_16 + `,
-                                '` + nombre_17 + `',` + stock_17 + `,` + precio_17 + `,
-                                '` + nombre_18 + `',` + stock_18 + `,` + precio_18 + `,
-                                '` + nombre_19 + `',` + stock_19 + `,` + precio_19 + `,
-                                '` + nombre_20 + `',` + stock_20 + `,` + precio_20 + `)"  >
-                                `+ (parseFloat(stock_unidad) > 0 ? `<option value="${nombre_01}">${nombre_01}</option>` : ``) + ` 
-                                `+ (parseFloat(stock_blister) > 0 ? `<option value="${nombre_02}">${nombre_02}</option>` : ``) + ` 
-                                `+ (parseFloat(stock_caja) > 0 ? `<option value="${nombre_03}">${nombre_03}</option>` : ``) + ` 
-                                `+ (parseFloat(stock_fardo) > 0 ? `<option value="${nombre_04}">${nombre_04}</option>` : ``) + ` 
-                                `+ (parseFloat(stock_sacos) > 0 ? `<option value="${nombre_05}">${nombre_05}</option>` : ``) + ` 
-                                `+ (parseFloat(stock_paquete) > 0 ? `<option value="${nombre_06}">${nombre_06}</option>` : ``) + ` 
-                                `+ (parseFloat(stock_07) > 0 ? `<option value="${nombre_07}">${nombre_07}</option>` : ``) + ` 
-                                `+ (parseFloat(stock_08) > 0 ? `<option value="${nombre_08}">${nombre_08}</option>` : ``) + ` 
-                                `+ (parseFloat(stock_09) > 0 ? `<option value="${nombre_09}">${nombre_09}</option>` : ``) + ` 
-                                `+ (parseFloat(stock_10) > 0 ? `<option value="${nombre_10}">${nombre_10}</option>` : ``) + ` 
-                                `+ (parseFloat(stock_11) > 0 ? `<option value="${nombre_11}">${nombre_11}</option>` : ``) + ` 
-                                `+ (parseFloat(stock_12) > 0 ? `<option value="${nombre_12}">${nombre_12}</option>` : ``) + ` 
-                                `+ (parseFloat(stock_13) > 0 ? `<option value="${nombre_13}">${nombre_13}</option>` : ``) + ` 
-                                `+ (parseFloat(stock_14) > 0 ? `<option value="${nombre_14}">${nombre_14}</option>` : ``) + ` 
-                                `+ (parseFloat(stock_15) > 0 ? `<option value="${nombre_15}">${nombre_15}</option>` : ``) + ` 
-                                `+ (parseFloat(stock_16) > 0 ? `<option value="${nombre_16}">${nombre_16}</option>` : ``) + ` 
-                                `+ (parseFloat(stock_17) > 0 ? `<option value="${nombre_17}">${nombre_17}</option>` : ``) + ` 
-                                `+ (parseFloat(stock_18) > 0 ? `<option value="${nombre_18}">${nombre_18}</option>` : ``) + ` 
-                                `+ (parseFloat(stock_19) > 0 ? `<option value="${nombre_19}">${nombre_19}</option>` : ``) + ` 
-                                `+ (parseFloat(stock_20) > 0 ? `<option value="${nombre_20}">${nombre_20}</option>` : ``) + ` 
-
-                </select>
-            </td>`+
-                `<td><input  type="hidden"  name="presen[]" id="presen` + cont + `"value="` + presen + `" ">
-                <input type="hidden" name="precio_ventaSistema[]" id="precio_ventaSistema`+ cont + `" value="` + precio_venta + `">
-                <input type="hidden" name="precio_ventaSistema2[]" id="precio_ventaSistema2`+ cont + `" value="` + precio_venta + `">
-                <input class="form-control" style="width:100px" type="number" step="any" name="q_ref[]" id="q_ref`+ cont + `"   onchange="modificarSubototalespreciopresentacion()" value="` + precio_venta + `" ${precio_activado.trim().toUpperCase() === "SI" ? 'readonly' : ''}> 
-                    <input type="hidden" step="any" name="precio_venta[]" style="width:100px"  id="precio_venta`+ cont + `" value="` + precio_venta + `" >
-                    <input type="hidden" step="any" name="precio_recargoPV[]"  id="precio_recargoPV`+ cont + `" value="0" >
-                    <input type="hidden" name="precio_recargoQRef[]"   id="precio_recargoQRef`+ cont + `" value="0" ></td>` +
-                '<td><input type="hidden" name="descuento_permitido[]"  id="descuento_permitido' + cont + '" value="' + descuento_porcentaje + '"><input onchange="modificarSubototales()" class="form-control" type="number" style="width:100px"  step="any"  name="descuento_porcentaje[]" id="descuento_porcentaje[]" value="0"></td>' +
-                '<td><input type="hidden" name="subtotal1[]" ><span name="subtotal" id="subtotal' + cont + '">' + subtotal + '</span></td>' +
-                '<td><input type="hidden" name="subtotaldes1[]" ><span name="subtotaldes" id="subtotaldes' + cont + '">' + subtotaldes + '</span></td>' +
-                '<td><input style="width:100px" class="form-control"  type="text"   name="descripcion_detalle[]" id="descripcion_detalle' + cont + '" value="."></td>' +
-                '<td><button type="button" onclick="modificarSubototales()" class="btn btn-info"><i class="fa fa-refresh"></i></button></td>' +
-                '<td><button type="button" onclick="mostrarextras(' + cont + ', \'' + idarticulo + '\')" class="btn btn-info"><i class="fa fa-plus"></i></button></td>' +
-                '</tr>' +
-                '<tr id="extras-row-' + cont + '" class="extras-row" style="display:none">' +
-                '<td colspan="10">' + // Ajustado a 10 columnas según tu tabla
-                '<div class="extras-container" id="extras-container-' + cont + '"></div>' +
-                '</td>' +
-                '</tr>';
-            cont++;
-            detalles = detalles + 1;
-            $(fila).prependTo('#detalles');
-        } else {
-            var cxcantidad = parseInt($("#cxcantidad" + idarticulo).val()) + 1
-            $("#cxcantidad" + idarticulo).val(cxcantidad)
-            // Forzamos la ejecución de modificarSubototalesxrango para que se refleje el cambio en los subtotales
-            modificarSubototalesxrango(cont, precio_rango1, precio_rango2, precio_rango3,
-                precio_rango1_Dos, precio_rango2_Dos, precio_rango3_Dos, precio_rango1_Mecanico,
-                precio_rango2_MecanicoDos, precio_rango3_MecanicoTres, precio_rango1_Distribuidor,
-                precio_rango2_DistribuidorDos, precio_rango3_DistribuidorTres, precio_rango1_Mayorista,
-                precio_rango2_MayoristaDos, precio_rango3_MayoristaTres, $("#cxcantidad" + idarticulo)[0]);
-        }
-
+            </select>
+        </td>`+
+            `<td><input  type="hidden"  name="presen[]" id="presen` + cont + `"value="` + presen + `" ">
+            <input type="hidden" name="precio_ventaSistema[]" id="precio_ventaSistema`+ cont + `" value="` + precio_venta + `">
+            <input type="hidden" name="precio_ventaSistema2[]" id="precio_ventaSistema2`+ cont + `" value="` + precio_venta + `">
+            <input class="form-control" style="width:100px" type="number" step="any" name="q_ref[]" id="q_ref`+ cont + `"   onchange="modificarSubototalespreciopresentacion()" value="` + precio_venta + `" ${precio_activado.trim().toUpperCase() === "SI" ? 'readonly' : ''}> 
+                <input type="hidden" step="any" name="precio_venta[]" style="width:100px"  id="precio_venta`+ cont + `" value="` + precio_venta + `" >
+                <input type="hidden" step="any" name="precio_recargoPV[]"  id="precio_recargoPV`+ cont + `" value="0" >
+                <input type="hidden" name="precio_recargoQRef[]"   id="precio_recargoQRef`+ cont + `" value="0" ></td>` +
+            '<td><input type="hidden" name="descuento_permitido[]"  id="descuento_permitido' + cont + '" value="' + descuento_porcentaje + '"><input onchange="modificarSubototales()" class="form-control" type="number" style="width:100px"  step="any"  name="descuento_porcentaje[]" id="descuento_porcentaje[]" value="0"></td>' +
+            '<td><input type="hidden" name="subtotal1[]" ><span name="subtotal" id="subtotal' + cont + '">' + subtotal + '</span></td>' +
+            '<td><input type="hidden" name="subtotaldes1[]" ><span name="subtotaldes" id="subtotaldes' + cont + '">' + subtotaldes + '</span></td>' +
+            '<td><input style="width:100px" class="form-control"  type="text"   name="descripcion_detalle[]" id="descripcion_detalle' + cont + '" value="."></td>' +
+            '<td><button type="button" onclick="modificarSubototales()" class="btn btn-info"><i class="fa fa-refresh"></i></button></td>' +
+            '<td><button type="button" onclick="mostrarextras(' + cont + ', \'' + idarticulo + '\')" class="btn btn-info"><i class="fa fa-plus"></i></button></td>' +
+            '</tr>' +
+            '<tr id="extras-row-' + cont + '" class="extras-row" style="display:none">' +
+            '<td colspan="10">' + // Ajustado a 10 columnas según tu tabla
+            '<div class="extras-container" id="extras-container-' + cont + '"></div>' +
+            '</td>' +
+            '</tr>';
+        cont++;
+        detalles = detalles + 1;
+        $(fila).prependTo('#detalles');
         modificarSubototales();
     }
     else {
@@ -3313,21 +3298,21 @@ function agregarDetalle(idarticulo, nombre, precio_venta, stock, descuento_porce
     var subtotaldes = 0;
     if (idarticulo != "") {
         var exist = false;
-        $('#detalles').children("tbody").children("tr").each(function (index) {
-            var idart = $(this).attr("data-id")
-            if (idart == idarticulo) {
-                exist = true;
-            }
-        })
-
-        if (!exist) {
-            var subtotal = cantidad * precio_venta;
-            var fila = '<tr class="filas" data-id="' + idarticulo + '" id="fila' + cont + '">' +
-                '<td><button type="button" class="btn btn-danger" onclick="eliminarDetalle(' + cont + ')">X</button></td>' +
-                '<td><input type="hidden" name="idarticulo[]" value="' + idarticulo + '">' + nombre + '</td>' +
-                '<td><input type="hidden" name="precio_compra[]" value="' + precio_compra + '"><input type="hidden" name="stockinven[]" value="' + stockinven + '">' + stockinven + '</td>' +
-                '<td><input style="width:60px" type="hidden" id="cantidadpresentacion' + cont + '" name="cantidadpresentacion[]" value="' + cantidadpresentacion + '" onchange="modificarSubototales()"><input style="width:60px" class="form-control"  onchange="modificarSubototalesxrango(' + cont + ',' + precio_rango1 + ',' + precio_rango2 + ',' + precio_rango3 + ',' + precio_rango1_Dos + ',' + precio_rango2_Dos + ',' + precio_rango3_Dos + ',' + precio_rango1_Mecanico + ',' + precio_rango2_MecanicoDos + ',' + precio_rango3_MecanicoTres + ',' + precio_rango1_Distribuidor + ',' + precio_rango2_DistribuidorDos + ',' + precio_rango3_DistribuidorTres + ',' + precio_rango1_Mayorista + ',' + precio_rango2_MayoristaDos + ',' + precio_rango3_MayoristaTres + ',this)"  type="number" step="any"   id="cxcantidad' + idarticulo + '" name="cantidad[]" id="cantidad' + cont + '" value="' + cantidad + '"><input style="width:60px"  type="hidden" id="totalcantidadpresentacion' + cont + '" name="totalcantidadpresentacion[]" value="' + totalcantidadpresentacion + '" onchange="modificarSubototales()"></td>' +
-                `<td>
+        /*  $('#detalles').children("tbody").children("tr").each(function (index) {
+              var idart = $(this).attr("data-id")
+              if (idart == idarticulo) {
+                  exist = true;
+              }
+          })
+  
+          if (!exist) {*/
+        var subtotal = cantidad * precio_venta;
+        var fila = '<tr class="filas" data-id="' + idarticulo + '" id="fila' + cont + '">' +
+            '<td><button type="button" class="btn btn-danger" onclick="eliminarDetalle(' + cont + ')">X</button></td>' +
+            '<td><input type="hidden" name="idarticulo[]" value="' + idarticulo + '">' + nombre + '</td>' +
+            '<td><input type="hidden" name="precio_compra[]" value="' + precio_compra + '"><input type="hidden" name="stockinven[]" value="' + stockinven + '">' + stockinven + '</td>' +
+            '<td><input style="width:60px" type="hidden" id="cantidadpresentacion' + cont + '" name="cantidadpresentacion[]" value="' + cantidadpresentacion + '" onchange="modificarSubototales()"><input style="width:60px" class="form-control"  onchange="modificarSubototalesxrango(' + cont + ',' + precio_rango1 + ',' + precio_rango2 + ',' + precio_rango3 + ',' + precio_rango1_Dos + ',' + precio_rango2_Dos + ',' + precio_rango3_Dos + ',' + precio_rango1_Mecanico + ',' + precio_rango2_MecanicoDos + ',' + precio_rango3_MecanicoTres + ',' + precio_rango1_Distribuidor + ',' + precio_rango2_DistribuidorDos + ',' + precio_rango3_DistribuidorTres + ',' + precio_rango1_Mayorista + ',' + precio_rango2_MayoristaDos + ',' + precio_rango3_MayoristaTres + ',this)"  type="number" step="any"   id="cxcantidad' + idarticulo + '" name="cantidad[]" id="cantidad' + cont + '" value="' + cantidad + '"><input style="width:60px"  type="hidden" id="totalcantidadpresentacion' + cont + '" name="totalcantidadpresentacion[]" value="' + totalcantidadpresentacion + '" onchange="modificarSubototales()"></td>' +
+            `<td>
                 <select class="form-control" style="width:125px" name="presentacion[]" id="presentacionselect`+ cont + `" 
                 onchange="presentacionoculatardatos(`+ cont + `,` + precio_venta + `,
                                 '` + nombre_01 + `',` + stock_unidad + `,` + precio_unidad + `,
@@ -3373,31 +3358,32 @@ function agregarDetalle(idarticulo, nombre, precio_venta, stock, descuento_porce
 
                 </select>
             </td>`+
-                `<td><input  type="hidden"  name="presen[]" id="presen` + cont + `"value="` + presen + `" ">
+            `<td><input  type="hidden"  name="presen[]" id="presen` + cont + `"value="` + presen + `" ">
                 <input type="hidden" name="precio_ventaSistema[]" id="precio_ventaSistema`+ cont + `" value="` + precio_venta + `">
                 <input type="hidden" name="precio_ventaSistema2[]" id="precio_ventaSistema2`+ cont + `" value="` + precio_venta + `">
                 <input class="form-control" style="width:100px" type="number" step="any" name="q_ref[]" id="q_ref`+ cont + `"   onchange="modificarSubototalespreciopresentacion()" value="` + precio_venta + `" ${precio_activado.trim().toUpperCase() === "SI" ? 'readonly' : ''}> 
                     <input type="hidden" step="any" name="precio_venta[]" style="width:100px"  id="precio_venta`+ cont + `" value="` + precio_venta + `" >
                     <input type="hidden" step="any" name="precio_recargoPV[]"  id="precio_recargoPV`+ cont + `" value="0" >
                     <input type="hidden" name="precio_recargoQRef[]"   id="precio_recargoQRef`+ cont + `" value="0" ></td>` +
-                '<td><input type="hidden" name="descuento_permitido[]"  id="descuento_permitido' + cont + '" value="' + descuento_porcentaje + '"><input onchange="modificarSubototales()" class="form-control" type="number" style="width:100px"  step="any"  name="descuento_porcentaje[]" id="descuento_porcentaje[]" value="0"></td>' +
-                '<td><input type="hidden" name="subtotal1[]" ><span name="subtotal" id="subtotal' + cont + '">' + subtotal + '</span></td>' +
-                '<td><input type="hidden" name="subtotaldes1[]" ><span name="subtotaldes" id="subtotaldes' + cont + '">' + subtotaldes + '</span></td>' +
-                '<td><input style="width:100px" class="form-control"  type="text"   name="descripcion_detalle[]" id="descripcion_detalle' + cont + '" value="."></td>' +
-                '<td><button type="button" onclick="modificarSubototales()" class="btn btn-info"><i class="fa fa-refresh"></i></button></td>' +
-                '<td><button type="button" onclick="mostrarextras(' + cont + ', \'' + idarticulo + '\')" class="btn btn-info"><i class="fa fa-plus"></i></button></td>' +
-                '</tr>' +
-                '<tr id="extras-row-' + cont + '" class="extras-row" style="display:none">' +
-                '<td colspan="10">' + // Ajustado a 10 columnas según tu tabla
-                '<div class="extras-container" id="extras-container-' + cont + '"></div>' +
-                '</td>' +
-                '</tr>';
-            cont++;
-            detalles = detalles + 1;
-            $(fila).prependTo('#detalles');
+            '<td><input type="hidden" name="descuento_permitido[]"  id="descuento_permitido' + cont + '" value="' + descuento_porcentaje + '"><input onchange="modificarSubototales()" class="form-control" type="number" style="width:100px"  step="any"  name="descuento_porcentaje[]" id="descuento_porcentaje[]" value="0"></td>' +
+            '<td><input type="hidden" name="subtotal1[]" ><span name="subtotal" id="subtotal' + cont + '">' + subtotal + '</span></td>' +
+            '<td><input type="hidden" name="subtotaldes1[]" ><span name="subtotaldes" id="subtotaldes' + cont + '">' + subtotaldes + '</span></td>' +
+            '<td><input style="width:100px" class="form-control"  type="text"   name="descripcion_detalle[]" id="descripcion_detalle' + cont + '" value="."></td>' +
+            '<td><button type="button" onclick="modificarSubototales()" class="btn btn-info"><i class="fa fa-refresh"></i></button></td>' +
+            '<td><button type="button" onclick="mostrarextras(' + cont + ', \'' + idarticulo + '\')" class="btn btn-info"><i class="fa fa-plus"></i></button></td>' +
+            '</tr>' +
+            '<tr id="extras-row-' + cont + '" class="extras-row" style="display:none">' +
+            '<td colspan="10">' + // Ajustado a 10 columnas según tu tabla
+            '<div class="extras-container" id="extras-container-' + cont + '"></div>' +
+            '</td>' +
+            '</tr>';
+        cont++;
+        detalles = detalles + 1;
+        $(fila).prependTo('#detalles');
+        /*
         } else {
-            var cxcantidad = parseInt($("#cxcantidad" + idarticulo).val()) + 1
-            $("#cxcantidad" + idarticulo).val(cxcantidad)
+           // var cxcantidad = parseInt($("#cxcantidad" + idarticulo).val()) + 1
+          //  $("#cxcantidad" + idarticulo).val(cxcantidad)
             // Forzamos la ejecución de modificarSubototalesxrango para que se refleje el cambio en los subtotales
             modificarSubototalesxrango(cont, precio_rango1, precio_rango2, precio_rango3,
                 precio_rango1_Dos, precio_rango2_Dos, precio_rango3_Dos, precio_rango1_Mecanico,
@@ -3405,6 +3391,7 @@ function agregarDetalle(idarticulo, nombre, precio_venta, stock, descuento_porce
                 precio_rango2_DistribuidorDos, precio_rango3_DistribuidorTres, precio_rango1_Mayorista,
                 precio_rango2_MayoristaDos, precio_rango3_MayoristaTres, $("#cxcantidad" + idarticulo)[0]);
         }
+        */
 
         modificarSubototales();
     }

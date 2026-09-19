@@ -22,7 +22,7 @@ class CuadreInicio
         // Consulta para verificar si ya hay una apertura de caja hoy con el mismo idusuario
         $sql_verificar = "SELECT * FROM cuadre_cajas 
                           WHERE idusuario = '$idusuario' and idsucursal='" . $_SESSION["idsucursal"] . "' 
-                          AND DATE(fecha_hora_inicio) = '$fecha_solo'
+                          AND DATE(fecha_hora_inicio) <= '$fecha_solo'
                           AND tipo_operacion = 'APERTURA'";
 
         $resultado = ejecutarConsulta($sql_verificar);

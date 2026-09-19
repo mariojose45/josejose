@@ -30,6 +30,11 @@ function listar() {
         dom: 'Bfrtip', // Definimos los elementos del control de tabla
         buttons: [
             {
+                extend: 'colvis',
+                text: 'Column visibility',
+                attr: { id: 'btnColvis' }
+            },
+            {
                 extend: 'excelHtml5',
                 text: '<i class="fa fa-file-excel-o"></i> <strong> Exportar a Excel</strong>',
                 titleAttr: 'Exportar a Excel',
@@ -47,20 +52,17 @@ function listar() {
                     return 'SOL | Sistema de Operaciones en Linea\nSucursal: ' + sucursal + ' | Filtro de Stock: ' + filtro;
                 },
                 exportOptions: {
-                    columns: [0, 1, 2, 3, 4, 6, 7, 11]
+                    columns: [6, 1, 4, 7, 11]
                 },
                 customize: function(doc) {
-                    // Asignamos anchos específicos a las 8 columnas que estamos exportando
+                    // Asignamos anchos específicos a las 5 columnas que estamos exportando
                     // 'auto' ajusta al contenido, '*' reparte el espacio restante equitativamente
                     doc.content[1].table.widths = [
-                        '5%',   // Dias Venci
+                        '15%',  // Código
                         '*',    // Nombre
-                        '*',    // Descrip
-                        '*',    // Descrip2
-                        '13%',  // Categoría
-                        '10%',  // Código
-                        '10%',  // Stock
-                        '14%'   // Sucursal
+                        '20%',  // Categoría
+                        '15%',  // Stock
+                        '20%'   // Sucursal
                     ];
                 }
             }

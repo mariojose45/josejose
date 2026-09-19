@@ -362,7 +362,7 @@ function agregarDetalle_orden_compra(idarticulo, articulo, precio_venta, precio_
             </select>
         </td>` +
             '<td><input style="width:100px" class="form-control"  type="text"  name="descripcion_detalle[]" id="descripcion_detalle' + cont + '" value="' + descripcion_detalle + '"></td>' +
-            '<td><input class="form-control" type="number" onchange="modificarSubototales()" style="width:75px" step="any" name="precio_compra[]" id="precio_compra[]" value="' + precio_compra + '"></td>' +
+            '<td><input class="form-control" type="number" onchange="modificarSubototales()" style="width:100px" step="any" name="precio_compra[]" id="precio_compra[]" value="' + precio_compra + '"></td>' +
             '<td><input class="form-control"  onchange="modificarSubototales()" type="number" step="any" style="width:50px"  name="descuento_porcentaje[]" id="descuento_porcentaje[]" value="0"></td>' +
             '<td><input class="form-control"  type="number" onchange="modificarSubototales()" step="any" name="precio_venta[]" style="width:75px" value="' + precio_venta + '"></td>' +
             '<td><input class="form-control"  type="number" step="any" name="precio_ventaNocturno[]" style="width:75px"  value="' + precio_ventaNocturno + '"></td>' +
@@ -1425,7 +1425,7 @@ function agregarDetalleCanta(idarticulo, articulo, descripcion, precio_venta, pr
                     </select>
             </td>`+
             '<td><input style="width:100px" class="form-control"  type="text"  name="descripcion_detalle[]" id="descripcion_detalle' + cont + '" value="."></td>' +
-            '<td><input class="form-control" type="number" onchange="modificarSubototales()" style="width:75px" step="any" name="precio_compra[]" id="precio_compra[]" value="' + precio_compra + '"></td>' +
+            '<td><input class="form-control" type="number" onchange="modificarSubototales()" style="width:100px" step="any" name="precio_compra[]" id="precio_compra[]" value="' + precio_compra + '"></td>' +
             '<td><input class="form-control"  onchange="modificarSubototales()" type="number" step="any" style="width:50px"  name="descuento_porcentaje[]" id="descuento_porcentaje[]" value="0"></td>' +
             '<td><input class="form-control"  type="number" onchange="modificarSubototales()" step="any" name="precio_venta[]" style="width:75px" value="' + precio_venta + '"></td>' +
             '<td><input class="form-control"  type="number" step="any" name="precio_ventaNocturno[]" style="width:75px"  value="' + precio_ventaNocturno + '"></td>' +
@@ -1564,7 +1564,7 @@ function agregarDetalle(idarticulo, articulo, precio_venta, precio_compra, stock
                 </select>
             </td>`+
             '<td><input style="width:100px" class="form-control"  type="text"  name="descripcion_detalle[]" id="descripcion_detalle' + cont + '" value="."></td>' +
-            '<td><input class="form-control" type="number" onchange="modificarSubototales()" style="width:75px" step="any" name="precio_compra[]" id="precio_compra[]" value="' + precio_compra + '"></td>' +
+            '<td><input class="form-control" type="number" onchange="modificarSubototales()" style="width:100px" step="any" name="precio_compra[]" id="precio_compra[]" value="' + precio_compra + '"></td>' +
             '<td><input class="form-control"  onchange="modificarSubototales()" type="number" step="any" style="width:50px"  name="descuento_porcentaje[]" id="descuento_porcentaje[]" value="0"></td>' +
             '<td><input class="form-control"  type="number" onchange="modificarSubototales()" step="any" name="precio_venta[]" style="width:75px" value="' + precio_venta + '"></td>' +
             '<td><input class="form-control"  type="number" step="any" name="precio_ventaNocturno[]" style="width:75px"  value="' + precio_ventaNocturno + '"></td>' +
@@ -2094,7 +2094,7 @@ function agregarDetalle2(idarticulo, articulo, precio_venta, precio_compra, stoc
             </select>
         </td>` +
             '<td><input style="width:100px" class="form-control"  type="text"  name="descripcion_detalle[]" id="descripcion_detalle' + cont + '" value="' + descripcion_detalle + '"></td>' +
-            '<td><input class="form-control" type="number" onchange="modificarSubototales()" style="width:75px" step="any" name="precio_compra[]" id="precio_compra[]" value="' + precio_compra + '"></td>' +
+            '<td><input class="form-control" type="number" onchange="modificarSubototales()" style="width:100px" step="any" name="precio_compra[]" id="precio_compra[]" value="' + precio_compra + '"></td>' +
             '<td><input class="form-control"  onchange="modificarSubototales()" type="number" step="any" style="width:50px"  name="descuento_porcentaje[]" id="descuento_porcentaje[]" value="0"></td>' +
             '<td><input class="form-control"  type="number" onchange="modificarSubototales()" step="any" name="precio_venta[]" style="width:75px" value="' + precio_venta + '"></td>' +
             '<td><input class="form-control"  type="number" step="any" name="precio_ventaNocturno[]" style="width:75px"  value="' + precio_ventaNocturno + '"></td>' +
