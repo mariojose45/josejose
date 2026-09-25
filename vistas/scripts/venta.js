@@ -4350,7 +4350,7 @@ function modificarSubototales() {
                 }).then(() => {
                     // Establecer el valor después de que se cierre la alerta
                     document.getElementsByName("descuento_porcentaje[]")[i].value = 0;
-                    inpTpres.value = parseFloat(inpC.value * inpCpre.value).toFixed(3);
+                    inpTpres.value = parseFloat(inpC.value * inpCpre.value).toFixed(6);
                     document.getElementsByName("totalcantidadpresentacion[]")[i].innerHTML = inpTpres.value;
 
 
@@ -4372,7 +4372,7 @@ function modificarSubototales() {
 
         if (calculo_descuento === 'QUETZALES') {
 
-            inpTpres.value = parseFloat(inpC.value * inpCpre.value).toFixed(3);
+            inpTpres.value = parseFloat(inpC.value * inpCpre.value).toFixed(6);
             document.getElementsByName("totalcantidadpresentacion[]")[i].innerHTML = inpTpres.value;
 
 
@@ -4387,7 +4387,7 @@ function modificarSubototales() {
 
         }
         else if (calculo_descuento === 'PORCENTAJE') {
-            inpTpres.value = parseFloat(inpC.value * inpCpre.value).toFixed(3);
+            inpTpres.value = parseFloat(inpC.value * inpCpre.value).toFixed(6);
             document.getElementsByName("totalcantidadpresentacion[]")[i].innerHTML = inpTpres.value;
 
 

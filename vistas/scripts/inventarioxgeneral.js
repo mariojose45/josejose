@@ -45,7 +45,7 @@ function listar() {
                 text: '<i class="fa fa-file-pdf-o"></i> <strong> Exportar a PDF</strong>',
                 titleAttr: 'Exportar a PDF',
                 className: 'btn btn-danger btn-sm',
-                orientation: 'landscape',
+                orientation: 'portrait',
                 title: function () {
                     var sucursal = $("#idsucursal option:selected").text();
                     var filtro = $("#filtro_stock option:selected").text();
@@ -54,7 +54,11 @@ function listar() {
                 exportOptions: {
                     columns: [6, 1, 4, 7, 11]
                 },
-                customize: function(doc) {
+                customize: function (doc) {
+                    // Reducir el tamaño de la letra general y del encabezado
+                    doc.defaultStyle.fontSize = 8;
+                    doc.styles.tableHeader.fontSize = 9;
+
                     // Asignamos anchos específicos a las 5 columnas que estamos exportando
                     // 'auto' ajusta al contenido, '*' reparte el espacio restante equitativamente
                     doc.content[1].table.widths = [
