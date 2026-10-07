@@ -61,7 +61,8 @@ class Salidas_inventario
 
                 // Obtener stock y precio anterior
                 $idsucursal_actual = $_SESSION["idsucursal"];
-                $sqlArticulo1 = "SELECT precio_compra, stocksucursal FROM articuloxsucursal WHERE idarticulo='$idarticulo' AND idsucursal='$idsucursal_actual'";
+                $sqlArticulo1 = "SELECT precio_compra, stocksucursal FROM articuloxsucursal 
+                WHERE idarticulo='$idarticulo' AND idsucursal='$idsucursal_actual'";
                 $Articulo1 = ejecutarConsultaSimpleFila($sqlArticulo1);
                 $stocksucursal_anterior = $Articulo1 ? $Articulo1["stocksucursal"] : 0;
                 $precio_compra = $Articulo1 ? $Articulo1["precio_compra"] : 0;

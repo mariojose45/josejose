@@ -179,11 +179,11 @@ class Sale
                     $stock_anterior = (float)($info['stocksucursal'] ?? 0);
                     $stock_final = $stock_anterior - $totalQty;
 
-                    $sql_stock = "UPDATE articuloxsucursal SET stocksucursal = :new_stock 
+                    $sql_stock = "UPDATE articuloxsucursal SET stocksucursal = stocksucursal - :total_qty 
                                   WHERE idarticulo = :id AND idsucursal = :agencyId";
                     $stmt_stock = $this->db->prepare($sql_stock);
                     $stmt_stock->execute([
-                        ':new_stock' => $stock_final,
+                        ':total_qty' => $totalQty,
                         ':id' => $item['idarticulo'],
                         ':agencyId' => $data['idsucursal']
                     ]);
@@ -256,11 +256,11 @@ class Sale
                     $stock_fin_mp = $stock_ant_mp - $cant_descontar;
 
                     // Descontar
-                    $sql_upd_mp = "UPDATE articuloxsucursal SET stocksucursal = :new_stock 
+                    $sql_upd_mp = "UPDATE articuloxsucursal SET stocksucursal = stocksucursal - :cant_descontar 
                                    WHERE idarticulo = :id AND idsucursal = :agencyId";
                     $stmt_upd_mp = $this->db->prepare($sql_upd_mp);
                     $stmt_upd_mp->execute([
-                        ':new_stock' => $stock_fin_mp,
+                        ':cant_descontar' => $cant_descontar,
                         ':id' => $receta['idarticulo_costo'],
                         ':agencyId' => $data['idsucursal']
                     ]);

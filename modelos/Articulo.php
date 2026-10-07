@@ -617,7 +617,7 @@ class Articulo
     {
 
         $sql = "UPDATE articuloxsucursal asu SET asu.condicion='0' 
-        WHERE asu.idarticulo='" . $idarticulo . "' and asu.idsucursal='" . $_SESSION["idsucursal"] . "' ";
+        WHERE asu.idarticulo='" . $idarticulo . "' ";
         return ejecutarConsulta($sql);
     }
 
@@ -625,7 +625,7 @@ class Articulo
     public function activar($idarticulo)
     {
         $sql = "UPDATE articuloxsucursal asu SET asu.condicion='1' 
-        WHERE asu.idarticulo='" . $idarticulo . "' and asu.idsucursal='" . $_SESSION["idsucursal"] . "'  ";
+        WHERE asu.idarticulo='" . $idarticulo . "'  ";
         return ejecutarConsulta($sql);
     }
 

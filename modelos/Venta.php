@@ -405,7 +405,8 @@ class Venta
 
                     if ($tipoproducto == "Productos") {
                         # code...
-                        $sqlArticuloStock = "UPDATE articuloxsucursal SET stocksucursal = stocksucursal - " . $totalcantidadpresentacion . " 
+                        $sqlArticuloStock = "UPDATE articuloxsucursal SET 
+                        stocksucursal = stocksucursal - " . $totalcantidadpresentacion . " 
                             WHERE idarticulo =$idarticulo  
                             and idsucursal='" . $_SESSION["idsucursal"] . "' ";
                         ejecutarConsulta($sqlArticuloStock);
@@ -560,12 +561,14 @@ class Venta
                     while ($reeeq = $EXIS->fetch_object()) {
                         $Tcan = (float)$cantidad * (float)$reeeq->cantmateriaprima;
 
-                        $sqlArticuloK = "SELECT stocksucursal FROM articuloxsucursal WHERE idarticulo='" . $reeeq->idarticulo_costo . "' AND idsucursal='" . $_SESSION["idsucursal"] . "'";
+                        $sqlArticuloK = "SELECT stocksucursal FROM articuloxsucursal 
+                        WHERE idarticulo='" . $reeeq->idarticulo_costo . "' 
+                        AND idsucursal='" . $_SESSION["idsucursal"] . "'";
                         $ArticuloK = ejecutarConsultaSimpleFila($sqlArticuloK);
                         $stock_anterior_k = $ArticuloK ? $ArticuloK["stocksucursal"] : 0;
                         $stock_final_k = $stock_anterior_k - $Tcan;
 
-                        $updateArticuloDetalle = "UPDATE articuloxsucursal SET stocksucursal=$stock_final_k
+                        $updateArticuloDetalle = "UPDATE articuloxsucursal SET stocksucursal=stocksucursal-$Tcan
                                                     WHERE idarticulo='" . $reeeq->idarticulo_costo . "'  and idsucursal='" . $_SESSION["idsucursal"] . "' ";
                         ejecutarConsulta($updateArticuloDetalle);
 
@@ -971,7 +974,7 @@ class Venta
                             $stock_anterior_k = $ArticuloK ? $ArticuloK["stocksucursal"] : 0;
                             $stock_final_k = $stock_anterior_k - $Tcan;
 
-                            $updateArticuloDetalle = "UPDATE articuloxsucursal SET stocksucursal=$stock_final_k
+                            $updateArticuloDetalle = "UPDATE articuloxsucursal SET stocksucursal=stocksucursal-$Tcan
                                             WHERE idarticulo='" . $reeeq->idarticulo_costo . "'   and idsucursal='" . $_SESSION["idsucursal"] . "' ";
                             ejecutarConsulta($updateArticuloDetalle);
 
@@ -1509,7 +1512,7 @@ class Venta
                             $stock_anterior_k = $respc["stocksucursal"];
                             $stock_final_k = $stock_anterior_k + $totalcantidadpresentacion;
 
-                            $sqlArticuloStock = "UPDATE articuloxsucursal SET stocksucursal = $stock_final_k 
+                            $sqlArticuloStock = "UPDATE articuloxsucursal SET stocksucursal = stocksucursal + $totalcantidadpresentacion 
                                                 WHERE idarticulo =$idarticulo  and idsucursal='" . $_SESSION["idsucursal"] . "' ";
                             ejecutarConsulta($sqlArticuloStock);
 
@@ -1592,7 +1595,7 @@ class Venta
                             $stock_anterior_materia = $ArticuloK ? $ArticuloK["stocksucursal"] : 0;
                             $stock_final_materia = $stock_anterior_materia + $Tcan;
 
-                            $updateArticuloDetalle = "UPDATE articuloxsucursal SET stocksucursal=$stock_final_materia
+                            $updateArticuloDetalle = "UPDATE articuloxsucursal SET stocksucursal = stocksucursal + $Tcan
                                                 WHERE idarticulo='" . $reeeq->idarticulo_costo . "'   and idsucursal='" . $_SESSION["idsucursal"] . "' ";
                             ejecutarConsulta($updateArticuloDetalle);
 
@@ -2265,7 +2268,7 @@ class Venta
                 $stock_anterior = $respc["stocksucursal"];
                 $stock_final = $stock_anterior + $reg->totalcantidadpresentacion;
 
-                $updateArticuloDetalle = "UPDATE articuloxsucursal SET stocksucursal=$stock_final WHERE 
+                $updateArticuloDetalle = "UPDATE articuloxsucursal SET stocksucursal = stocksucursal + " . $reg->totalcantidadpresentacion . " WHERE 
                 idarticulo=" . $reg->idarticulo . " and  idsucursal='" . $reg->idsucursal . "'";
                 ejecutarConsulta($updateArticuloDetalle);
 
@@ -2309,7 +2312,7 @@ class Venta
                 $stock_anterior = $ArticuloK ? $ArticuloK["stocksucursal"] : 0;
                 $stock_final = $stock_anterior + $Tcan;
 
-                $updateArticuloDetalle = "UPDATE articuloxsucursal SET stocksucursal=$stock_final
+                $updateArticuloDetalle = "UPDATE articuloxsucursal SET stocksucursal = stocksucursal + $Tcan
                     WHERE idarticulo='" . $reeeq->idarticulo_costo . "'   and idsucursal='" . $reg->idsucursal . "'";
                 ejecutarConsulta($updateArticuloDetalle);
 

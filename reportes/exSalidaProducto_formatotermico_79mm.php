@@ -77,11 +77,9 @@ function imprimirCabecera($pdf, $reg)
 
     $pdf->SetFont('Arial', 'B', 9);
 
-    $pdf->Cell(15, 7, "CANT", 1, 0, 'C');
-    $pdf->Cell(105, 7, "DESCRIPCION", 1, 0, 'C');
+    $pdf->Cell(30, 7, "CANT", 1, 0, 'C');
     $pdf->Cell(30, 7, "CODIGO", 1, 0, 'C');
-    $pdf->Cell(20, 7, "P.U.", 1, 0, 'C');
-    $pdf->Cell(20, 7, "TOTAL", 1, 1, 'C');
+    $pdf->Cell(130, 7, "DESCRIPCION", 1, 1, 'C');
 }
 
 /* ===========================================================
@@ -107,11 +105,9 @@ while ($d = $rsptad->fetch_object()) {
 
     $pdf->SetFont('Arial', '', 9);
 
-    $pdf->Cell(15, 6, $d->cantidad, 1, 0, 'C');
-    $pdf->Cell(105, 6, utf8_decode($d->articulo . " " . $d->presentacion . " " . $d->descripcion_detalle), 1, 0, 'L');
+    $pdf->Cell(30, 6, number_format($d->cantidad, 2), 1, 0, 'C');
     $pdf->Cell(30, 6, $d->codigo, 1, 0, 'C');
-    $pdf->Cell(20, 6, number_format($d->precio_venta, 2), 1, 0, 'R');
-    $pdf->Cell(20, 6, number_format($d->subtotal, 2), 1, 1, 'R');
+    $pdf->Cell(130, 6, utf8_decode($d->articulo . " " . $d->presentacion . " " . $d->descripcion_detalle), 1, 1, 'L');
 
     $totalCant += $d->cantidad;
 }
@@ -122,7 +118,7 @@ while ($d = $rsptad->fetch_object()) {
 $pdf->Ln(5);
 
 $pdf->SetFont('Arial', 'B', 10);
-$pdf->Cell(190, 6, "Total Cantidad: " . $totalCant, 0, 1, "R");
+$pdf->Cell(190, 6, "Total Cantidad: " . number_format($totalCant, 2), 0, 1, "R");
 
 $pdf->Ln(10);
 $pdf->SetFont('Arial', '', 10);

@@ -20,8 +20,28 @@ $rsptav = $cotizaciones->ventacabecera2($_GET["id"]);
 //Recorremos todos los valores obtenidos
 $regv = $rsptav->fetch_object();
 
-//Establecemos la configuración del ticket
-$pdf = new PDF_Invoice('P', 'mm', array(58, 2500));
+// Calcular altura dinámica
+$rsptad_altura = $cotizaciones->ventadetalle2($_GET["id"]);
+$alturaProductos = 0;
+while ($regd_alt = $rsptad_altura->fetch_object()) {
+    $descripcion = utf8_decode("{$regd_alt->articulo} {$regd_alt->presen} {$regd_alt->descripcion_detalle}");
+    $lineas = ceil(strlen($descripcion) / 32); 
+    $lineas = $lineas == 0 ? 1 : $lineas;
+    $alturaProductos += ($lineas * 4) + 6; 
+}
+
+$alturaBase = 180; 
+if ($regv->estado == 'Anulado') {
+    $alturaBase += 25;
+}
+if (!empty($regv->id_add_orden) && $regv->id_add_orden != null) {
+    $alturaBase += 20; 
+}
+
+$alturaTicket = $alturaBase + $alturaProductos;
+
+//Establecemos la configuración del ticket dinámicamente
+$pdf = new PDF_Invoice('P', 'mm', array(58, $alturaTicket));
 $pdf->AddPage();
 
 $pdf->fact_dev(utf8_decode("ENVIO"), "");

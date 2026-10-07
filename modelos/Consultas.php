@@ -1145,45 +1145,45 @@ GROUP by MONTH(fecha_hora)";
         $filtroSucursal = "";
 
         if ($idsucursal != "TODOS") {
-            $filtroSucursal = "  v.idsucursal='$idsucursal' ";
+            $filtroSucursal = " AND v.idsucursal='$idsucursal' ";
         }
 
-        $sql = "SELECT  
-                v.idventa,
-                DATE(v.fecha_hora) AS fecha,
-                v.idcliente,
-                p.nombre AS cliente,
-                u.idusuario,
-                u.nombre AS usuario,
-                v.tipo_comprobante,
-                v.serie_comprobante,
-                v.num_comprobante,
-                v.total_venta,
-                v.total_ventades,
-                v.impuesto,
-                v.estado,
-                v.cefectivo,
-                v.rescambio,
-                v.forma_pago,
-                v.tipo_pagoBacVisaNet,
-                v.opcionesAdicionales,
-                ROUND(v.valor_tarjeta, 2) AS valor_tarjeta,
-                v.ctarjeta,
-                v.ccredito,
-                v.nombre_vendedor,
-                v.autorizacionEcoFactura,
-                v.serie_ecoFactura,
-                v.numero_ecoFactura,
-                v.fechaCertificacion_ecoFactura
-            FROM venta v
-            INNER JOIN persona p 
-                ON v.idcliente = p.idpersona
-            INNER JOIN usuario u 
-                ON v.idusuario = u.idusuario
-            WHERE 
+        $sql = "SELECT   
+                v.idventa, 
+                DATE(v.fecha_hora) AS fecha, 
+                v.idcliente, 
+                p.nombre AS cliente, 
+                u.idusuario, 
+                u.nombre AS usuario, 
+                v.tipo_comprobante, 
+                v.serie_comprobante, 
+                v.num_comprobante, 
+                v.total_venta, 
+                v.total_ventades, 
+                v.impuesto, 
+                v.estado, 
+                v.cefectivo, 
+                v.rescambio, 
+                v.forma_pago, 
+                v.tipo_pagoBacVisaNet, 
+                v.opcionesAdicionales, 
+                ROUND(v.valor_tarjeta, 2) AS valor_tarjeta, 
+                v.ctarjeta, 
+                v.ccredito, 
+                v.nombre_vendedor, 
+                v.autorizacionEcoFactura, 
+                v.serie_ecoFactura, 
+                v.numero_ecoFactura, 
+                v.fechaCertificacion_ecoFactura 
+            FROM venta v 
+            INNER JOIN persona p  
+                ON v.idcliente = p.idpersona 
+            INNER JOIN usuario u  
+                ON v.idusuario = u.idusuario 
+            WHERE 1=1
                 $filtroSucursal
-                AND DATE(v.fecha_hora) >= '$fecha_inicio'
-                AND DATE(v.fecha_hora) <= '$fecha_fin'
+                AND DATE(v.fecha_hora) >= '$fecha_inicio' 
+                AND DATE(v.fecha_hora) <= '$fecha_fin' 
             ORDER BY v.idventa DESC";
 
         return ejecutarConsulta($sql);

@@ -49,25 +49,25 @@ function listar() {
                 title: function () {
                     var sucursal = $("#idsucursal option:selected").text();
                     var filtro = $("#filtro_stock option:selected").text();
-                    return 'SOL | Sistema de Operaciones en Linea\nSucursal: ' + sucursal + ' | Filtro de Stock: ' + filtro;
+                    var date = new Date();
+                    var fechaHora = date.toLocaleDateString('es-ES') + ' ' + date.toLocaleTimeString('es-ES');
+                    return 'SOL | Sistema de Operaciones en Linea\nSucursal: ' + sucursal + ' | Filtro de Stock: ' + filtro + '\nGenerado el: ' + fechaHora;
                 },
                 exportOptions: {
-                    columns: [6, 1, 4, 7, 11]
+                    columns: ':visible'
                 },
                 customize: function (doc) {
                     // Reducir el tamaño de la letra general y del encabezado
                     doc.defaultStyle.fontSize = 8;
                     doc.styles.tableHeader.fontSize = 9;
 
-                    // Asignamos anchos específicos a las 5 columnas que estamos exportando
-                    // 'auto' ajusta al contenido, '*' reparte el espacio restante equitativamente
-                    doc.content[1].table.widths = [
-                        '15%',  // Código
-                        '*',    // Nombre
-                        '20%',  // Categoría
-                        '15%',  // Stock
-                        '20%'   // Sucursal
-                    ];
+                    // Ajustar anchos dinámicamente según la cantidad de columnas visibles
+                    var colCount = doc.content[1].table.body[0].length;
+                    var widths = [];
+                    for(var i=0; i<colCount; i++) {
+                        widths.push('*'); // Reparte el espacio equitativamente
+                    }
+                    doc.content[1].table.widths = widths;
                 }
             }
         ],
@@ -86,6 +86,18 @@ function listar() {
         "bDestroy": true,
         "iDisplayLength": 20, // Paginación
         "order": [[1, "desc"]], // Ordenar (columna, orden)
+        "columnDefs": [
+            {
+                "targets": [7, 8, 10], // Stock (7), Stock Minimo (8), Precio venta (10)
+                "render": function(data, type, row) {
+                    if (data !== null && data !== undefined && data !== '') {
+                        var num = parseFloat(data);
+                        return isNaN(num) ? data : num.toFixed(2);
+                    }
+                    return data;
+                }
+            }
+        ]
     });
 }
 

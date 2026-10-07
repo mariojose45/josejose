@@ -15,9 +15,60 @@ $cotizaciones = new Cotizaciones();
 $rsptav = $cotizaciones->ventacabecera2($_GET["id"]);
 $regv = $rsptav->fetch_object();
 
+// Obtener detalle y precalcular altura
+$rsptad = $cotizaciones->ventadetalle2($_GET["id"]);
+
+$articulos_map = [];
+$cantidad_total = 0;
+
+while ($regd = $rsptad->fetch_object()) {
+    $id_padre = !empty($regd->idarticulopadre) ? (int)$regd->idarticulopadre : 0;
+    if (!isset($articulos_map[$id_padre])) {
+        $articulos_map[$id_padre] = [];
+    }
+    $articulos_map[$id_padre][] = $regd;
+}
+
+$productos_principales = $articulos_map[0] ?? [];
+$alturaProductos = 0;
+
+foreach ($productos_principales as $p) {
+    $descripcion = trim($p->descripcion . " " . $p->descripcion_detalle . " " . $p->presen);
+    $texto = utf8_decode($descripcion);
+    
+    // MultiCell de 58mm de ancho, Arial 10 (aprox 30 caracteres por línea)
+    $lineas = ceil(strlen($texto) / 30);
+    $lineas = $lineas == 0 ? 1 : $lineas;
+    // Altura de descripción + altura de cantidad/PU/Subtotal (4mm) + Ln(1)
+    $alturaProductos += ($lineas * 4) + 4 + 1; 
+
+    // Ojo: en este ticket de 58mm no se imprimen los hijos,
+    // pero si lo hacen en un futuro, deberías calcular su altura aquí.
+}
+
+// Altura base (logo, cliente, datos, totales, footer)
+$alturaBase = 190;
+
+if (!empty($regv->sucursal_imagen)) {
+    $alturaBase += 30; // Altura de imagen
+}
+if ($regv->estado == 'Anulado') {
+    $alturaBase += 20;
+}
+if (!empty($regv->id_add_orden) && $regv->id_add_orden != null) {
+    $alturaBase += 25; // Altura de datos de orden
+}
+
+$alturaTicket = $alturaBase + $alturaProductos;
+
+if ($alturaTicket < 150) {
+    $alturaTicket = 150;
+}
+
 // Configuración PDF 58mm
-$pdf = new PDF_Invoice('P', 'mm', array(58, 2500));
+$pdf = new PDF_Invoice('P', 'mm', array(58, $alturaTicket));
 $pdf->AddPage();
+$pdf->SetAutoPageBreak(false);
 $pdf->temporaire("");
 
 // Configuración general
@@ -156,28 +207,7 @@ $pdf->SetX($xposision);
 $pdf->Cell($ancchodefial, 2, "", "T", 1, "C");
 $pdf->Ln(1);
 
-// Obtener detalle
-$rsptad = $cotizaciones->ventadetalle2($_GET["id"]);
-
-$articulos_map = [];
-$cantidad_total = 0;
-
-// Agrupar padres e hijos
-while ($regd = $rsptad->fetch_object()) {
-
-    $id_padre = !empty($regd->idarticulopadre)
-        ? (int)$regd->idarticulopadre
-        : 0;
-
-    if (!isset($articulos_map[$id_padre])) {
-        $articulos_map[$id_padre] = [];
-    }
-
-    $articulos_map[$id_padre][] = $regd;
-}
-
-// Productos principales
-$productos_principales = $articulos_map[0] ?? [];
+// (El detalle ya se obtuvo al inicio para calcular la altura)
 
 // Imprimir productos principales
 foreach ($productos_principales as $p) {
@@ -197,8 +227,12 @@ foreach ($productos_principales as $p) {
 
     // 2. Cantidad, PU y Subtotal en la siguiente línea
     $pdf->SetX($xposision);
+    
+    // Validar si q_ref es nulo, vacío o 0
+    $pu = (empty($p->q_ref) || $p->q_ref == 0) ? $p->precio_venta : $p->q_ref;
+    
     $pdf->Cell(15, 4, floatval($p->cantidad), 0, 0, 'L');
-    $pdf->Cell(20, 4, number_format($p->q_ref, 2, '.', ','), 0, 0, 'C');
+    $pdf->Cell(20, 4, number_format($pu, 2, '.', ','), 0, 0, 'C');
     $pdf->Cell(23, 4, number_format($p->subtotal, 2, '.', ','), 0, 1, 'C');
 
 

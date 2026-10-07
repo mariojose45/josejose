@@ -15,8 +15,25 @@ $rsptav = $cotizaciones->ventacabecera2($_GET["id"]);
 //Recorremos todos los valores obtenidos
 $regv = $rsptav->fetch_object();
 
-// Establecemos la configuración del ticket con tamaño reducido y papel más corto
-$pdf = new PDF_Invoice('P', 'mm', array(57, 500));
+// Calcular altura dinámica
+$rsptad_altura = $cotizaciones->ventadetalle2($_GET["id"]);
+$alturaProductos = 0;
+while ($regd_alt = $rsptad_altura->fetch_object()) {
+    $descripcion = utf8_decode("{$regd_alt->descripcion} {$regd_alt->descripcion_detalle} {$regd_alt->presen}");
+    $lineas = ceil(strlen($descripcion) / 20); 
+    $lineas = $lineas == 0 ? 1 : $lineas;
+    $alturaProductos += ($lineas * 3) + 4; 
+}
+
+$alturaBase = 120; 
+if ($regv->estado == 'Anulado') {
+    $alturaBase += 25;
+}
+
+$alturaTicket = $alturaBase + $alturaProductos;
+
+// Establecemos la configuración del ticket dinámicamente
+$pdf = new PDF_Invoice('P', 'mm', array(57, $alturaTicket));
 // Reducimos los márgenes para no usar SetX
 $pdf->SetMargins(2, 5, 2);
 $pdf->AddPage();
@@ -91,7 +108,11 @@ while ($regd = $rsptad->fetch_object()) {
     
     // Movemos el cursor al espacio de los precios y subtotal
     $pdf->SetXY($xDesc + 22, $yInicio);
-    $pdf->Cell(12, 3, number_format($regd->q_ref, 2, '.', ','), 0, 0, 'R');
+    
+    // Validar si q_ref es nulo, vacío o 0
+    $pu = (empty($regd->q_ref) || $regd->q_ref == 0) ? $regd->precio_venta : $regd->q_ref;
+    
+    $pdf->Cell(12, 3, number_format($pu, 2, '.', ','), 0, 0, 'R');
     $pdf->Cell(12, 3, number_format($regd->subtotal, 2, '.', ','), 0, 1, 'R');
     $yFinCols = $pdf->GetY();
     

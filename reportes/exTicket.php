@@ -29,16 +29,89 @@ $rsptav = $cotizaciones->ventacabecera2($_GET["id"]);
 $regv = $rsptav->fetch_object();
 
 // ============================================================
+// OBTENER DETALLE Y CALCULAR ALTURA AUTOMÁTICA
+// ============================================================
+$rsptad = $cotizaciones->ventadetalle2($_GET["id"]);
+
+$articulos_map = [];
+$cantidad_total = 0;
+
+while ($regd = $rsptad->fetch_object()) {
+    $id_padre = !empty($regd->idarticulopadre) ? (int)$regd->idarticulopadre : 0;
+    if (!isset($articulos_map[$id_padre])) {
+        $articulos_map[$id_padre] = [];
+    }
+    $articulos_map[$id_padre][] = $regd;
+}
+
+$productos_principales = $articulos_map[0] ?? [];
+
+$alturaProductos = 0;
+
+foreach ($productos_principales as $p) {
+    $descripcion = trim($p->descripcion . " " . $p->descripcion_detalle . " " . $p->presen);
+    $texto = utf8_decode($descripcion);
+    
+    // MultiCell de 38mm de ancho, Arial 10 (aprox 20 caracteres por línea)
+    $lineas = ceil(strlen($texto) / 20);
+    $lineas = $lineas == 0 ? 1 : $lineas;
+    $alturaProductos += max(4, $lineas * 4) + 1; // +1 por el Ln(1) de separación
+
+    $idPadre = (int)$p->idarticulo;
+    $sub_articulos = $articulos_map[$idPadre] ?? [];
+
+    if (!empty($sub_articulos)) {
+        foreach ($sub_articulos as $hijo) {
+            $tipoHijo = isset($hijo->tipo) ? trim($hijo->tipo) : '';
+            $descripcionHijo = utf8_decode("  -- " . trim($hijo->articulo . " " . $hijo->presen . " " . $hijo->descripcion_detalle));
+            
+            if ($tipoHijo == 'Topping') {
+                // MultiCell de 66mm, Arial I 9 (aprox 40 caracteres por línea)
+                $lineasHijo = ceil(strlen($descripcionHijo) / 40);
+                $lineasHijo = $lineasHijo == 0 ? 1 : $lineasHijo;
+                $alturaProductos += $lineasHijo * 4;
+            } else {
+                // MultiCell de 38mm, Arial I 9 (aprox 22 caracteres por línea)
+                $lineasHijo = ceil(strlen($descripcionHijo) / 22);
+                $lineasHijo = $lineasHijo == 0 ? 1 : $lineasHijo;
+                $alturaProductos += max(4, $lineasHijo * 4);
+            }
+        }
+    }
+}
+
+// Altura base aproximada (cabecera, logos, cliente, totales, pie)
+$alturaBase = 160;
+
+// Agregar márgenes extra si hay logo u orden
+if (!empty($regv->sucursal_imagen)) {
+    $alturaBase += 30; // Altura de imagen
+}
+if ($regv->estado == 'Anulado') {
+    $alturaBase += 20; // Imagen de anulado
+}
+if (!empty($regv->id_add_orden) && $regv->id_add_orden != null) {
+    $alturaBase += 25; // Altura de datos de orden
+}
+
+$alturaTicket = $alturaBase + $alturaProductos;
+
+// Asegurarse de que no sea muy pequeño
+if ($alturaTicket < 150) {
+    $alturaTicket = 150;
+}
+
+// ============================================================
 // CONFIGURACIÓN PDF
 // ============================================================
-// Ticket de 78 mm
 $pdf = new PDF_Invoice(
     'P',
     'mm',
-    array(78, 2500)
+    array(78, $alturaTicket)
 );
 
 $pdf->AddPage();
+$pdf->SetAutoPageBreak(false);
 
 // ============================================================
 // CONFIGURACIÓN GENERAL
@@ -395,38 +468,8 @@ $pdf->Cell(
 $pdf->Ln(1);
 
 // ============================================================
-// OBTENER DETALLE
+// (El detalle ya se obtuvo al inicio para calcular la altura)
 // ============================================================
-$rsptad = $cotizaciones->ventadetalle2(
-    $_GET["id"]
-);
-
-$articulos_map = [];
-
-$cantidad_total = 0;
-
-// ============================================================
-// AGRUPAR PADRES E HIJOS
-// MISMA LÓGICA DE TU HTML
-// ============================================================
-while ($regd = $rsptad->fetch_object()) {
-
-    $id_padre =
-        !empty($regd->idarticulopadre)
-        ? (int)$regd->idarticulopadre
-        : 0;
-
-    if (!isset($articulos_map[$id_padre])) {
-
-        $articulos_map[$id_padre] = [];
-    }
-
-    $articulos_map[$id_padre][] = $regd;
-}
-
-// Productos principales
-$productos_principales =
-    $articulos_map[0] ?? [];
 
 // ============================================================
 // IMPRIMIR PRODUCTOS PRINCIPALES
